@@ -123,9 +123,24 @@ function LoginForm() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="login-password">
-              Password
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1.5)' }}>
+              <label className="form-label" htmlFor="login-password" style={{ marginBottom: 0 }}>
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                id="login-forgot-password-link"
+                style={{
+                  color: 'var(--color-accent-light)',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  fontSize: 'var(--font-size-xs)',
+                  transition: 'color var(--transition-fast)'
+                }}
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="login-password"
               name="password"

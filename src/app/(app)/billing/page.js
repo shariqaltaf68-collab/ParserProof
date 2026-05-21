@@ -104,7 +104,7 @@ export default function BillingPage() {
   async function handlePlanAction(planId) {
     if (planId === (user?.plan || 'free')) return;
     if (planId === 'free') {
-      showToast('To downgrade to Free, please contact support@resumepilot.app');
+      showToast('To downgrade to Free, please contact guys4929@gmail.com');
       return;
     }
 
@@ -182,7 +182,7 @@ export default function BillingPage() {
           } catch (err) {
             console.error('Verification error:', err);
             showToast(
-              'Payment was received but verification failed. Please contact support@resumepilot.app',
+              'Payment was received but verification failed. Please contact guys4929@gmail.com',
               'error'
             );
           } finally {

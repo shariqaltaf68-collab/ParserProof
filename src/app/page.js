@@ -475,7 +475,7 @@ export default function LandingPage() {
               </li>
               <li>
                 <a
-                  href="mailto:support@resumepilot.app"
+                  href="mailto:guys4929@gmail.com"
                   className="footer-link"
                 >
                   Contact

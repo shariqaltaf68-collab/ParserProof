@@ -111,7 +111,7 @@ export default function TermsOfServicePage() {
       <h2>10. Contact</h2>
       <p>
         If you have any questions about these Terms of Service, please contact us at{' '}
-        <a href="mailto:support@resumepilot.app">support@resumepilot.app</a>.
+        <a href="mailto:guys4929@gmail.com">guys4929@gmail.com</a>.
       </p>
 
       <div style={{ marginTop: 'var(--space-12)', paddingTop: 'var(--space-6)', borderTop: '1px solid var(--color-border)' }}>
