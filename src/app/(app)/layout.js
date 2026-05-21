@@ -14,6 +14,9 @@ import {
   Menu,
   LogOut,
   X,
+  Mail,
+  Shield,
+  FileText,
 } from 'lucide-react';
 import { getInitials } from '@/lib/utils';
 
@@ -31,6 +34,14 @@ const NAV_ITEMS = [
     items: [
       { name: 'Settings', href: '/settings', icon: Settings },
       { name: 'Billing', href: '/billing', icon: CreditCard },
+    ],
+  },
+  {
+    label: 'HELP & LEGAL',
+    items: [
+      { name: 'Contact Us', href: 'mailto:guys4929@gmail.com', icon: Mail },
+      { name: 'Privacy Policy', href: '/privacy', icon: Shield, external: true },
+      { name: 'Terms of Service', href: '/terms', icon: FileText, external: true },
     ],
   },
 ];
@@ -85,10 +96,31 @@ function Sidebar({ isOpen, onClose }) {
               <div className="sidebar-nav-label">{group.label}</div>
               {group.items.map((item) => {
                 const Icon = item.icon;
+                const isExternal = item.href.startsWith('mailto:') || item.external;
                 const isActive =
-                  pathname === item.href ||
-                  (item.href !== '/dashboard' &&
-                    pathname.startsWith(item.href + '/'));
+                  !isExternal &&
+                  (pathname === item.href ||
+                    (item.href !== '/dashboard' &&
+                      pathname.startsWith(item.href + '/')));
+
+                if (isExternal) {
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      target={item.href.startsWith('mailto:') ? undefined : '_blank'}
+                      rel={item.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                      id={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="sidebar-nav-item"
+                      onClick={onClose}
+                    >
+                      <span className="sidebar-nav-item-icon">
+                        <Icon size={18} />
+                      </span>
+                      {item.name}
+                    </a>
+                  );
+                }
 
                 return (
                   <Link
