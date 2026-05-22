@@ -324,11 +324,11 @@ export default function BillingPage() {
   };
 
   const formatTime = (ms) => {
-    const totalSecs = Math.floor(ms / 1000);
-    const mins = Math.floor(totalSecs / 60);
-    const secs = totalSecs % 60;
-    return `${mins}m ${secs}s`;
-  };
+  const totalSecs = Math.floor(ms / 1000);
+  const mins = Math.floor(totalSecs / 60);
+  const secs = totalSecs % 60;
+  return `${mins}m ${secs}s`;
+};
 
   return (
     <div className="page-content">
