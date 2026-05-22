@@ -17,6 +17,7 @@ import {
   LogIn,
   UserPlus,
   CheckCircle,
+  X,
 } from 'lucide-react';
 
 const QUICK_CHIPS = [
@@ -46,15 +47,16 @@ export default function AssistantPage() {
   const [guestCount, setGuestCount] = useState(0);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
-  // Voice/Audio States
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isVoiceOutputEnabled, setIsVoiceOutputEnabled] = useState(false);
+  // Unified Voice Mode States
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [voiceState, setVoiceState] = useState('idle'); // 'idle' | 'listening' | 'thinking' | 'speaking'
+  const [micPermissionError, setMicPermissionError] = useState(false);
   const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(false);
 
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const synthRef = useRef(null);
+  const speakTimeoutRef = useRef(null);
 
   // Auto-scroll to bottom of messages
   const scrollToBottom = useCallback(() => {
@@ -119,7 +121,8 @@ export default function AssistantPage() {
         rec.lang = 'en-US';
 
         rec.onstart = () => {
-          setIsListening(true);
+          setVoiceState('listening');
+          setMicPermissionError(false);
         };
 
         rec.onresult = (event) => {
@@ -133,11 +136,19 @@ export default function AssistantPage() {
 
         rec.onerror = (e) => {
           console.error('Speech recognition error:', e);
-          setIsListening(false);
+          if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+            setMicPermissionError(true);
+            setIsVoiceMode(false);
+            setVoiceState('idle');
+          } else {
+            if (isVoiceMode) {
+              restartListening();
+            }
+          }
         };
 
         rec.onend = () => {
-          setIsListening(false);
+          setVoiceState(prev => (prev === 'listening' ? 'idle' : prev));
         };
 
         recognitionRef.current = rec;
@@ -147,27 +158,80 @@ export default function AssistantPage() {
         synthRef.current = window.speechSynthesis;
       }
     }
+
+    return () => {
+      if (synthRef.current) {
+        synthRef.current.cancel();
+      }
+      if (speakTimeoutRef.current) {
+        clearTimeout(speakTimeoutRef.current);
+      }
+    };
   }, [fetchChatHistory, fetchProjects]);
 
-  // Handle Voice Output Synthesis
-  const speakResponse = useCallback((text) => {
-    if (!isVoiceOutputEnabled || !synthRef.current) return;
+  // React to voice mode toggles
+  useEffect(() => {
+    if (!recognitionRef.current) return;
+    if (isVoiceMode) {
+      setMicPermissionError(false);
+      try {
+        recognitionRef.current.start();
+      } catch (err) {
+        console.warn('Recognition start error:', err);
+      }
+    } else {
+      try {
+        recognitionRef.current.stop();
+      } catch (err) {}
+      if (synthRef.current) {
+        synthRef.current.cancel();
+      }
+      setVoiceState('idle');
+    }
+  }, [isVoiceMode]);
+
+  // Restart listening loop cleanly
+  const restartListening = () => {
+    if (!recognitionRef.current || !isVoiceMode) return;
     try {
-      synthRef.current.cancel(); // cut off any active speaking
+      recognitionRef.current.stop();
+    } catch (e) {}
+
+    setTimeout(() => {
+      if (isVoiceMode) {
+        try {
+          recognitionRef.current.start();
+        } catch (err) {
+          console.warn('Mic restart failed:', err);
+        }
+      }
+    }, 400);
+  };
+
+  // Speaks response aloud
+  const speakResponse = useCallback((text) => {
+    if (!isVoiceMode || !synthRef.current) return;
+    try {
+      synthRef.current.cancel();
+      setVoiceState('speaking');
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
-      utterance.rate = 1.05; // slightly faster for human cadence
-
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-      };
+      utterance.rate = 1.05;
 
       utterance.onend = () => {
-        setIsSpeaking(false);
+        setVoiceState('idle');
+        if (isVoiceMode) {
+          restartListening();
+        }
       };
 
-      utterance.onerror = () => {
-        setIsSpeaking(false);
+      utterance.onerror = (e) => {
+        console.error('Speech synthesis utterance error:', e);
+        setVoiceState('idle');
+        if (isVoiceMode) {
+          restartListening();
+        }
       };
 
       const voices = synthRef.current.getVoices();
@@ -182,16 +246,19 @@ export default function AssistantPage() {
       synthRef.current.speak(utterance);
     } catch (e) {
       console.error('Speech synthesis failure:', e);
-      setIsSpeaking(false);
+      setVoiceState('idle');
+      if (isVoiceMode) {
+        restartListening();
+      }
     }
-  }, [isVoiceOutputEnabled]);
+  }, [isVoiceMode]);
 
-  // Stop current speaking response
+  // Stop active synthesis speaking
   const stopSpeaking = useCallback(() => {
     if (synthRef.current) {
       synthRef.current.cancel();
-      setIsSpeaking(false);
     }
+    setVoiceState('idle');
   }, []);
 
   // Update selected project details
@@ -204,21 +271,6 @@ export default function AssistantPage() {
     }
   }, [selectedProjectId, projects]);
 
-  // Voice Microphone toggle
-  const toggleListening = useCallback(() => {
-    if (!recognitionRef.current) return;
-    if (isListening) {
-      recognitionRef.current.stop();
-    } else {
-      stopSpeaking();
-      try {
-        recognitionRef.current.start();
-      } catch (err) {
-        console.error('Mic start failed:', err);
-      }
-    }
-  }, [isListening, stopSpeaking]);
-
   // Main sending handler
   const handleSend = async (messageToSend) => {
     const textMessage = typeof messageToSend === 'string' ? messageToSend : inputValue;
@@ -226,9 +278,9 @@ export default function AssistantPage() {
 
     setIsSending(true);
     setInputValue('');
+    setVoiceState('thinking');
     stopSpeaking();
 
-    // Optimistically update messages local array (guest relies entirely on this local thread state)
     const userMsg = { role: 'user', content: textMessage, createdAt: new Date().toISOString() };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
@@ -240,7 +292,7 @@ export default function AssistantPage() {
         body: JSON.stringify({
           message: textMessage,
           projectId: selectedProjectId || undefined,
-          history: updatedMessages.slice(0, -1), // send all messages up to this one
+          history: updatedMessages.slice(0, -1),
         }),
       });
 
@@ -249,7 +301,6 @@ export default function AssistantPage() {
       if (res.status === 403 && data.error === 'limit_reached') {
         setIsLimitReached(true);
         setGuestCount(data.count);
-        // Add fallback warning bubble
         setMessages((prev) => [
           ...prev,
           {
@@ -258,7 +309,10 @@ export default function AssistantPage() {
             createdAt: new Date().toISOString(),
           },
         ]);
-        speakResponse('Free limit reached. Please log in to continue.');
+        if (isVoiceMode) {
+          speakResponse('Free message limit reached. Please log in to continue.');
+          setIsVoiceMode(false);
+        }
         return;
       }
 
@@ -266,7 +320,6 @@ export default function AssistantPage() {
         throw new Error(data.error || 'Failed to communicate with the assistant.');
       }
 
-      // Successful reply
       const assistantMsg = {
         role: 'assistant',
         content: data.response,
@@ -284,8 +337,12 @@ export default function AssistantPage() {
         }
       }
 
-      // Synthesize audio
-      speakResponse(data.response);
+      // Read output aloud if voice mode active
+      if (isVoiceMode) {
+        speakResponse(data.response);
+      } else {
+        setVoiceState('idle');
+      }
 
     } catch (error) {
       console.error('Chat routing error:', error);
@@ -297,6 +354,10 @@ export default function AssistantPage() {
           createdAt: new Date().toISOString(),
         },
       ]);
+      setVoiceState('idle');
+      if (isVoiceMode) {
+        restartListening();
+      }
     } finally {
       setIsSending(false);
     }
@@ -339,13 +400,12 @@ export default function AssistantPage() {
     if (isSending || isLimitReached) return;
     let prependedPrompt = chipText;
 
-    // Enhance prompt automatically based on active resume context
     if (selectedProject) {
       if (chipText.includes('ATS score')) {
         prependedPrompt = `Analyze my ATS score of ${selectedProject.atsScore || 'N/A'}% and explain the primary keywords missing for my target role: "${selectedProject.jobTitle || ''}".`;
-      } else if (chipText.includes('bullet point')) {
+      } else if (chipText.includes('bullet point') || chipText.includes('bullet optimizer')) {
         prependedPrompt = `Review my experience bullet points from my "${selectedProject.jobTitle || ''}" project resume and rewrite them cleanly using the STAR methodology (Situation, Task, Action, Result) with bracketed metric placeholders.`;
-      } else if (chipText.includes('keywords')) {
+      } else if (chipText.includes('keywords') || chipText.includes('missing keywords')) {
         prependedPrompt = `Identify the missing keywords from my resume relative to the target job description: "${selectedProject.jobDescription?.substring(0, 300) || ''}...".`;
       } else if (chipText.includes('interview')) {
         prependedPrompt = `Give me 3 realistic, blunt interview questions for a "${selectedProject.jobTitle || ''}" role at "${selectedProject.company || 'a top firm'}".`;
@@ -353,6 +413,32 @@ export default function AssistantPage() {
     }
 
     handleSend(prependedPrompt);
+  };
+
+  // Beautiful math renderer formatter helper
+  const formatMessageText = (text) => {
+    if (!text) return '';
+
+    // Clear raw LaTeX brackets that standard markdown engines fail to render
+    let cleaned = text
+      .replace(/\$\$([\s\S]*?)\$\$/g, '$1') // $$...$$
+      .replace(/\\\[([\s\S]*?)\\\]/g, '$1') // \[...\]
+      .replace(/\\\(([\s\S]*?)\\\)/g, '$1') // \(...\)
+      .replace(/\\text\{([\s\S]*?)\}/g, '$1') // \text{...}
+      .replace(/\\frac\{([\s\S]*?)\}\{([\s\S]*?)\}/g, '$1 / $2'); // \frac{...}{...}
+
+    // Capture standard weight layouts and wrap in custom formula boxes
+    const equationRegex = /(\*\*Score\*\*|\*\*ATS Score Breakdown\*\*|\*\*STAR Formula\*\*|\*\*Equation\*\*|\*\*Weight Breakdown\*\*)\s*=\s*([^.\n]+)/gi;
+    if (equationRegex.test(cleaned)) {
+      cleaned = cleaned.replace(equationRegex, (match, title, formula) => {
+        return `\n\n<div class="math-formula-box">
+          <div class="math-formula-title">📋 VERIFIED FORMULA MODEL</div>
+          <div class="math-formula-body">${title} = ${formula}</div>
+        </div>\n\n`;
+      });
+    }
+
+    return cleaned;
   };
 
   return (
@@ -386,11 +472,11 @@ export default function AssistantPage() {
                   </div>
                 ) : (
                   <select
-                    id="project-selector"
-                    className="form-input"
-                    value={selectedProjectId}
-                    onChange={(e) => setSelectedProjectId(e.target.value)}
-                    style={{ fontSize: 'var(--font-size-sm)' }}
+                     id="project-selector"
+                     className="form-input"
+                     value={selectedProjectId}
+                     onChange={(e) => setSelectedProjectId(e.target.value)}
+                     style={{ fontSize: 'var(--font-size-sm)' }}
                   >
                     <option value="">-- Generic Mode (No Resume) --</option>
                     {projects.map((p) => (
@@ -470,7 +556,7 @@ export default function AssistantPage() {
         </aside>
 
         {/* RIGHT PANEL: Chat viewport and triggers */}
-        <main className="assistant-main-chat">
+        <main className="assistant-main-chat" style={{ position: 'relative' }}>
           <div className="card" style={{ height: '100%', padding: '0', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
             
             {/* Upper control header */}
@@ -487,33 +573,48 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              {/* Sound toggle controls */}
+              {/* Spoken feedback control switch */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <button
-                  onClick={() => setIsVoiceOutputEnabled((prev) => {
-                    const next = !prev;
-                    if (!next) stopSpeaking();
-                    return next;
-                  })}
-                  className={`btn ${isVoiceOutputEnabled ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ padding: '6px var(--space-3)', fontSize: 'var(--font-size-xs)', display: 'flex', alignItems: 'center', gap: '6px', height: 'auto' }}
-                  title="Toggle spoken responses"
-                >
-                  {isVoiceOutputEnabled ? (
-                    <>
-                      <Volume2 size={14} className={isSpeaking ? 'voice-wave-active' : ''} /> Voice On
-                    </>
-                  ) : (
-                    <>
-                      <VolumeX size={14} /> Mute Response
-                    </>
-                  )}
-                </button>
+                {speechRecognitionSupported && (
+                  <button
+                    onClick={() => setIsVoiceMode((prev) => !prev)}
+                    className={`btn ${isVoiceMode ? 'btn-primary' : 'btn-secondary'}`}
+                    style={{ padding: '6px var(--space-3)', fontSize: 'var(--font-size-xs)', display: 'flex', alignItems: 'center', gap: '6px', height: 'auto' }}
+                    title={isVoiceMode ? 'Disable Speech Output Mode' : 'Enable Unified Voice Conversational Loop'}
+                  >
+                    {isVoiceMode ? (
+                      <>
+                        <Volume2 size={14} className="wave-active-indicator" /> Voice Mode On
+                      </>
+                    ) : (
+                      <>
+                        <VolumeX size={14} /> Voice Mode Off
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Conversation Feed */}
-            <div className="assistant-messages-feed">
+            <div className="assistant-messages-feed" style={{ position: 'relative' }}>
+              
+              {/* MIC PERMISSION ERROR NOTICE */}
+              {micPermissionError && (
+                <div className="mic-error-notice animate-slide-in" style={{ position: 'sticky', top: 0, margin: '0 0 var(--space-4) 0', width: 'auto' }}>
+                  <AlertTriangle size={18} className="mic-error-icon" />
+                  <div style={{ flexGrow: 1 }}>
+                    <div style={{ fontWeight: '700', fontSize: '11px' }}>Microphone Access Blocked</div>
+                    <div style={{ fontSize: '10px', marginTop: '2px', lineHeight: '1.4' }}>
+                      To unblock Voice Mode, click the Lock icon in your browser address bar and enable microphone permissions.
+                    </div>
+                  </div>
+                  <button onClick={() => setMicPermissionError(false)} className="mic-error-close">
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
               {isHistoryLoading ? (
                 <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)', color: 'var(--color-text-tertiary)' }}>
                   <Loader2 className="animate-spin" size={32} style={{ color: 'var(--color-accent)' }} />
@@ -550,6 +651,9 @@ export default function AssistantPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', paddingBottom: 'var(--space-4)' }}>
                   {messages.map((msg, index) => {
                     const isUser = msg.role === 'user';
+                    const formattedContent = formatMessageText(msg.content);
+                    const containsHtmlMath = formattedContent.includes('math-formula-box');
+
                     return (
                       <div
                         key={index}
@@ -566,14 +670,17 @@ export default function AssistantPage() {
                             color: isUser ? 'var(--color-text-inverse)' : 'var(--color-text-primary)',
                             border: isUser ? 'none' : '1px solid var(--color-border)',
                             boxShadow: 'var(--shadow-sm)',
-                            whiteSpace: 'pre-line',
                             fontSize: 'var(--font-size-sm)',
                             lineHeight: '1.5',
                             position: 'relative',
                           }}
                         >
-                          {/* Message Content */}
-                          <div>{msg.content}</div>
+                          {/* Parse math html blocks cleanly */}
+                          {containsHtmlMath ? (
+                            <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
+                          ) : (
+                            <div style={{ whiteSpace: 'pre-line' }}>{formattedContent}</div>
+                          )}
 
                           {/* Grounding context reference block (RAG) */}
                           {!isUser && msg.ragSources && msg.ragSources.length > 0 && (
@@ -599,8 +706,44 @@ export default function AssistantPage() {
               )}
             </div>
 
+            {/* UNIFIED VOICE ACTIVE OVERLAY SCREEN */}
+            {isVoiceMode && voiceState !== 'idle' && (
+              <div className="popover-voice-overlay" style={{ inset: '65px 0 65px 0' }}>
+                <div className="voice-overlay-content">
+                  
+                  {/* Wave graphics dynamically sized by active state */}
+                  <div className={`voice-radar-pulse ${voiceState}`}>
+                    <div className="pulse-circle c1" />
+                    <div className="pulse-circle c2" />
+                    <div className="pulse-core">
+                      {voiceState === 'listening' ? <Mic size={24} /> : <Volume2 size={24} />}
+                    </div>
+                  </div>
+
+                  <div className="voice-state-text">
+                    {voiceState === 'listening' && 'Listening to your voice...'}
+                    {voiceState === 'thinking' && 'Analyzing grounding RAG guidelines...'}
+                    {voiceState === 'speaking' && 'Synthesizing voice response...'}
+                  </div>
+
+                  {voiceState === 'speaking' && (
+                    <button
+                      onClick={() => {
+                        stopSpeaking();
+                        restartListening();
+                      }}
+                      className="btn btn-secondary"
+                      style={{ padding: '6px 16px', fontSize: '11px', height: 'auto', borderRadius: '20px' }}
+                    >
+                      Skip Audio
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Quick Prompt Action Chips */}
-            {messages.length > 0 && !isLimitReached && (
+            {messages.length > 0 && !isLimitReached && !isVoiceMode && (
               <div className="assistant-chips-bar" style={{ display: 'flex', gap: 'var(--space-2)', padding: 'var(--space-2) var(--space-4)', borderTop: '1px solid var(--color-border)', overflowX: 'auto', background: 'var(--color-bg-secondary)', scrollbarWidth: 'none' }}>
                 {QUICK_CHIPS.map((chip, idx) => (
                   <button
@@ -628,15 +771,15 @@ export default function AssistantPage() {
             <div style={{ padding: 'var(--space-4) var(--space-6)', borderTop: '1px solid var(--color-border)', background: 'var(--color-bg-elevated)', display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
               
               {/* Mic transcription button */}
-              {speechRecognitionSupported && (
+              {speechRecognitionSupported && !isVoiceMode && (
                 <button
-                  onClick={toggleListening}
+                  onClick={() => setIsVoiceMode(true)}
                   disabled={isSending || isLimitReached}
-                  className={`btn ${isListening ? 'btn-danger mic-active-pulse' : 'btn-secondary'}`}
+                  className="btn btn-secondary"
                   style={{ padding: 'var(--space-3)', borderRadius: '50%', flexShrink: 0, width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  title={isListening ? 'Stop listening' : 'Start speaking (Voice Mode)'}
+                  title="Start Voice Conversational Loop"
                 >
-                  {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                  <Mic size={18} />
                 </button>
               )}
 
@@ -644,11 +787,11 @@ export default function AssistantPage() {
               <input
                 type="text"
                 className="form-input"
-                placeholder={isListening ? 'Listening... Speak now' : 'Ask about ATS structure, resume gap optimizations...'}
+                placeholder={isVoiceMode ? 'Voice Mode Active... Speak now' : 'Ask about ATS structure, resume gap optimizations...'}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                disabled={isSending || isListening || isLimitReached}
+                disabled={isSending || isLimitReached || isVoiceMode}
                 style={{ flexGrow: 1, margin: 0, height: '42px', fontSize: 'var(--font-size-sm)' }}
                 autoComplete="off"
               />
@@ -657,7 +800,7 @@ export default function AssistantPage() {
               <button
                 className="btn btn-primary"
                 onClick={() => handleSend()}
-                disabled={isSending || isListening || !inputValue.trim() || isLimitReached}
+                disabled={isSending || !inputValue.trim() || isLimitReached || isVoiceMode}
                 style={{ padding: '0 var(--space-4)', height: '42px', borderRadius: 'var(--radius-md)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}
               >
                 {isSending ? (
