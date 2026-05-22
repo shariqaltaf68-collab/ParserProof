@@ -24,64 +24,34 @@ const benefits = [
     icon: Target,
     title: 'ATS Scan & Match',
     description:
-      'We run your resume through industry-standard parser logic to identify keyword gaps and formatting blocks that trigger auto-rejections.',
+      'Identify keyword gaps, missing technical phrases, and formatting blocks that trigger automatic ATS rejections.',
   },
   {
     icon: Search,
-    title: 'Resume Tailoring',
+    title: 'STAR Experience Rewriter',
     description:
-      'Instantly generate a tailored version of your resume aligned with the exact job description keywords and experience expectations.',
+      'Elevate academic projects, internships, and work history with powerful corporate action verbs and quantified impact metrics.',
   },
   {
     icon: FileText,
-    title: 'Bespoke Cover Letters',
+    title: 'Bespoke Application Packages',
     description:
-      'Generate highly focused, company-specific cover letters that directly connect your background to the target role requirements.',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Curated Interview Prep',
-    description:
-      'Get 8 job-specific interview questions with step-by-step response strategies based on your actual history and the job posting.',
-  },
-  {
-    icon: Download,
-    title: 'ATS-Friendly Downloads',
-    description:
-      'Download clean, parser-optimized PDF or plain text files of your tailored documents, ready for any online job application portal.',
-  },
-  {
-    icon: History,
-    title: 'Version Control',
-    description:
-      'Track and organize custom versions of your resume for every single job application without cluttering your local drive.',
+      'Generate company-specific cover letters and high-probability interview prep guides tailored to the exact job description.',
   },
 ];
 
 const mistakes = [
   {
-    title: 'Generic Objective Statements',
-    desc: 'Using vague fluff like "Seeking a challenging role in a dynamic organization..." tells recruiters nothing. We replace this with a quantified profile summary highlighting core technical competencies.',
+    title: 'Fancy Canva Templates',
+    desc: 'Multi-column grids, skill bars, and graphical icons look nice to humans but scramble automated ATS parsers, causing auto-rejection.',
   },
   {
-    title: 'Zero Quantified Outcomes',
-    desc: 'Writing "Responsible for coding web apps" is a major mistake. ResumePilot forces metric inclusion (e.g. "reduced latency by 40%") to show real, measurable engineering impact.',
+    title: 'Vague Objective fluff',
+    desc: 'Objective statements like "Seeking a challenging role..." say nothing. We replace them with a quantified, metric-rich technical profile.',
   },
   {
-    title: 'Two-Page Clutter as a Fresher',
-    desc: 'Unless you have 5+ years of experience, a fresher resume must strictly fit on one page. Our formatting structure keeps your content concise, dense, and punchy.',
-  },
-  {
-    title: 'Keyword-Blind Descriptions',
-    desc: 'If the job description asks for "Next.js" and you only list "React", the ATS will likely filter you out. Our match analysis flags missing keyword terms instantly.',
-  },
-  {
-    title: 'Fancy Graphical Layouts',
-    desc: 'Multi-column layouts, graphics, and skill bars look nice to humans but completely break ATS text parsers. We stick strictly to single-column, parser-safe layouts.',
-  },
-  {
-    title: 'Fabricating Experience',
-    desc: 'Generic tools write fake jobs. We refuse to do this. We focus on rewriting and framing your ACTUAL college projects, internships, and coursework in professional corporate terminology.',
+    title: 'Keyword-Blind Profiles',
+    desc: 'If a posting specifies "Next.js" and you list "React", filters reject you. We scan the JD and highlight missing skills instantly.',
   },
 ];
 
@@ -422,7 +392,7 @@ export default function LandingPage() {
       {/* Common Fresher Mistakes */}
       <section className="mistakes-section" id="mistakes">
         <h2 className="section-title">
-          6 Crucial Resume Mistakes{' '}
+          3 Crucial Resume Mistakes{' '}
           <span className="text-gradient">Freshers Make</span>
         </h2>
         <p className="section-subtitle">
@@ -484,26 +454,47 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Benefits / Features */}
+      {/* Benefits / Features (Refactored to Premium Split Visual Showcase) */}
       <section className="benefits" id="benefits">
-        <h2 className="section-title">
-          Complete Platform built for{' '}
-          <span className="text-gradient">Job Seekers</span>
-        </h2>
-        <p className="section-subtitle">
-          ResumePilot gives you the analytical tools to target competitive corporate roles with confidence.
-        </p>
-
-        <div className="benefits-grid">
-          {benefits.map((benefit, index) => (
-            <div key={index} className="benefit-card">
-              <div className="benefit-icon">
-                <benefit.icon size={22} />
-              </div>
-              <h3 className="benefit-title">{benefit.title}</h3>
-              <p className="benefit-description">{benefit.description}</p>
+        <div className="benefits-container">
+          <div className="benefits-visual">
+            <div className="benefits-visual-header">
+              <span className="visual-dot red"></span>
+              <span className="visual-dot yellow"></span>
+              <span className="visual-dot green"></span>
+              <span className="visual-title">ResumePilot Intelligence Parser</span>
             </div>
-          ))}
+            <div className="benefits-visual-content">
+              <div className="visual-line scan-active">⚡ Scanning current_resume.pdf...</div>
+              <div className="visual-line success">✓ 14 Missing Keywords Identified</div>
+              <div className="visual-line success">✓ STAR Rewrite Applied to 4 Experience Bullets</div>
+              <div className="visual-line success">✓ AI-buzzwords ("revolutionary", "cutting-edge") purged</div>
+              <div className="visual-line highlight">★ ATS Score Optimized: 41% → 89%</div>
+            </div>
+          </div>
+          <div className="benefits-info-side">
+            <h2 className="section-title-left">
+              Complete Application{' '}
+              <span className="text-gradient">Intelligence</span>
+            </h2>
+            <p className="benefits-subtitle-left">
+              ResumePilot gives you the exact analytical tools to target competitive corporate roles with complete confidence.
+            </p>
+            
+            <div className="benefits-list">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="benefit-list-item">
+                  <div className="benefit-list-icon">
+                    <benefit.icon size={20} />
+                  </div>
+                  <div className="benefit-list-content">
+                    <h3 className="benefit-list-title">{benefit.title}</h3>
+                    <p className="benefit-list-description">{benefit.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

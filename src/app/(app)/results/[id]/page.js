@@ -658,6 +658,87 @@ ${(() => {
     if (Array.isArray(raw)) interviewQuestions = raw;
   } catch {}
 
+  // Get score-based blunt feedback
+  const atsScore = project.atsScore || 0;
+  let realityStatus = 'low';
+  let realityTitle = '';
+  let realityWarning = '';
+  let realityWhy = [];
+  let realityAction = [];
+  let cardClass = '';
+
+  if (atsScore < 50) {
+    realityStatus = 'danger';
+    cardClass = 'ats-reality-danger';
+    realityTitle = 'Critical Auto-Rejection Risk';
+    realityWarning = `In its current state, your resume has a near-zero chance of passing automated ATS screening for the target position. A recruiter will never see this. Automated parsing filters will auto-reject you within seconds because your document lacks structural compatibility and essential keyword match density. This is the raw reality.`;
+    realityWhy = [
+      'Severe Keyword Deprivation: Your resume is missing crucial technical and core skills requested in the job description.',
+      'Unstructured or Complex Layout: If you used a multi-column template (like Canva or graphics), the parser is scrambling your text into unreadable characters.',
+      'Task-Oriented Bullet Points: Your experience sections focus entirely on passive duties ("responsible for...") rather than quantified business outcomes.',
+    ];
+    realityAction = [
+      {
+        text: 'Switch to our clean, single-column, parser-safe "Improved Resume" tab above, click "Download PDF" and use that file. Never use Canva templates for ATS applications.',
+        tab: 'resume'
+      },
+      {
+        text: `Go to the "Keywords" tab to see exactly what terms you missed. You must weave these missing keywords (like ${keywordData.missing?.slice(0, 3).join(', ') || 'essential technical phrases'}) directly into your experience sections.`,
+        tab: 'keywords'
+      },
+      {
+        text: 'Review the "Skill Gap" tab to see critical software or technologies the job post demands. Add a mini-project or complete a quick online certification to bridge these gaps.',
+        tab: 'gap'
+      }
+    ];
+  } else if (atsScore < 75) {
+    realityStatus = 'warning';
+    cardClass = 'ats-reality-warning';
+    realityTitle = 'Moderate Match (High Rejection Gamble)';
+    realityWarning = `Your resume has basic qualifications, but you're hovering in the ATS 'gray-zone'. For competitive roles, you are competing against hundreds of applicants, many of whom have an 85%+ keyword alignment. Applying with this resume is a high-risk gamble — you are highly likely to be filtered out in the first batch of automated rejections.`;
+    realityWhy = [
+      'Partial Keyword Matching: You have captured the main skills but missed secondary keywords that increase your search ranking in the recruiter\'s database.',
+      'Weak Action Verbs & STAR Framing: Your academic projects or work history have some metrics, but they lack strong business results or financial metrics.',
+    ];
+    realityAction = [
+      {
+        text: 'Adopt the metric-focused STAR experience rewrites from the "Improved Resume" tab to show quantifiable business outcomes.',
+        tab: 'resume'
+      },
+      {
+        text: `Check the "Keywords" tab. Make sure every missing keyword (like ${keywordData.missing?.slice(0, 3).join(', ') || 'required tools'}) matches the exact spelling and casing used in the job post.`,
+        tab: 'keywords'
+      },
+      {
+        text: 'Unlock the "Cover Letter" tab to generate a highly tailored introduction explaining how your background bridges any remaining gaps.',
+        tab: 'cover'
+      }
+    ];
+  } else {
+    realityStatus = 'success';
+    cardClass = 'ats-reality-success';
+    realityTitle = 'Strong Match (Recruiter Ready)';
+    realityWarning = `Your resume is highly optimized and has a very strong probability of passing ATS filters and landing on a human recruiter's desk. You have aligned your technical skills and achievements closely with the job requirements. The risk of automated rejection is extremely low.`;
+    realityWhy = [
+      'Excellent Keyword Density: Your resume naturally integrates the primary and secondary requirements of the job description.',
+      'Strong Quantified Metrics: Your achievements are properly framed using the STAR format with metric outcomes.',
+    ];
+    realityAction = [
+      {
+        text: 'Download the optimized single-column resume from the "Improved Resume" tab.',
+        tab: 'resume'
+      },
+      {
+        text: 'Go to the "Interview Prep" tab. Since your resume is highly likely to clear the ATS screen, your next big challenge is the technical interview. Prepare using the exact questions provided.',
+        tab: 'interview'
+      },
+      {
+        text: 'Unlock the "Cover Letter" tab to generate a matching custom letter, complete your application package, and apply directly.',
+        tab: 'cover'
+      }
+    ];
+  }
+
   return (
     <div className="results-page">
       {/* Header */}
@@ -714,6 +795,57 @@ ${(() => {
           </div>
         </div>
         <AtsScoreRing score={project.atsScore || 0} />
+      </div>
+
+      {/* Blunt Reality Assessment Card */}
+      <div className={`ats-reality-check-card ${cardClass}`}>
+        <div className="ats-reality-header">
+          <div className="ats-reality-icon">
+            {realityStatus === 'danger' && <XCircle size={20} />}
+            {realityStatus === 'warning' && <AlertTriangle size={20} />}
+            {realityStatus === 'success' && <CheckCircle size={20} />}
+          </div>
+          <h2 className="ats-reality-title">{realityTitle}</h2>
+        </div>
+
+        <div className="ats-reality-blunt-text">
+          <strong>The Blunt Reality:</strong> {realityWarning}
+        </div>
+
+        <div className="ats-reality-grid">
+          <div>
+            <h3 className="ats-reality-section-title">
+              <AlertTriangle size={14} /> Why your ATS score is {atsScore}%
+            </h3>
+            <ul className="ats-reality-list">
+              {realityWhy.map((why, index) => (
+                <li key={index} className="ats-reality-item">{why}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="ats-reality-section-title">
+              <CheckCircle size={14} /> Action plan to align & apply
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              {realityAction.map((action, index) => (
+                <button
+                  key={index}
+                  className="ats-reality-action-btn"
+                  onClick={() => {
+                    setActiveTab(action.tab);
+                    const el = document.querySelector('.results-tabs');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  <span style={{ marginRight: 'var(--space-2)', fontWeight: 'bold' }}>{index + 1}.</span>
+                  <span>{action.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}
