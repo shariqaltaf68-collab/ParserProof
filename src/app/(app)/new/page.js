@@ -364,166 +364,127 @@ export default function NewProjectPage() {
   };
 
   if (isGenerating) {
-    const strokeDashoffset = 283 - (283 * percent) / 100;
-
     return (
-      <div className="page-content" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="page-content">
         <div className="generation-loading-container">
-          {/* Left Panel: Checklist & Progress Meter */}
-          <div className="generation-left-panel">
-            <div className="generation-progress-circle-wrapper">
-              <div className="generation-progress-circle">
-                <svg>
-                  <circle className="bg" cx="55" cy="55" r="45" />
-                  <circle
-                    className="fg"
-                    cx="55"
-                    cy="55"
-                    r="45"
-                    style={{ strokeDashoffset }}
+          <div className="compass-card">
+
+            {/* ── Radar SVG ── */}
+            <div className="compass-radar-wrapper">
+              <svg className="compass-svg" viewBox="0 0 240 240">
+                <defs>
+                  <radialGradient id="compassSweepFade" cx="50%" cy="100%" r="100%">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.45" />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+
+                {/* Concentric rings */}
+                <circle cx="120" cy="120" r="108" className="compass-ring outer" />
+                <circle cx="120" cy="120" r="78"  className="compass-ring mid" />
+                <circle cx="120" cy="120" r="48"  className="compass-ring inner" />
+
+                {/* Cardinal axes */}
+                <line x1="12"  y1="120" x2="228" y2="120" className="compass-axis" />
+                <line x1="120" y1="12"  x2="120" y2="228" className="compass-axis" />
+                <line x1="43"  y1="43"  x2="197" y2="197" className="compass-axis diag" />
+                <line x1="43"  y1="197" x2="197" y2="43"  className="compass-axis diag" />
+
+                {/* Rotating sweep */}
+                <g className="compass-sweep-group">
+                  <line x1="120" y1="120" x2="120" y2="12" className="compass-sweep-line" />
+                  <polygon
+                    points="120,120 120,12 152,22"
+                    fill="url(#compassSweepFade)"
                   />
-                </svg>
-                <div className="generation-progress-text">{percent}%</div>
+                </g>
+
+                {/* Pulsing blips */}
+                <circle cx="78"  cy="78"  r="4"   className="compass-blip b1" />
+                <circle cx="168" cy="96"  r="4.5" className="compass-blip b2" />
+                <circle cx="102" cy="162" r="3.5" className="compass-blip b3" />
+                <circle cx="156" cy="168" r="4"   className="compass-blip b4" />
+                <circle cx="120" cy="54"  r="4.5" className="compass-blip b5" />
+
+                {/* Core pulse */}
+                <circle cx="120" cy="120" r="22" className="compass-core-outer" />
+                <circle cx="120" cy="120" r="14" className="compass-core-inner" />
+              </svg>
+
+              {/* Central sparkle badge */}
+              <div className="compass-core-badge">
+                <Sparkles size={18} className="compass-sparkle" />
               </div>
             </div>
 
-            <h1 className="generation-loading-title">
-              Deliberate Multi-Pass Optimization
-            </h1>
-            <p className="generation-loading-subtitle">
-              Running deep structural scans, keyword enrichment, and STAR bullet optimizations. This process is engineered for near-perfect results and will take approximately 30 seconds.
+            {/* ── Percent counter ── */}
+            <div className="compass-percent-display">
+              <span className="compass-percent-number">{percent}%</span>
+              <span className="compass-percent-label">ATS Optimization</span>
+            </div>
+
+            {/* ── Title & subtitle ── */}
+            <h1 className="compass-title">Analyzing Your Resume</h1>
+            <p className="compass-subtitle">
+              Running deep structural scans, keyword enrichment &amp; STAR bullet
+              optimizations. This takes about 30 seconds.
             </p>
 
-            <div className="generation-steps">
-              {GENERATION_STEPS.map((step, index) => {
-                let stepClass = 'generation-step';
-                if (index < generationStep) stepClass += ' done';
-                else if (index === generationStep) stepClass += ' active';
+            {/* ── Live active step pill ── */}
+            <div className="compass-status-pill">
+              <span className="compass-status-dot" />
+              <span className="compass-status-text">
+                {GENERATION_STEPS[generationStep]}
+              </span>
+            </div>
 
+            {/* ── Compact step checklist ── */}
+            <div className="compass-steps-row">
+              {GENERATION_STEPS.map((step, index) => {
+                let cls = 'compass-step-row';
+                if (index < generationStep) cls += ' done';
+                else if (index === generationStep) cls += ' active';
                 return (
-                  <div key={step} className={stepClass}>
-                    {index < generationStep ? (
-                      <CheckCircle2 size={16} />
-                    ) : index === generationStep ? (
-                      <Loader2 size={16} className="loader-spinner" style={{ animation: 'spin 1.2s linear infinite' }} />
-                    ) : (
-                      <Circle size={16} />
-                    )}
+                  <div key={step} className={cls}>
+                    <span className="compass-step-icon">
+                      {index < generationStep ? (
+                        <CheckCircle2 size={13} />
+                      ) : index === generationStep ? (
+                        <Loader2 size={13} style={{ animation: 'spin 1.2s linear infinite' }} />
+                      ) : (
+                        <Circle size={13} />
+                      )}
+                    </span>
                     <span>{step}</span>
                   </div>
                 );
               })}
             </div>
-          </div>
 
-          {/* Right Panel: Futuristic Animated Compass Radar Scanner */}
-          <div className="generation-right-panel radar-panel">
-            <div className="generation-console-header">
-              <div className="generation-console-dots">
-                <div className="generation-console-dot red" />
-                <div className="generation-console-dot yellow" />
-                <div className="generation-console-dot green" />
+            {/* ── Live stats strip ── */}
+            <div className="compass-stats-strip">
+              <div className="compass-stat">
+                <span className="compass-stat-value">
+                  {elapsed < 10 ? `0${elapsed}` : elapsed}s
+                </span>
+                <span className="compass-stat-label">Elapsed</span>
               </div>
-              <div style={{ fontWeight: 600, letterSpacing: '0.05em', color: '#818cf8' }}>
-                DEEP RADAR SCANNER
+              <div className="compass-stat-divider" />
+              <div className="compass-stat">
+                <span className="compass-stat-value">
+                  {Math.min(99.8, 92.4 + generationStep * 0.9 + elapsed * 0.05).toFixed(1)}%
+                </span>
+                <span className="compass-stat-label">Confidence</span>
               </div>
-              <div className="radar-version">v2.5.0</div>
-            </div>
-            <div className="radar-scanning-viewport">
-              <div className="radar-scanner-container">
-                {/* SVG Concentric Radar Compass Rings & Sweep */}
-                 <svg className="radar-svg" viewBox="0 0 200 200">
-                  <defs>
-                    <linearGradient id="radarSweepGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.35" />
-                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  {/* Concentric grid rings */}
-                  <circle cx="100" cy="100" r="90" className="radar-grid-ring outer" />
-                  <circle cx="100" cy="100" r="65" className="radar-grid-ring middle" />
-                  <circle cx="100" cy="100" r="40" className="radar-grid-ring inner" />
-                  
-                  {/* Cardinal Axis gridlines */}
-                  <line x1="10" y1="100" x2="190" y2="100" className="radar-grid-axis" />
-                  <line x1="100" y1="10" x2="100" y2="190" className="radar-grid-axis" />
-                  <line x1="36.36" y1="36.36" x2="163.64" y2="163.64" className="radar-grid-axis diagonal" />
-                  <line x1="36.36" y1="163.64" x2="163.64" y2="36.36" className="radar-grid-axis diagonal" />
-
-                  {/* Dynamic pulsing active keyword blips (positioned staggered around rings) */}
-                  <circle cx="65" cy="65" className="radar-blip blip-1" r="3.5" />
-                  <circle cx="140" cy="80" className="radar-blip blip-2" r="4" />
-                  <circle cx="85" cy="135" className="radar-blip blip-3" r="3" />
-                  <circle cx="130" cy="140" className="radar-blip blip-4" r="3.5" />
-                  <circle cx="100" cy="45" className="radar-blip blip-5" r="4" />
-
-                  {/* Rotating Sweeper vector line */}
-                  <g className="radar-sweep-group">
-                    <line x1="100" y1="100" x2="100" y2="10" className="radar-sweep-line" />
-                    <polygon points="100,100 100,10 125,18" className="radar-sweep-gradient" />
-                  </g>
-
-                  {/* Pulsing Central Core */}
-                  <circle cx="100" cy="100" r="16" className="radar-core-pulse-outer" />
-                  <circle cx="100" cy="100" r="11" className="radar-core-pulse-inner" />
-                </svg>
-                
-                {/* Central Core Icon overlay */}
-                <div className="radar-core-icon">
-                  <Sparkles size={12} className="radar-sparkle-spin" />
-                </div>
-              </div>
-
-              {/* Dynamic Telemetry Feedback Area */}
-              <div className="radar-telemetry-panel">
-                <div className="radar-active-status-capsule">
-                  <span className="radar-status-dot green" />
-                  <span className="radar-status-text">
-                    {GENERATION_STEPS[generationStep]}
-                  </span>
-                </div>
-
-                <div className="radar-digital-readouts">
-                  <div className="telemetry-stat">
-                    <span className="stat-label">ELAPSED TIMER</span>
-                    <span className="stat-value font-mono">
-                      00:{elapsed < 10 ? `0${elapsed}` : elapsed}s
-                    </span>
-                  </div>
-                  <div className="telemetry-separator" />
-                  <div className="telemetry-stat">
-                    <span className="stat-label">ATS CONFIDENCE</span>
-                    <span className="stat-value font-mono">
-                      {Math.min(99.8, 92.4 + (generationStep * 0.9) + (elapsed * 0.05)).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="telemetry-separator" />
-                  <div className="telemetry-stat">
-                    <span className="stat-label">KEYWORDS SYNCED</span>
-                    <span className="stat-value font-mono">
-                      {Math.min(64, generationStep * 8 + Math.floor(elapsed * 0.4))}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bottom ticker displaying the single most recent log line for backend realism */}
-                <div className="radar-log-ticker-container">
-                  <div className="ticker-label">LATEST ACTION:</div>
-                  <div className="ticker-message font-mono">
-                    {logs.length > 0 ? (
-                      <>
-                        <span className={`ticker-tag ${logs[logs.length - 1].tag}`}>
-                          [{logs[logs.length - 1].tag.toUpperCase()}]
-                        </span>{' '}
-                        {logs[logs.length - 1].msg}
-                      </>
-                    ) : (
-                      'INITIALIZING SYSTEMS...'
-                    )}
-                  </div>
-                </div>
+              <div className="compass-stat-divider" />
+              <div className="compass-stat">
+                <span className="compass-stat-value">
+                  {Math.min(64, generationStep * 8 + Math.floor(elapsed * 0.4))}
+                </span>
+                <span className="compass-stat-label">Keywords</span>
               </div>
             </div>
+
           </div>
         </div>
       </div>
