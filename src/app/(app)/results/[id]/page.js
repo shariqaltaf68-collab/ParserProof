@@ -865,7 +865,7 @@ ${(() => {
     return (
       <div className="page-loading">
         <div className="spinner" />
-        <p>Loading your results...</p>
+        <p>Analyzing your data, please wait...</p>
       </div>
     );
   }

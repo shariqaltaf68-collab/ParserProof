@@ -275,17 +275,18 @@ export default function BillingPage() {
       })
     : 'N/A';
 
-  function getPlanButtonProps(planId) {
-    if (planId === currentPlan) {
-      return { label: 'Current Plan', className: 'btn btn-secondary', disabled: true };
+    function getPlanButtonProps(planId) {
+      if (planId === currentPlan) {
+        return { label: 'Current Plan', className: 'btn btn-secondary', disabled: true };
+      }
+      const planOrder = { free: 0, starter: 1, pro: 2 };
+      const isDowngrade = (planOrder[planId] || 0) < (planOrder[currentPlan] || 0);
+      if (isDowngrade) {
+        // No downgrade button; hide it. Return null to indicate no action.
+        return null;
+      }
+      return { label: 'Upgrade', className: 'btn btn-primary', disabled: false };
     }
-    const planOrder = { free: 0, starter: 1, pro: 2 };
-    const isDowngrade = (planOrder[planId] || 0) < (planOrder[currentPlan] || 0);
-    if (isDowngrade) {
-      return { label: 'Downgrade', className: 'btn btn-secondary', disabled: false };
-    }
-    return { label: 'Upgrade', className: 'btn btn-primary', disabled: false };
-  }
 
   const handleRefundRequest = async () => {
     if (!cancelReason) {
@@ -324,11 +325,9 @@ export default function BillingPage() {
   };
 
   const formatTime = (ms) => {
-  const totalSecs = Math.floor(ms / 1000);
-  const mins = Math.floor(totalSecs / 60);
-  const secs = totalSecs % 60;
-  return `${mins}m ${secs}s`;
-};
+    // Refund window is a fixed 1 hour; display only hour label.
+    return '1 hour';
+  };
 
   return (
     <div className="page-content">
@@ -514,22 +513,24 @@ export default function BillingPage() {
                 ))}
               </ul>
 
-              <button
-                type="button"
-                className={btnProps.className}
-                disabled={btnProps.disabled || isUpgrading || (paymentLoading && !isUpgrading)}
-                onClick={() => handlePlanAction(plan.id)}
-                id={`billing-plan-${plan.id}`}
-              >
-                {isUpgrading ? (
-                  <>
-                    <Loader2 size={16} className="spin" />
-                    Processing...
-                  </>
-                ) : (
-                  btnProps.label
+              {btnProps && (
+                  <button
+                    type="button"
+                    className={btnProps.className}
+                    disabled={btnProps.disabled || isUpgrading || (paymentLoading && !isUpgrading)}
+                    onClick={() => handlePlanAction(plan.id)}
+                    id={`billing-plan-${plan.id}`}
+                  >
+                    {isUpgrading ? (
+                      <>
+                        <Loader2 size={16} className="spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      btnProps.label
+                    )}
+                  </button>
                 )}
-              </button>
             </div>
           );
         })}
