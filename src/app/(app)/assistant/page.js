@@ -622,17 +622,41 @@ export default function AssistantPage() {
               
               {/* MIC PERMISSION ERROR NOTICE */}
               {micPermissionError && (
-                <div className="mic-error-notice animate-slide-in" style={{ position: 'sticky', top: 0, margin: '0 0 var(--space-4) 0', width: 'auto' }}>
-                  <AlertTriangle size={18} className="mic-error-icon" />
-                  <div style={{ flexGrow: 1 }}>
-                    <div style={{ fontWeight: '700', fontSize: '11px' }}>Microphone Access Blocked</div>
-                    <div style={{ fontSize: '10px', marginTop: '2px', lineHeight: '1.4' }}>
-                      To unblock Voice Mode, click the Lock icon in your browser address bar and enable microphone permissions.
+                <div className="mic-error-notice animate-slide-in" style={{ position: 'sticky', top: 0, margin: '0 0 var(--space-4) 0', width: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', width: '100%' }}>
+                    <AlertTriangle size={18} className="mic-error-icon" style={{ marginTop: '2px' }} />
+                    <div style={{ flexGrow: 1 }}>
+                      <div style={{ fontWeight: '700', fontSize: '12px' }}>Microphone Access Blocked</div>
+                      <div style={{ fontSize: '10px', marginTop: '2px', lineHeight: '1.4', opacity: 0.9 }}>
+                        To apply your microphone permission, the browser requires a page reload. Click the button below to reload and activate Voice Mode.
+                      </div>
                     </div>
+                    <button onClick={() => setMicPermissionError(false)} className="mic-error-close">
+                      <X size={12} />
+                    </button>
                   </div>
-                  <button onClick={() => setMicPermissionError(false)} className="mic-error-close">
-                    <X size={12} />
-                  </button>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                    <button 
+                      onClick={() => window.location.reload()} 
+                      className="btn-reload-mic"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      Reload Page
+                    </button>
+                  </div>
                 </div>
               )}
 
