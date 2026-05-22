@@ -307,7 +307,7 @@ function SignupForm() {
                 <span className="landing-logo-icon">
                   <Sparkles size={18} />
                 </span>
-                ResumePilot
+                ParserProof
               </Link>
               <h1 className="auth-title">Create your account</h1>
               <p className="auth-subtitle">Start optimizing your resume in minutes</p>
@@ -594,7 +594,7 @@ export default function SignupPage() {
                 <span className="landing-logo-icon">
                   <Sparkles size={18} />
                 </span>
-                ResumePilot
+                ParserProof
               </span>
               <h1 className="auth-title">Loading</h1>
               <p className="auth-subtitle">Please wait...</p>

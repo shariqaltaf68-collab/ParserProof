@@ -277,7 +277,7 @@ function ForgotPasswordForm() {
                 <span className="landing-logo-icon">
                   <Sparkles size={18} />
                 </span>
-                ResumePilot
+                ParserProof
               </Link>
               <h1 className="auth-title">Reset your password</h1>
               <p className="auth-subtitle">Enter your email and we will send a 6-digit recovery code</p>
@@ -620,7 +620,7 @@ function ForgotPasswordForm() {
             </p>
 
             <Link href="/login" className="btn btn-primary btn-lg" style={{ width: '100%', justifyContent: 'center' }}>
-              Sign In to ResumePilot
+              Sign In to ParserProof
             </Link>
           </div>
         )}
@@ -641,7 +641,7 @@ export default function ForgotPasswordPage() {
                 <span className="landing-logo-icon">
                   <Sparkles size={18} />
                 </span>
-                ResumePilot
+                ParserProof
               </span>
               <h1 className="auth-title">Loading</h1>
               <p className="auth-subtitle">Please wait...</p>

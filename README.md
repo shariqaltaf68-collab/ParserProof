@@ -1,8 +1,8 @@
-# ResumePilot ✨
+# ParserProof ✨
 
 AI-powered resume optimization platform that helps job seekers land more interviews.
 
-![ResumePilot](public/og-image.png)
+![ParserProof](public/og-image.png)
 
 ## Features
 
@@ -36,8 +36,8 @@ AI-powered resume optimization platform that helps job seekers land more intervi
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/your-username/resume-pilot.git
-   cd resume-pilot
+   git clone https://github.com/your-username/parser-proof.git
+   cd parser-proof
    ```
 
 2. Install dependencies:

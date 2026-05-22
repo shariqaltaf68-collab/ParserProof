@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ShieldCheck, Zap, ArrowRight, Target, Check, AlertTriangle } from 'lucide-react';
 
 export const metadata = {
-  title: 'ATS Resume Guide for Freshers: What It Is & How to Beat It | ResumePilot',
+  title: 'ATS Resume Guide for Freshers: What It Is & How to Beat It | ParserProof',
   description:
     'Complete guide on Applicant Tracking Systems (ATS) for Indian college graduates. Learn how parser tools read resumes, common formatting traps to avoid, and how to structure your experience to get selected.',
   keywords: [
@@ -24,7 +24,7 @@ export default function AtsResumeGuidePage() {
             <span className="landing-logo-icon">
               <Zap size={18} />
             </span>
-            ResumePilot
+            ParserProof
           </Link>
           <div className="landing-nav-actions">
             <Link href="/login" className="btn btn-ghost">
@@ -128,7 +128,7 @@ export default function AtsResumeGuidePage() {
           <section style={{ textAlign: 'center', marginTop: 'var(--space-12)', padding: 'var(--space-8)', background: 'rgba(99, 102, 241, 0.03)', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
             <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>Ready to Audit Your Match Score?</h3>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-6)', maxWidth: '500px', margin: '0 auto var(--space-6)' }}>
-              ResumePilot runs your resume text through our parser simulator and flags exactly which core keywords you are missing compared to your target job profile.
+              ParserProof runs your resume text through our parser simulator and flags exactly which core keywords you are missing compared to your target job profile.
             </p>
             <Link href="/signup" className="btn btn-primary">
               Run Free Match Check <ArrowRight size={16} />
@@ -140,7 +140,7 @@ export default function AtsResumeGuidePage() {
       {/* Footer */}
       <footer className="landing-footer" style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-8)' }}>
         <div className="footer-bottom">
-          <span>&copy; {new Date().getFullYear()} ResumePilot. Secure ATS checker.</span>
+          <span>&copy; {new Date().getFullYear()} ParserProof. Secure ATS checker.</span>
           <span>Designed with absolute data privacy.</span>
         </div>
       </footer>

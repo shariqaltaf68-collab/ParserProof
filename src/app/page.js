@@ -133,41 +133,41 @@ const fresherTestimonials = [
     role: 'Software Engineer',
     company: 'Amazon India',
     college: 'Delhi Technological University (DTU), B.Tech CSE',
-    text: 'My resume was stuck at a 42% match score for SDE roles. ResumePilot helped me see that I was leaving out critical keywords like REST APIs and system integration. I tailered it for Amazon, got an OA link within a week, and eventually landed the SDE-1 offer.',
+    text: 'My resume was stuck at a 42% match score for SDE roles. ParserProof helped me see that I was leaving out critical keywords like REST APIs and system integration. I tailered it for Amazon, got an OA link within a week, and eventually landed the SDE-1 offer.',
   },
   {
     name: 'Priya Nair',
     role: 'Associate Consultant',
     company: 'Deloitte India',
     college: 'Loyola College, Chennai, B.Com (Hons)',
-    text: 'As a commerce fresher, I kept using high-flown objectives that didn\'t say anything. ResumePilot forced me to change my project bullet points to showcase actual metrics (like handling ₹50K budget for college fest). Deloitte recruiters specifically asked about that on my resume.',
+    text: 'As a commerce fresher, I kept using high-flown objectives that didn\'t say anything. ParserProof forced me to change my project bullet points to showcase actual metrics (like handling ₹50K budget for college fest). Deloitte recruiters specifically asked about that on my resume.',
   },
   {
     name: 'Aniket Verma',
     role: 'Data Analyst',
     company: 'Fractal Analytics',
     college: 'Vellore Institute of Technology (VIT), B.Tech ECE',
-    text: 'I was applying with a multi-column Canva template. ResumePilot flagged that it was breaking ATS text scanners. I converted to their single-column clean format, optimized my SQL & Python project sections, and started getting calls from data science teams.',
+    text: 'I was applying with a multi-column Canva template. ParserProof flagged that it was breaking ATS text scanners. I converted to their single-column clean format, optimized my SQL & Python project sections, and started getting calls from data science teams.',
   },
   {
     name: 'Sneha Deshmukh',
     role: 'Graduate Engineer Trainee',
     company: 'Tata Motors',
     college: 'College of Engineering Pune (COEP), B.Tech Mechanical',
-    text: 'I struggled to translate my academic FSAE racing project into business terms. ResumePilot polished my bullet points to highlight ANSYS simulations and CAD modeling with real quantified tolerances. I got selected in campus placements immediately.',
+    text: 'I struggled to translate my academic FSAE racing project into business terms. ParserProof polished my bullet points to highlight ANSYS simulations and CAD modeling with real quantified tolerances. I got selected in campus placements immediately.',
   },
 ];
 
 const faqItems = [
   {
-    question: 'How does ResumePilot optimize my resume?',
+    question: 'How does ParserProof optimize my resume?',
     answer:
-      'ResumePilot compares your resume against a target job description, identifying critical keyword gaps, formatting issues, and structural mistakes. It then provides a rewritten, ATS-optimized version focusing on quantifiable achievements and industry terms, without fabricating any details.',
+      'ParserProof compares your resume against a target job description, identifying critical keyword gaps, formatting issues, and structural mistakes. It then provides a rewritten, ATS-optimized version focusing on quantifiable achievements and industry terms, without fabricating any details.',
   },
   {
     question: 'Will it invent fake job history or certifications?',
     answer:
-      'Absolutely not. ResumePilot operates on complete integrity. It will never invent jobs, fake certifications, or falsify skills. It only rewrites, structures, and frames your actual projects, coursework, and work history to ensure it passes automated screening.',
+      'Absolutely not. ParserProof operates on complete integrity. It will never invent jobs, fake certifications, or falsify skills. It only rewrites, structures, and frames your actual projects, coursework, and work history to ensure it passes automated screening.',
   },
   {
     question: 'Why is a single-column layout recommended?',
@@ -204,7 +204,7 @@ export default function LandingPage() {
         <div className="promo-banner-inner">
           <span className="promo-tag">🇮🇳 FAIR INDIAN PRICING</span>
           <p className="promo-text">
-            Why pay <strong>₹1,500+/mo ($20)</strong> for expensive Western resume builders? ResumePilot is designed specifically for Indian freshers — get <strong>15 full ATS optimizations</strong> for just <strong>₹199/month</strong>.
+            Why pay <strong>₹1,500+/mo ($20)</strong> for expensive Western resume builders? ParserProof is designed specifically for Indian freshers — get <strong>15 full ATS optimizations</strong> for just <strong>₹199/month</strong>.
           </p>
           <button className="promo-btn" onClick={() => scrollTo('pricing')}>
             View Plans <ArrowRight size={14} />
@@ -219,7 +219,7 @@ export default function LandingPage() {
             <span className="landing-logo-icon">
               <Zap size={18} />
             </span>
-            ResumePilot
+            ParserProof
           </Link>
 
           <ul className="landing-nav-links">
@@ -290,7 +290,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="hero-description">
-            75% of resumes never reach a human recruiter. ResumePilot checks your resume against ATS filters, fixes critical keyword gaps, and formats your experience for maximum compatibility.
+            75% of resumes never reach a human recruiter. ParserProof checks your resume against ATS filters, fixes critical keyword gaps, and formats your experience for maximum compatibility.
           </p>
 
           <div className="hero-actions">
@@ -396,7 +396,7 @@ export default function LandingPage() {
               Standard resume generators use buzzwords like "strategic thought leader" and "revolutionary next-gen innovator." Recruiters instantly identify these generic styles and reject them.
             </p>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', lineHeight: 1.6 }}>
-              ResumePilot focuses strictly on structural parsing, keyword match percentages, and rewriting your real achievements with quantifiable engineering metrics.
+              ParserProof focuses strictly on structural parsing, keyword match percentages, and rewriting your real achievements with quantifiable engineering metrics.
             </p>
           </div>
         </div>
@@ -432,7 +432,7 @@ export default function LandingPage() {
           <span className="text-gradient">Quantifiable Framing</span>
         </h2>
         <p className="section-subtitle">
-          See how ResumePilot takes simple fresher project descriptions and elevates them using STAR framing and precise technical keyword inclusion.
+          See how ParserProof takes simple fresher project descriptions and elevates them using STAR framing and precise technical keyword inclusion.
         </p>
 
         <div className="before-after-container">
@@ -475,7 +475,7 @@ export default function LandingPage() {
               <span className="visual-dot red"></span>
               <span className="visual-dot yellow"></span>
               <span className="visual-dot green"></span>
-              <span className="visual-title">ResumePilot Intelligence Parser</span>
+              <span className="visual-title">ParserProof Intelligence Parser</span>
             </div>
             <div className="benefits-visual-content">
               <div className="visual-line scan-active">⚡ Scanning current_resume.pdf...</div>
@@ -491,7 +491,7 @@ export default function LandingPage() {
               <span className="text-gradient">Intelligence</span>
             </h2>
             <p className="benefits-subtitle-left">
-              ResumePilot gives you the exact analytical tools to target competitive corporate roles with complete confidence.
+              ParserProof gives you the exact analytical tools to target competitive corporate roles with complete confidence.
             </p>
             
             <div className="benefits-list">
@@ -518,7 +518,7 @@ export default function LandingPage() {
           <span className="text-gradient">Indian Freshers</span>
         </h2>
         <p className="section-subtitle">
-          How real engineering and commerce graduates used ResumePilot to optimize their resumes and clear off-campus screening rounds.
+          How real engineering and commerce graduates used ParserProof to optimize their resumes and clear off-campus screening rounds.
         </p>
 
         <div className="testimonials-grid">
@@ -597,7 +597,7 @@ export default function LandingPage() {
             <h3 style={{
               fontSize: 'var(--font-size-lg)',
               fontWeight: '700',
-              color: '#ffffff',
+              color: 'var(--color-text-primary)',
               marginBottom: 'var(--space-2)',
             }}>
               Why pay ₹1,600+ ($20/mo) for Western SaaS builders?
@@ -609,7 +609,7 @@ export default function LandingPage() {
               maxWidth: '650px',
               margin: '0 auto',
             }}>
-              Most resume tools charge premium US pricing. ResumePilot offers <strong style={{ color: 'var(--color-accent)' }}>100% equivalent high-accuracy Groq AI optimization</strong> at less than a fraction of the cost—starting at just <strong style={{ color: '#ffffff' }}>₹199/month</strong>. Save over 85% on premium job applications!
+              Most resume tools charge premium US pricing. ParserProof offers <strong style={{ color: 'var(--color-accent)' }}>100% equivalent high-accuracy Groq AI optimization</strong> at less than a fraction of the cost—starting at just <strong style={{ color: 'var(--color-text-primary)' }}>₹199/month</strong>. Save over 85% on premium job applications!
             </p>
           </div>
         </div>
@@ -708,7 +708,7 @@ export default function LandingPage() {
               <span className="landing-logo-icon">
                 <Zap size={18} />
               </span>
-              ResumePilot
+              ParserProof
             </Link>
             <p className="footer-brand-description">
               Focused ATS resume optimization platform for Indian freshers and job seekers. Secure, truthful, and designed for recruiter conversions.
@@ -769,7 +769,7 @@ export default function LandingPage() {
         </div>
 
         <div className="footer-bottom">
-          <span>&copy; {new Date().getFullYear()} ResumePilot. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} ParserProof. All rights reserved.</span>
           <span>Used by freshers at India's top colleges.</span>
         </div>
       </footer>

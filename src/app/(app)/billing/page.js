@@ -168,7 +168,7 @@ export default function BillingPage() {
         key: orderData.keyId,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'ResumePilot',
+        name: 'ParserProof',
         description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan - Monthly`,
         order_id: orderData.orderId,
         prefill: {

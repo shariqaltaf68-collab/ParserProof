@@ -838,7 +838,7 @@ ${(() => {
           <div class="pdf-header">
             <h1 class="pdf-title">${headerTitle}</h1>
             <p class="pdf-subtitle">${docType}</p>
-            <div class="pdf-meta">Generated via ResumePilot on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div class="pdf-meta">Generated via ParserProof on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
           </div>
           <div class="pdf-body">${rawText}</div>
         `}

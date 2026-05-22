@@ -13,19 +13,19 @@ export async function generateMetadata({ params }) {
   const page = config.pages.find((p) => p.slug === params.slug);
   if (!page) return {};
   return {
-    title: `${page.title} | ResumePilot`,
+    title: `${page.title} | ParserProof`,
     description: page.description,
     keywords: [
       page.keyword,
       "ATS resume check",
       "free resume templates",
       "fresher resume format",
-      "ResumePilot",
+      "ParserProof",
     ],
     openGraph: {
       title: page.title,
       description: page.description,
-      url: `https://www.resumepilot.com/${page.slug}`,
+      url: `https://www.parserproof.com/${page.slug}`,
       images: [
         {
           url: `/og-image.png`,
@@ -79,7 +79,7 @@ export default function DynamicSeoPage({ params }) {
             <span className="landing-logo-icon">
               <Zap size={18} />
             </span>
-            ResumePilot
+            ParserProof
           </Link>
           <div className="landing-nav-actions">
             <Link href="/login" className="btn btn-ghost">
@@ -177,13 +177,13 @@ export default function DynamicSeoPage({ params }) {
               </p>
             </div>
 
-            {/* Why ResumePilot Section */}
+            {/* Why ParserProof Section */}
             <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               <h2 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 800, borderBottom: '1px solid var(--color-border)', paddingBottom: 'var(--space-2)' }}>
-                Why Optimize {page.h1} with ResumePilot?
+                Why Optimize {page.h1} with ParserProof?
               </h2>
               <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
-                ResumePilot isn't just another generic AI writer that prints superficial corporate slogans. We simulate real enterprise screening algorithms (such as Taleo, Greenhouse, and Workday) to evaluate your resume structure, keyword density, and quantitative accomplishments.
+                ParserProof isn't just another generic AI writer that prints superficial corporate slogans. We simulate real enterprise screening algorithms (such as Taleo, Greenhouse, and Workday) to evaluate your resume structure, keyword density, and quantitative accomplishments.
               </p>
               <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
                 Our <strong>STAR Experience Rewriter</strong> systematically transforms your academic achievements, projects, or work history into rigorous, high-impact bullet points utilizing Google's XYZ formula: <em>"Accomplished X, measured by Y, by doing Z."</em>
@@ -265,7 +265,7 @@ export default function DynamicSeoPage({ params }) {
                 <span className="landing-logo-icon">
                   <Zap size={16} />
                 </span>
-                ResumePilot
+                ParserProof
               </Link>
               <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-xs)', maxWidth: '300px', lineHeight: 1.5 }}>
                 An elite Applicant Tracking System (ATS) optimization and verification platform designed specifically for job seekers to elevate conversion success.
@@ -290,7 +290,7 @@ export default function DynamicSeoPage({ params }) {
           </div>
           <div className="footer-bottom" style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
             <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-              &copy; {new Date().getFullYear()} ResumePilot. Secure ATS checker.
+              &copy; {new Date().getFullYear()} ParserProof. Secure ATS checker.
             </span>
             <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
               Designed with absolute data privacy.

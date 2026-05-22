@@ -7,7 +7,7 @@
  * @param {string} filename - The desired filename (without extension).
  * @returns {Promise<void>}
  */
-export async function exportToPDF(content, filename = 'ResumePilot-Export') {
+export async function exportToPDF(content, filename = 'ParserProof-Export') {
   const html2pdf = (await import('html2pdf.js')).default;
 
   const container = document.createElement('div');

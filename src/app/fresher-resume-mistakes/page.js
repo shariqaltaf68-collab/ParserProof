@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { AlertTriangle, Zap, ArrowRight, ShieldCheck, Check } from 'lucide-react';
 
 export const metadata = {
-  title: '10 Resume Mistakes Freshers Make That Lead to Rejection | ResumePilot',
+  title: '10 Resume Mistakes Freshers Make That Lead to Rejection | ParserProof',
   description:
     'Are you sending out resume applications and getting zero replies? Here are 10 fatal fresher resume mistakes (Canva formats, empty descriptions, fluff) that get you auto-rejected.',
   keywords: [
@@ -77,7 +77,7 @@ export default function FresherResumeMistakesPage() {
             <span className="landing-logo-icon">
               <Zap size={18} />
             </span>
-            ResumePilot
+            ParserProof
           </Link>
           <div className="landing-nav-actions">
             <Link href="/login" className="btn btn-ghost">
@@ -136,7 +136,7 @@ export default function FresherResumeMistakesPage() {
       {/* Footer */}
       <footer className="landing-footer" style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-8)' }}>
         <div className="footer-bottom">
-          <span>&copy; {new Date().getFullYear()} ResumePilot. Built for career safety.</span>
+          <span>&copy; {new Date().getFullYear()} ParserProof. Built for career safety.</span>
           <span>No fabricated data, complete security.</span>
         </div>
       </footer>

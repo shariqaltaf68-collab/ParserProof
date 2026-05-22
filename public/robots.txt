@@ -7,3 +7,5 @@ Disallow: /results
 Disallow: /history
 Disallow: /settings
 Disallow: /billing
+
+Sitemap: https://www.parserproof.com/sitemap.xml

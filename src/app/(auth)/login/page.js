@@ -78,7 +78,7 @@ function LoginForm() {
             <span className="landing-logo-icon">
               <Sparkles size={18} />
             </span>
-            ResumePilot
+            ParserProof
           </Link>
           <h1 className="auth-title">Welcome back</h1>
           <p className="auth-subtitle">Sign in to continue optimizing your career</p>
@@ -196,7 +196,7 @@ export default function LoginPage() {
                 <span className="landing-logo-icon">
                   <Sparkles size={18} />
                 </span>
-                ResumePilot
+                ParserProof
               </span>
               <h1 className="auth-title">Loading</h1>
               <p className="auth-subtitle">Please wait...</p>

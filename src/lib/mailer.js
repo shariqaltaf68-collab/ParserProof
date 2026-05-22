@@ -24,7 +24,7 @@ export async function sendVerificationEmail(email, name, code) {
   // Fallback to developer terminal logging if SMTP credentials are not configured
   if (!smtpUser || !smtpPass) {
     console.log('\n' + '='.repeat(60));
-    console.log('🤖 RESUMEPILOT - DEVELOPER VERIFICATION EMAIL FALLBACK');
+    console.log('🤖 PARSERPROOF - DEVELOPER VERIFICATION EMAIL FALLBACK');
     console.log(`To: ${name || 'User'} <${email}>`);
     console.log(`Verification Code: [ ${code} ]`);
     console.log('Expires in: 15 minutes');
@@ -40,26 +40,26 @@ export async function sendVerificationEmail(email, name, code) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Verify your email address - ResumePilot</title>
+      <title>Verify your email address - ParserProof</title>
       <style>
         body {
           margin: 0;
           padding: 0;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-          background-color: #0a0a0f;
-          color: #f1f5f9;
+          background-color: #f8fafc;
+          color: #0f172a;
         }
         .container {
           max-width: 580px;
           margin: 40px auto;
-          background: linear-gradient(145deg, #1e1e2e 0%, #12121a 100%);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
           border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
         }
         .header {
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+          background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
           padding: 30px 40px;
           text-align: center;
         }
@@ -78,18 +78,18 @@ export async function sendVerificationEmail(email, name, code) {
           font-size: 18px;
           font-weight: 600;
           margin-bottom: 16px;
-          color: #ffffff;
+          color: #0f172a;
         }
         .text {
           font-size: 15px;
-          color: #94a3b8;
+          color: #475569;
           margin-bottom: 30px;
         }
         .code-container {
           text-align: center;
           margin: 30px 0;
-          background-color: #1a1a28;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background-color: #f8fafc;
+          border: 1px solid #e2e8f0;
           border-radius: 12px;
           padding: 20px;
         }
@@ -98,7 +98,7 @@ export async function sendVerificationEmail(email, name, code) {
           font-size: 36px;
           font-weight: 800;
           letter-spacing: 8px;
-          color: #6366f1;
+          color: #4f46e5;
           margin: 0;
         }
         .expires {
@@ -107,15 +107,15 @@ export async function sendVerificationEmail(email, name, code) {
           margin-top: 8px;
         }
         .footer {
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          border-top: 1px solid #e2e8f0;
           padding: 20px 40px;
-          background-color: rgba(0, 0, 0, 0.2);
+          background-color: #f8fafc;
           text-align: center;
           font-size: 12px;
-          color: #475569;
+          color: #64748b;
         }
         .footer a {
-          color: #6366f1;
+          color: #4f46e5;
           text-decoration: none;
         }
       </style>
@@ -123,12 +123,12 @@ export async function sendVerificationEmail(email, name, code) {
     <body>
       <div class="container">
         <div class="header">
-          <h1>ResumePilot</h1>
+          <h1>ParserProof</h1>
         </div>
         <div class="content">
           <div class="greeting">Hello, ${cleanName}!</div>
           <div class="text">
-            Thank you for creating an account with ResumePilot. To complete your registration and unlock your AI-powered resume and cover letter dashboard, please verify your email address by entering this 6-digit code:
+            Thank you for creating an account with ParserProof. To complete your registration and unlock your AI-powered resume and cover letter dashboard, please verify your email address by entering this 6-digit code:
           </div>
           <div class="code-container">
             <div class="code">${code}</div>
@@ -139,7 +139,7 @@ export async function sendVerificationEmail(email, name, code) {
           </div>
         </div>
         <div class="footer">
-          &copy; ${new Date().getFullYear()} ResumePilot. All rights reserved.<br>
+          &copy; ${new Date().getFullYear()} ParserProof. All rights reserved.<br>
           Transforming careers with generative intelligence.
         </div>
       </div>
@@ -148,11 +148,11 @@ export async function sendVerificationEmail(email, name, code) {
   `;
 
   const textContent = `
-ResumePilot - Email Verification
+ParserProof - Email Verification
 
 Hello, ${cleanName}!
 
-Thank you for creating an account with ResumePilot. To complete your registration and unlock your AI-powered resume dashboard, please verify your email by entering this 6-digit code:
+Thank you for creating an account with ParserProof. To complete your registration and unlock your AI-powered resume dashboard, please verify your email by entering this 6-digit code:
 
 Verification Code: ${code}
 
@@ -160,7 +160,7 @@ This code will expire in 15 minutes.
 
 If you did not initiate this request, you can safely ignore this email.
 
-© ${new Date().getFullYear()} ResumePilot. All rights reserved.
+© ${new Date().getFullYear()} ParserProof. All rights reserved.
   `;
 
   try {
@@ -175,9 +175,9 @@ If you did not initiate this request, you can safely ignore this email.
     });
 
     await transporter.sendMail({
-      from: `"ResumePilot" <${smtpUser}>`,
+      from: `"ParserProof" <${smtpUser}>`,
       to: email,
-      subject: `${code} is your ResumePilot verification code`,
+      subject: `${code} is your ParserProof verification code`,
       text: textContent,
       html: htmlContent,
     });
@@ -187,7 +187,7 @@ If you did not initiate this request, you can safely ignore this email.
     console.error('Error sending verification email via SMTP:', error);
     // Graceful fallback to logging if email sending fails physically (due to bad authentication or network block)
     console.log('\n' + '='.repeat(60));
-    console.log('🤖 RESUMEPILOT - SMTP ERROR FALLBACK LOG');
+    console.log('🤖 PARSERPROOF - SMTP ERROR FALLBACK LOG');
     console.log(`To: ${name || 'User'} <${email}>`);
     console.log(`Verification Code: [ ${code} ]`);
     console.log('Expires in: 15 minutes');
@@ -210,7 +210,7 @@ export async function sendPasswordResetEmail(email, name, code) {
 
   if (!smtpUser || !smtpPass) {
     console.log('\n' + '='.repeat(60));
-    console.log('🔑 RESUMEPILOT - PASSWORD RESET CODE (DEV FALLBACK)');
+    console.log('🔑 PARSERPROOF - PASSWORD RESET CODE (DEV FALLBACK)');
     console.log(`To: ${name || 'User'} <${email}>`);
     console.log(`Reset Code: [ ${code} ]`);
     console.log('Expires in: 15 minutes');
@@ -226,30 +226,30 @@ export async function sendPasswordResetEmail(email, name, code) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Reset your password - ResumePilot</title>
+      <title>Reset your password - ParserProof</title>
       <style>
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0a0a0f; color: #f1f5f9; }
-        .container { max-width: 580px; margin: 40px auto; background: linear-gradient(145deg, #1e1e2e 0%, #12121a 100%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
-        .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%); padding: 30px 40px; text-align: center; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .container { max-width: 580px; margin: 40px auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05); }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%); padding: 30px 40px; text-align: center; }
         .header h1 { margin: 0; color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
         .content { padding: 40px; line-height: 1.6; }
-        .greeting { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #ffffff; }
-        .text { font-size: 15px; color: #94a3b8; margin-bottom: 30px; }
-        .code-container { text-align: center; margin: 30px 0; background-color: #1a1a28; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px; }
-        .code { font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #f59e0b; margin: 0; }
+        .greeting { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #0f172a; }
+        .text { font-size: 15px; color: #475569; margin-bottom: 30px; }
+        .code-container { text-align: center; margin: 30px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+        .code { font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #d97706; margin: 0; }
         .expires { font-size: 12px; color: #64748b; margin-top: 8px; }
-        .footer { border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 20px 40px; background-color: rgba(0, 0, 0, 0.2); text-align: center; font-size: 12px; color: #475569; }
+        .footer { border-top: 1px solid #e2e8f0; padding: 20px 40px; background-color: #f8fafc; text-align: center; font-size: 12px; color: #64748b; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>ResumePilot</h1>
+          <h1>ParserProof</h1>
         </div>
         <div class="content">
           <div class="greeting">Hello, ${cleanName}!</div>
           <div class="text">
-            We received a request to reset the password for your ResumePilot account. Enter this 6-digit code to set a new password:
+            We received a request to reset the password for your ParserProof account. Enter this 6-digit code to set a new password:
           </div>
           <div class="code-container">
             <div class="code">${code}</div>
@@ -260,7 +260,7 @@ export async function sendPasswordResetEmail(email, name, code) {
           </div>
         </div>
         <div class="footer">
-          &copy; ${new Date().getFullYear()} ResumePilot. All rights reserved.<br>
+          &copy; ${new Date().getFullYear()} ParserProof. All rights reserved.<br>
           Transforming careers with generative intelligence.
         </div>
       </div>
@@ -269,11 +269,11 @@ export async function sendPasswordResetEmail(email, name, code) {
   `;
 
   const textContent = `
-ResumePilot - Password Reset
+ParserProof - Password Reset
 
 Hello, ${cleanName}!
 
-We received a request to reset the password for your ResumePilot account. Enter this 6-digit code to set a new password:
+We received a request to reset the password for your ParserProof account. Enter this 6-digit code to set a new password:
 
 Reset Code: ${code}
 
@@ -281,7 +281,7 @@ This code will expire in 15 minutes.
 
 If you did not request a password reset, you can safely ignore this email.
 
-© ${new Date().getFullYear()} ResumePilot. All rights reserved.
+© ${new Date().getFullYear()} ParserProof. All rights reserved.
   `;
 
   try {
@@ -293,9 +293,9 @@ If you did not request a password reset, you can safely ignore this email.
     });
 
     await transporter.sendMail({
-      from: `"ResumePilot" <${smtpUser}>`,
+      from: `"ParserProof" <${smtpUser}>`,
       to: email,
-      subject: `${code} is your ResumePilot password reset code`,
+      subject: `${code} is your ParserProof password reset code`,
       text: textContent,
       html: htmlContent,
     });
@@ -304,7 +304,7 @@ If you did not request a password reset, you can safely ignore this email.
   } catch (error) {
     console.error('Error sending password reset email:', error);
     console.log('\n' + '='.repeat(60));
-    console.log('🔑 RESUMEPILOT - PASSWORD RESET SMTP ERROR FALLBACK');
+    console.log('🔑 PARSERPROOF - PASSWORD RESET SMTP ERROR FALLBACK');
     console.log(`To: ${name || 'User'} <${email}>`);
     console.log(`Reset Code: [ ${code} ]`);
     console.log('='.repeat(60) + '\n');
@@ -399,13 +399,13 @@ export async function sendRefundRequestEmail({ userEmail, userId, planId, orderI
         
         <p style="margin-top: 20px; font-weight: bold; color: #0f172a;">${actionText}</p>
       </div>
-      <div class="footer">&copy; ResumePilot Billing System</div>
+      <div class="footer">&copy; ParserProof Billing System</div>
     </body>
     </html>
   `;
 
   if (!smtpUser || !smtpPass) {
-    console.log(`\n🚨 RESUMEPILOT - SMTP ADMIN REFUND ALERT DEV FALLBACK (Refundable: ${isRefundable})`);
+    console.log(`\n🚨 PARSERPROOF - SMTP ADMIN REFUND ALERT DEV FALLBACK (Refundable: ${isRefundable})`);
     console.log(`User: ${userEmail}`);
     console.log(`Plan: ${planId}`);
     console.log(`Order: ${orderId}`);
@@ -428,7 +428,7 @@ export async function sendRefundRequestEmail({ userEmail, userId, planId, orderI
     });
 
     await transporter.sendMail({
-      from: `"ResumePilot Billing" <${smtpUser}>`,
+      from: `"ParserProof Billing" <${smtpUser}>`,
       to: adminEmail,
       subject: subjectText,
       html: htmlContent,

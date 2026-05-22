@@ -86,7 +86,7 @@ function Sidebar({ isOpen, onClose }) {
             <span className="landing-logo-icon">
               <Sparkles size={18} />
             </span>
-            ResumePilot
+            ParserProof
           </Link>
         </div>
 

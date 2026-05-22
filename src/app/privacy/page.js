@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export const metadata = {
-  title: 'Privacy Policy - ResumePilot',
-  description: 'Learn how ResumePilot collects, uses, and protects your data.',
+  title: 'Privacy Policy - ParserProof',
+  description: 'Learn how ParserProof collects, uses, and protects your data.',
 };
 
 export default function PrivacyPolicyPage() {
@@ -20,13 +20,13 @@ export default function PrivacyPolicyPage() {
       </p>
 
       <p>
-        At ResumePilot, we take your privacy seriously. This Privacy Policy explains how we collect,
+        At ParserProof, we take your privacy seriously. This Privacy Policy explains how we collect,
         use, disclose, and safeguard your information when you use our AI-powered resume optimization
         platform.
       </p>
 
       <h2>1. Information We Collect</h2>
-      <p>We collect the following types of information when you use ResumePilot:</p>
+      <p>We collect the following types of information when you use ParserProof:</p>
       <ul>
         <li>
           <strong>Account information:</strong> Your email address and name provided during
@@ -108,7 +108,7 @@ export default function PrivacyPolicyPage() {
 
       <h2>7. Third-Party Services</h2>
       <p>
-        We use the following categories of third-party services to operate ResumePilot:
+        We use the following categories of third-party services to operate ParserProof:
       </p>
       <ul>
         <li>

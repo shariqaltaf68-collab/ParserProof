@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: 'ResumePilot — ATS Resume Checker & Optimization Platform',
+  title: 'ParserProof — ATS Resume Checker & Optimization Platform',
   description:
     'Increase your job interview response rate. Scan your resume against target job description filters, analyze keyword gaps, fix parsing formatting blocks, and optimize your experience bullet points with quantifiable outcomes.',
   keywords: [
@@ -21,14 +21,14 @@ export const metadata = {
     'job application keyword gap tool',
     'off-campus placement prep',
   ],
-  authors: [{ name: 'ResumePilot' }],
-  creator: 'ResumePilot',
+  authors: [{ name: 'ParserProof' }],
+  creator: 'ParserProof',
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'ResumePilot',
-    title: 'ResumePilot — ATS Resume Checker & Optimization Platform',
+    siteName: 'ParserProof',
+    title: 'ParserProof — ATS Resume Checker & Optimization Platform',
     description:
       'Increase your job interview response rate. Scan your resume against target job description filters, analyze keyword gaps, and optimize experience descriptions.',
     images: [
@@ -36,17 +36,17 @@ export const metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'ResumePilot — ATS Resume Optimization',
+        alt: 'ParserProof — ATS Resume Optimization',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ResumePilot — ATS Resume Checker & Optimization Platform',
+    title: 'ParserProof — ATS Resume Checker & Optimization Platform',
     description:
       'Increase your job interview response rate. Scan your resume against target filters and optimize your content.',
     images: ['/og-image.png'],
-    creator: '@resumepilot',
+    creator: '@parserproof',
   },
   robots: {
     index: true,

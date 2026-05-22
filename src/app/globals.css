@@ -2,58 +2,58 @@
 
 /* ===== DESIGN TOKENS ===== */
 :root {
-  /* Colors - Premium Dark Theme */
-  --color-bg-primary: #0a0a0f;
-  --color-bg-secondary: #12121a;
-  --color-bg-tertiary: #1a1a28;
-  --color-bg-elevated: #1e1e2e;
-  --color-bg-hover: #252538;
-  --color-bg-active: #2a2a42;
+  /* Colors - Premium Light Theme */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-elevated: #ffffff;
+  --color-bg-hover: #f1f5f9;
+  --color-bg-active: #e2e8f0;
 
   /* Accent - Vivid Indigo to Blue gradient spectrum */
-  --color-accent: #6366f1;
-  --color-accent-hover: #818cf8;
-  --color-accent-light: rgba(99, 102, 241, 0.12);
-  --color-accent-glow: rgba(99, 102, 241, 0.3);
+  --color-accent: #4f46e5;
+  --color-accent-hover: #4338ca;
+  --color-accent-light: rgba(79, 70, 229, 0.08);
+  --color-accent-glow: rgba(79, 70, 229, 0.15);
 
   /* Secondary accent - Emerald */
-  --color-success: #10b981;
-  --color-success-light: rgba(16, 185, 129, 0.12);
+  --color-success: #059669;
+  --color-success-light: rgba(5, 150, 105, 0.08);
 
   /* Warning - Amber */
-  --color-warning: #f59e0b;
-  --color-warning-light: rgba(245, 158, 11, 0.12);
+  --color-warning: #d97706;
+  --color-warning-light: rgba(217, 119, 6, 0.08);
 
   /* Danger - Rose */
-  --color-danger: #ef4444;
-  --color-danger-light: rgba(239, 68, 68, 0.12);
+  --color-danger: #dc2626;
+  --color-danger-light: rgba(220, 38, 38, 0.08);
 
   /* Text */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
   --color-text-tertiary: #64748b;
-  --color-text-muted: #475569;
-  --color-text-inverse: #0a0a0f;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #ffffff;
 
   /* Borders */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(255, 255, 255, 0.12);
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
   --color-border-focus: var(--color-accent);
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
-  --gradient-hero: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-  --gradient-card: linear-gradient(145deg, rgba(30, 30, 46, 0.6) 0%, rgba(18, 18, 26, 0.8) 100%);
-  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+  --gradient-hero: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.5) 100%);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.15);
-  --shadow-glow-lg: 0 0 60px rgba(99, 102, 241, 0.2);
+  /* Shadows - Slate-based elegant drop shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --shadow-xl: 0 16px 48px rgba(15, 23, 42, 0.1);
+  --shadow-glow: 0 0 30px rgba(79, 70, 229, 0.08);
+  --shadow-glow-lg: 0 0 60px rgba(79, 70, 229, 0.12);
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -793,7 +793,7 @@ h6 { font-size: var(--font-size-lg); }
   right: 0;
   z-index: 100;
   padding: var(--space-4) var(--space-6);
-  background: rgba(10, 10, 15, 0.8);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-border);
@@ -1460,7 +1460,7 @@ h6 { font-size: var(--font-size-lg); }
   justify-content: space-between;
   padding: 0 var(--space-8);
   border-bottom: 1px solid var(--color-border);
-  background: rgba(10, 10, 15, 0.8);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   position: sticky;
   top: 0;

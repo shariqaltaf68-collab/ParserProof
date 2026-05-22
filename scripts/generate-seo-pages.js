@@ -21,7 +21,7 @@ export const metadata = {
   openGraph: {
     title: '${page.title}',
     description: '${page.description}',
-    url: 'https://www.resumepilot.com/${slug}',
+    url: 'https://www.parserproof.com/${slug}',
     images: [{ url: '/og/${slug}.png', alt: '${page.h1}' }],
     type: 'website',
   },
