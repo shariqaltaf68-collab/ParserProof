@@ -5125,3 +5125,122 @@ h6 { font-size: var(--font-size-lg); }
   flex-shrink: 0;
   color: var(--color-danger);
 }
+
+/* ===== ParserProof AI Assistant System Styles ===== */
+
+.assistant-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: calc(100vh - 130px);
+  min-height: 550px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.assistant-workspace-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-6);
+  height: 100%;
+}
+
+@media (max-width: 1024px) {
+  .assistant-workspace-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: var(--space-4);
+  }
+  .assistant-side-panel {
+    display: none;
+  }
+}
+
+.assistant-side-panel {
+  height: 100%;
+}
+
+.assistant-main-chat {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.assistant-messages-feed {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.chat-bubble-container.user {
+  justify-content: flex-end;
+}
+
+.chat-bubble-container.assistant {
+  justify-content: flex-start;
+}
+
+.chat-bubble-user {
+  background: var(--color-accent) !important;
+  color: var(--color-text-inverse) !important;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 var(--radius-lg) !important;
+  border: none !important;
+}
+
+.chat-bubble-assistant {
+  background: var(--color-bg-secondary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 0 !important;
+}
+
+.assistant-chips-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animations & Special States */
+@keyframes voice-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.mic-active-pulse {
+  animation: voice-pulse 1.5s infinite;
+  background-color: var(--color-danger) !important;
+  color: #ffffff !important;
+}
+
+.voice-wave-active {
+  animation: spin 2s linear infinite;
+  color: var(--color-accent) !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.desktop-only {
+  display: inline;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+}

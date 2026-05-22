@@ -23,10 +23,11 @@ model User {
   verificationCode    String?
   verificationExpires DateTime?
 
-  accounts  Account[]
-  sessions  Session[]
-  projects  Project[]
-  auditLogs AuditLog[]
+  accounts          Account[]
+  sessions          Session[]
+  projects          Project[]
+  auditLogs         AuditLog[]
+  assistantMessages AssistantMessage[]
 }
 
 model Account {
@@ -107,5 +108,27 @@ model AuditLog {
 
   @@index([userId])
   @@index([action])
+  @@index([createdAt])
+}
+
+model GuestUsage {
+  id        String   @id @default(cuid())
+  ip        String   @unique
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model AssistantMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String   // "user" or "assistant"
+  content   String
+  projectId String?  // Optional context association
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
   @@index([createdAt])
 }

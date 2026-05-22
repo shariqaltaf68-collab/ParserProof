@@ -251,6 +251,11 @@ export default function LandingPage() {
               </button>
             </li>
             <li>
+              <Link href="/assistant" className="landing-nav-link">
+                AI Assistant
+              </Link>
+            </li>
+            <li>
               <button
                 className="landing-nav-link"
                 onClick={() => scrollTo('benefits')}

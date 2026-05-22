@@ -13,6 +13,7 @@ import {
   CreditCard,
   Menu,
   LogOut,
+  LogIn,
   X,
   Mail,
   Shield,
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'New Project', href: '/new', icon: PlusCircle },
+      { name: 'AI Assistant', href: '/assistant', icon: Sparkles },
       { name: 'History', href: '/history', icon: History },
     ],
   },
@@ -49,6 +51,7 @@ const NAV_ITEMS = [
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
   '/new': 'New Project',
+  '/assistant': 'AI Assistant',
   '/history': 'History',
   '/settings': 'Settings',
   '/billing': 'Billing',
@@ -65,9 +68,9 @@ function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const userName = session?.user?.name || 'User';
-  const userPlan = session?.user?.plan || 'free';
-  const initials = getInitials(userName);
+  const userName = session?.user?.name || 'Guest';
+  const userPlan = session?.user?.plan || 'Guest';
+  const initials = session?.user?.name ? getInitials(session.user.name) : 'G';
 
   const handleLogout = useCallback(() => {
     signOut({ callbackUrl: '/login' });
@@ -146,20 +149,35 @@ function Sidebar({ isOpen, onClose }) {
             <div className="sidebar-avatar">{initials}</div>
             <div className="sidebar-user-info">
               <div className="sidebar-user-name">{userName}</div>
-              <div className="sidebar-user-plan">{userPlan} plan</div>
+              <div className="sidebar-user-plan">{userPlan} {userPlan === 'Guest' ? 'Session' : 'Plan'}</div>
             </div>
           </div>
-          <button
-            id="logout-button"
-            className="sidebar-nav-item"
-            onClick={handleLogout}
-            style={{ width: '100%', marginTop: '4px' }}
-          >
-            <span className="sidebar-nav-item-icon">
-              <LogOut size={18} />
-            </span>
-            Log out
-          </button>
+          {session ? (
+            <button
+              id="logout-button"
+              className="sidebar-nav-item"
+              onClick={handleLogout}
+              style={{ width: '100%', marginTop: '4px' }}
+            >
+              <span className="sidebar-nav-item-icon">
+                <LogOut size={18} />
+              </span>
+              Log out
+            </button>
+          ) : (
+            <Link
+              id="login-button"
+              className="sidebar-nav-item"
+              href="/login"
+              style={{ width: '100%', marginTop: '4px', textDecoration: 'none' }}
+              onClick={onClose}
+            >
+              <span className="sidebar-nav-item-icon">
+                <LogIn size={18} />
+              </span>
+              Log in / Sign up
+            </Link>
+          )}
         </div>
       </aside>
     </>
