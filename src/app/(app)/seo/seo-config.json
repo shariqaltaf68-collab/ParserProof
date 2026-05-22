@@ -1,0 +1,91 @@
+{
+  "pages": [
+    {
+      "slug": "ats-resume-checker",
+      "keyword": "ATS resume checker",
+      "title": "Free ATS Resume Checker – Instantly Optimize Your Resume",
+      "description": "Upload your resume and receive a detailed ATS score in seconds. Free, fast, and privacy‑safe.",
+      "h1": "Free ATS Resume Checker",
+      "tips": ["Use standard fonts", "Avoid tables", "Include keywords from the job description"],
+      "faqs": [
+        {"q": "What is an ATS?", "a": "An Applicant Tracking System (ATS) parses resumes to match job criteria."},
+        {"q": "Will my data be stored?", "a": "We keep your resume only for the scoring session; no retention after analysis."}
+      ]
+    },
+    {
+      "slug": "resume-software-engineer-fresher",
+      "keyword": "resume for software engineer fresher",
+      "title": "Software Engineer Fresher Resume – Sample & Tips",
+      "description": "Download a free, ATS‑optimized resume template for software engineer freshers. Learn role‑specific bullet points and common mistakes.",
+      "h1": "Software Engineer Fresher Resume",
+      "tips": ["Showcase projects with technologies used", "Include coursework relevant to development", "Highlight internships or open‑source contributions"],
+      "faqs": [
+        {"q": "How many pages should a fresher resume be?", "a": "One page is optimal for freshers to keep it concise and ATS‑friendly."},
+        {"q": "Should I include a summary?", "a": "A 2‑sentence objective aligned with the target role works well."}
+      ]
+    },
+    {
+      "slug": "resume-data-analyst-fresher",
+      "keyword": "resume for data analyst fresher",
+      "title": "Data Analyst Fresher Resume – Template & Guidance",
+      "description": "Free ATS‑compliant resume template for data analyst freshers with tips on showcasing analytical projects and tools.",
+      "h1": "Data Analyst Fresher Resume",
+      "tips": ["List analytical tools (SQL, Python, Excel)", "Quantify project outcomes", "Mention coursework in statistics"],
+      "faqs": []
+    },
+    {
+      "slug": "resume-react-developer",
+      "keyword": "resume for React developer",
+      "title": "React Developer Resume – Stand Out to Recruiters",
+      "description": "Optimized resume template for React developers, including project examples, tech stack, and ATS‑friendly formatting.",
+      "h1": "React Developer Resume",
+      "tips": ["Show component architecture examples", "Include performance improvements", "Highlight usage of hooks and state management"],
+      "faqs": []
+    },
+    {
+      "slug": "resume-java-developer",
+      "keyword": "resume for Java developer",
+      "title": "Java Developer Resume – Professional Template",
+      "description": "Free Java developer resume template with best practices for showcasing OOP, Spring, and backend experience.",
+      "h1": "Java Developer Resume",
+      "tips": ["Mention Java version expertise", "Showcase Spring Boot projects", "Include unit testing experience"],
+      "faqs": []
+    },
+    {
+      "slug": "resume-hr-fresher",
+      "keyword": "resume for HR fresher",
+      "title": "HR Fresher Resume – Sample & Tips",
+      "description": "ATS‑optimized resume example for HR freshers, highlighting interpersonal skills, internships, and certifications.",
+      "h1": "HR Fresher Resume",
+      "tips": ["Emphasize communication skills", "List any HR‑related coursework", "Include volunteer experience in people management"],
+      "faqs": []
+    },
+    {
+      "slug": "resume-marketing-fresher",
+      "keyword": "resume for marketing fresher",
+      "title": "Marketing Fresher Resume – Template",
+      "description": "Free marketing fresher resume with tips on showcasing campaigns, analytics, and creative projects.",
+      "h1": "Marketing Fresher Resume",
+      "tips": ["Show results in percentages", "Highlight digital marketing tools", "Include portfolio links"],
+      "faqs": []
+    },
+    {
+      "slug": "resume-sales-executive",
+      "keyword": "resume for sales executive",
+      "title": "Sales Executive Resume – Proven Format",
+      "description": "ATS‑friendly resume template for sales executives with KPI‑focused bullet points.",
+      "h1": "Sales Executive Resume",
+      "tips": ["Quantify revenue achievements", "Mention CRM tools used", "Showcase negotiation successes"],
+      "faqs": []
+    },
+    {
+      "slug": "cover-letter-generator",
+      "keyword": "cover letter generator",
+      "title": "Free Cover Letter Generator – Create Professional Letters Instantly",
+      "description": "Generate tailored cover letters for any job role with our AI‑powered tool. No sign‑up required.",
+      "h1": "Cover Letter Generator",
+      "tips": [],
+      "faqs": []
+    }
+  ]
+}
