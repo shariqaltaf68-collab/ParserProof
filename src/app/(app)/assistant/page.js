@@ -867,23 +867,54 @@ export default function AssistantPage() {
             <div style={{ padding: 'var(--space-4) var(--space-6)', borderTop: '1px solid var(--color-border)', background: 'var(--color-bg-elevated)', display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
               
               {/* Mic transcription button */}
-              {speechRecognitionSupported && !isVoiceMode && (
-                <button
-                  onClick={() => setIsVoiceMode(true)}
-                  disabled={isSending || isLimitReached}
-                  className="btn btn-secondary"
-                  style={{ padding: 'var(--space-3)', borderRadius: '50%', flexShrink: 0, width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  title="Start Voice Conversational Loop"
-                >
-                  <Mic size={18} />
-                </button>
+              {speechRecognitionSupported && (
+                isVoiceMode ? (
+                  <button
+                    onClick={() => setIsVoiceMode(false)}
+                    className="btn btn-danger active"
+                    style={{
+                      padding: 'var(--space-3)',
+                      borderRadius: '50%',
+                      flexShrink: 0,
+                      width: '42px',
+                      height: '42px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                      borderColor: '#dc2626',
+                      color: '#ffffff',
+                      animation: 'mic-listening-core 1s infinite alternate',
+                      boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)'
+                    }}
+                    title="Stop Voice Mode"
+                  >
+                    <MicOff size={18} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setIsVoiceMode(true)}
+                    disabled={isSending || isLimitReached}
+                    className="btn btn-secondary"
+                    style={{ padding: 'var(--space-3)', borderRadius: '50%', flexShrink: 0, width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    title="Start Voice Conversational Loop"
+                  >
+                    <Mic size={18} />
+                  </button>
+                )
               )}
 
               {/* Text Input area */}
               <input
                 type="text"
                 className="form-input"
-                placeholder={isVoiceMode ? 'Voice Mode Active... Speak now' : 'Ask about ATS structure, resume gap optimizations...'}
+                placeholder={
+                  isSending 
+                    ? 'Thinking...' 
+                    : isVoiceMode 
+                      ? 'Voice Mode active... Speak now' 
+                      : 'Ask about ATS structure, resume gap optimizations...'
+                }
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}

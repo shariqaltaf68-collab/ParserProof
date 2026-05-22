@@ -6151,3 +6151,15 @@ h6 { font-size: var(--font-size-lg); }
   color: #94a3b8;
 }
 
+.popover-mic-btn.active {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  animation: mic-listening-core 1s infinite alternate;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.dark .popover-mic-btn.active {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+}

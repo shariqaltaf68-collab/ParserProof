@@ -810,20 +810,36 @@ export default function FloatingAssistant() {
               <div style={{ display: 'flex', gap: '8px', width: '100%', alignItems: 'center' }}>
                 
                 {/* Micro-microphone button inside footbar */}
-                {speechRecognitionSupported && !isVoiceMode && (
-                  <button
-                    onClick={() => setIsVoiceMode(true)}
-                    disabled={isSending || isLimitReached}
-                    className="popover-mic-btn"
-                    title="Start Voice Mode"
-                  >
-                    <Mic size={16} />
-                  </button>
+                {speechRecognitionSupported && (
+                  isVoiceMode ? (
+                    <button
+                      onClick={() => setIsVoiceMode(false)}
+                      className="popover-mic-btn active"
+                      title="Stop Voice Mode"
+                    >
+                      <MicOff size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIsVoiceMode(true)}
+                      disabled={isSending || isLimitReached}
+                      className="popover-mic-btn"
+                      title="Start Voice Mode"
+                    >
+                      <Mic size={16} />
+                    </button>
+                  )
                 )}
 
                 <input
                   type="text"
-                  placeholder={isSending ? 'Thinking...' : 'Ask your optimization question...'}
+                  placeholder={
+                    isSending 
+                      ? 'Thinking...' 
+                      : isVoiceMode 
+                        ? 'Voice Mode active... Speak now' 
+                        : 'Ask your optimization question...'
+                  }
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
