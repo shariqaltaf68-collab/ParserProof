@@ -5,14 +5,14 @@
 
 export const PLAN_LIMITS = {
   free: 3,
-  starter: 15,
-  pro: 50,
+  starter: 10,
+  pro: 30,
 };
 
 /** Razorpay pricing — amounts in paise (smallest currency unit) */
 export const PLAN_PRICING = {
-  starter: { amount: 49900, currency: 'INR', display: '₹499' },
-  pro: { amount: 99900, currency: 'INR', display: '₹999' },
+  starter: { amount: 19900, currency: 'INR', display: '₹199' },
+  pro: { amount: 39900, currency: 'INR', display: '₹399' },
 };
 
 export const PLAN_FEATURES = {
@@ -59,7 +59,7 @@ export const PLANS = [
     period: '/month',
     description: 'Get started with core resume optimization',
     features: [
-      { text: '3 generations per month', included: true },
+      { text: '3 optimizations per month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -75,11 +75,11 @@ export const PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '₹499',
+    price: '₹199',
     period: '/month',
     description: 'Unlock deeper job-description intelligence',
     features: [
-      { text: '15 generations per month', included: true },
+      { text: '10 optimizations per month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -95,11 +95,11 @@ export const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '₹999',
+    price: '₹399',
     period: '/month',
     description: 'Complete job application intelligence suite',
     features: [
-      { text: '50 generations per month', included: true },
+      { text: '30 optimizations per month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },

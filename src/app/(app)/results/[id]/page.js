@@ -40,9 +40,9 @@ function isTabLocked(tabRequiredPlan, userPlan) {
 }
 
 function getUpgradePlan(tabRequiredPlan) {
-  if (tabRequiredPlan === 'starter') return { name: 'Starter', price: '₹499/month' };
-  if (tabRequiredPlan === 'pro') return { name: 'Pro', price: '₹999/month' };
-  return { name: 'Starter', price: '₹499/month' };
+  if (tabRequiredPlan === 'starter') return { name: 'Starter', price: '₹199/month' };
+  if (tabRequiredPlan === 'pro') return { name: 'Pro', price: '₹399/month' };
+  return { name: 'Starter', price: '₹199/month' };
 }
 
 function LockedTabContent({ requiredPlan }) {

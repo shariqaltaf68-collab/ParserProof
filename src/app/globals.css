@@ -3146,4 +3146,81 @@ h6 { font-size: var(--font-size-lg); }
   border-radius: var(--radius-sm);
 }
 
+/* ===== ADDITIONAL MOBILE RESPONSIVENESS OPTIMIZATIONS ===== */
+@media (max-width: 768px) {
+  .btn {
+    white-space: normal;
+    text-align: center;
+  }
+  .hero-actions .btn {
+    width: 100%;
+  }
+  .cta-section {
+    padding: var(--space-12) var(--space-4);
+  }
+  .cta-title {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+@media (max-width: 600px) {
+  .ats-funnel-stage {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .ats-funnel-stage-percentage {
+    text-align: left;
+    min-width: auto;
+    margin-top: var(--space-1);
+    font-size: var(--font-size-xl);
+  }
+  .trust-bar {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .trust-badge-item {
+    font-size: var(--font-size-xs);
+  }
+  .before-after-header, .before-after-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-nav {
+    padding: var(--space-2) var(--space-4);
+  }
+  .landing-logo {
+    font-size: var(--font-size-base);
+  }
+  .landing-logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .landing-nav-actions {
+    gap: var(--space-2);
+  }
+  .landing-nav-actions .btn {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+  .before-content, .after-content {
+    padding: var(--space-4);
+  }
+  .before-after-section {
+    padding: var(--space-12) var(--space-4);
+  }
+  .faq {
+    padding: var(--space-12) var(--space-4);
+  }
+  .faq-question {
+    padding: var(--space-4) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+  .faq-answer {
+    padding: 0 var(--space-4) var(--space-4);
+  }
+}
+
 

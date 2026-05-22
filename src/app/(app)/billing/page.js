@@ -21,7 +21,7 @@ const PLANS = [
     price: '₹0',
     period: 'forever',
     features: [
-      { text: '3 resume generations / month', included: true },
+      { text: '3 optimizations / month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -35,11 +35,11 @@ const PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '₹499',
+    price: '₹199',
     period: '/month',
     popular: true,
     features: [
-      { text: '15 resume generations / month', included: true },
+      { text: '10 optimizations / month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -53,10 +53,10 @@ const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '₹999',
+    price: '₹399',
     period: '/month',
     features: [
-      { text: '50 resume generations / month', included: true },
+      { text: '30 optimizations / month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -69,7 +69,7 @@ const PLANS = [
   },
 ];
 
-const PLAN_LIMITS = { free: 3, starter: 15, pro: 50 };
+const PLAN_LIMITS = { free: 3, starter: 10, pro: 30 };
 
 export default function BillingPage() {
   const { data: session, update: updateSession } = useSession();
