@@ -494,14 +494,11 @@ export default function AssistantPage() {
     // 3. Strip formula box syntax if any
     cleaned = cleaned.replace(/<div class="math-formula-box">[\s\S]*?<\/div>/g, '');
 
-    // 4. Strip ALL markdown headings (hashes) entirely, converting them to normal text
-    cleaned = cleaned.replace(/^[#\s]+/gm, '');
+    // 4. Strip ALL asterisks (*) and hashes (#) completely from the entire text to keep it smooth and unadorned
+    cleaned = cleaned.replace(/\*/g, '');
+    cleaned = cleaned.replace(/#/g, '');
 
-    // 5. Strip ALL asterisks (stars) completely! The user explicitly complained about stars.
-    cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, '$1');
-    cleaned = cleaned.replace(/\*([^*]+)\*/g, '$1');
-
-    // 6. Clean up trailing/leading spaces, replace multiple newlines with clean paragraph breaks
+    // 5. Clean up trailing/leading spaces, replace multiple newlines with clean paragraph breaks
     const lines = cleaned.split('\n');
     let htmlOutput = [];
 
@@ -510,8 +507,8 @@ export default function AssistantPage() {
 
       if (line === '') continue;
 
-      // Strip bullet points, numbers, or list markers completely to keep prose smooth and simple
-      line = line.replace(/^[\-\*\•\s\+\d\.\/\:]+/, ''); 
+      // Strip bullet points, numbers, or list markers completely from the beginning to keep prose smooth and simple
+      line = line.replace(/^[\s\-\*\•\+\d\.\)\(\:\/]+/, '').trim();
 
       // If the line is empty after stripping list prefixes, skip it
       if (line === '') continue;
