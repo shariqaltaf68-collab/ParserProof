@@ -211,10 +211,31 @@ export default function FloatingAssistant() {
     if (!recognitionRef.current) return;
     if (isVoiceMode) {
       setMicPermissionError(false);
-      try {
-        recognitionRef.current.start();
-      } catch (err) {
-        console.warn('[Floating Co-Pilot] Recognition start error:', err);
+      
+      const startRec = () => {
+        try {
+          recognitionRef.current.start();
+        } catch (err) {
+          console.warn('[Floating Co-Pilot] Recognition start error:', err);
+        }
+      };
+
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then((stream) => {
+            // Instantly release microphone lock so SpeechRecognition can acquire it cleanly
+            stream.getTracks().forEach(track => track.stop());
+            setMicPermissionError(false);
+            startRec();
+          })
+          .catch((err) => {
+            console.error('[Floating Co-Pilot] getUserMedia permission error:', err);
+            setMicPermissionError(true);
+            setIsVoiceMode(false);
+            setVoiceState('idle');
+          });
+      } else {
+        startRec();
       }
     } else {
       try {

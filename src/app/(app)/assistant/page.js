@@ -174,10 +174,31 @@ export default function AssistantPage() {
     if (!recognitionRef.current) return;
     if (isVoiceMode) {
       setMicPermissionError(false);
-      try {
-        recognitionRef.current.start();
-      } catch (err) {
-        console.warn('Recognition start error:', err);
+      
+      const startRec = () => {
+        try {
+          recognitionRef.current.start();
+        } catch (err) {
+          console.warn('Recognition start error:', err);
+        }
+      };
+
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then((stream) => {
+            // Instantly stop temporary stream tracks to free the mic for SpeechRecognition
+            stream.getTracks().forEach(track => track.stop());
+            setMicPermissionError(false);
+            startRec();
+          })
+          .catch((err) => {
+            console.error('getUserMedia permission error:', err);
+            setMicPermissionError(true);
+            setIsVoiceMode(false);
+            setVoiceState('idle');
+          });
+      } else {
+        startRec();
       }
     } else {
       try {
