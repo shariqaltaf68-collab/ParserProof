@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { getSystemPrompt, getUserPrompt } from '@/lib/prompts';
+import { retrieveContext } from '@/lib/rag';
 
 const openai = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
@@ -14,10 +15,41 @@ const openai = new OpenAI({
  * @param {string} jobDescription - Target job description.
  * @param {string} tone - Desired tone.
  * @param {string} length - Desired length.
- * @returns {Promise<Object>} Reconstructed and validated JSON data.
+ * @returns {Promise<Object>} Reconstructed and validated JSON data with RAG telemetry.
  */
 async function executeGenerationAttempt(model, resumeText, jobDescription, tone, length) {
-  const systemPrompt = getSystemPrompt(tone, length);
+  // 1. Perform Hybrid RAG Retrieval to retrieve corporate & ATS-safe guidelines
+  const searchQuery = `${jobDescription} ${resumeText} ${tone}`;
+  const ragResult = retrieveContext(searchQuery);
+
+  // 2. Format retrieved guidelines context for prompt injection
+  const formattedContext = ragResult.chunks
+    .map(
+      (chunk, index) => `[TRUSTED SOURCE #${index + 1}]
+Title: ${chunk.title}
+Category: ${chunk.category}
+Relevance Match: ${chunk.relevanceScore}%
+Grounded Rules:
+${chunk.content}`
+    )
+    .join('\n\n');
+
+  // 3. Construct system prompt augmented with the retrieved context
+  const baseSystemPrompt = getSystemPrompt(tone, length);
+  const systemPrompt = `${baseSystemPrompt}
+
+=========================================
+TRUSTED RETRIEVED CONTEXT (GROUNDING CORE)
+=========================================
+You MUST ground your resume optimization, ATS score estimates, and skill recommendations strictly in the following retrieved guidelines. Do NOT formulate fictional rules, fake features, or ungrounded statistics.
+
+${formattedContext}
+
+STRICT ANTI-HALLUCINATION ENFORCEMENT:
+- Refuse to fabricate user experience, achievements, tools, degrees, or certifications.
+- If the user's resume is missing required details, append bracketed placeholders (e.g. "[quantify]" or "[add tool]") so the user can populate them. Never inject fake metrics.
+- Do not invent ATS behaviors or guarantee perfect success. Keep evaluations realistic, blunt, and highly direct.`;
+
   const userPrompt = getUserPrompt(resumeText, jobDescription);
 
   let completion;
@@ -114,6 +146,17 @@ async function executeGenerationAttempt(model, resumeText, jobDescription, tone,
     reconstructed.keywordMatch,
     rawLlmScore
   );
+
+  // Append RAG Grounding stats to the payload
+  reconstructed.ragSources = JSON.stringify(
+    ragResult.chunks.map(chunk => ({
+      id: chunk.id,
+      title: chunk.title,
+      category: chunk.category,
+      relevance: chunk.relevanceScore,
+    }))
+  );
+  reconstructed.ragConfidence = ragResult.averageConfidence;
 
   return reconstructed;
 }

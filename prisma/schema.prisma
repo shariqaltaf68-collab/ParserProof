@@ -82,6 +82,8 @@ model Project {
   coverLetter     String?
   interviewQs     String?
   skillGap        String?
+  ragSources      String?
+  ragConfidence   Int?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?

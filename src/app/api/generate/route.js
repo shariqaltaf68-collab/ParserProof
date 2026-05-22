@@ -94,6 +94,8 @@ export async function POST(request) {
         coverLetter: aiResult.coverLetter,
         interviewQs: JSON.stringify(aiResult.interviewQuestions),
         skillGap: aiResult.skillGap,
+        ragSources: aiResult.ragSources || null,
+        ragConfidence: aiResult.ragConfidence || null,
       },
     });
 
