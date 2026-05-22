@@ -493,91 +493,63 @@ export default function FloatingAssistant() {
 
     if (selectedProject) {
       if (chipText.includes('ATS score')) {
-        prependedPrompt = `Explain my ATS score of ${selectedProject.atsScore || 0}% for the targeted "${selectedProject.jobTitle || 'Role'}" position. What should I prioritize to improve?`;
+        prependedPrompt = `Directly explain my current ATS score of ${selectedProject.atsScore || 0}% for the target role of "${selectedProject.jobTitle || 'Role'}" at "${selectedProject.company || 'Company'}". Write a single, brief, natural prose paragraph (strictly under 75 words) summarizing the top two specific adjustments I must make immediately. Do not use bullet points, headings, lists, bold text, stars, or markdown formatting clutter. Keep it direct and realistic.`;
       } else if (chipText.includes('keyword gaps')) {
-        prependedPrompt = `Identify the missing keywords from my resume relative to my target job: "${selectedProject.jobTitle || 'Role'}" at "${selectedProject.company || 'Company'}".`;
+        prependedPrompt = `Analyze my resume and target job description. List the 4 key technical skills or keywords that are missing or underrepresented in my profile. Write your response as a single, smooth, highly professional prose paragraph (strictly under 75 words) without bullet lists, tables, bold styling, asterisks, or headings. Keep it extremely realistic.`;
       } else if (chipText.includes('bullet optimizer')) {
-        prependedPrompt = `Please pick one of my experience bullet points and rewrite it using the STAR Google XYZ format, adding metric placeholders.`;
+        prependedPrompt = `Directly examine my actual resume text, find one experience bullet point related to my target role of "${selectedProject.jobTitle || 'Role'}", and optimize it in place using the Google XYZ formula (Accomplished [X], as measured by [Y], by doing [Z]). Write a single, brief, natural prose paragraph (strictly under 75 words) presenting the replacement bullet point, using bracketed placeholders like "[quantify: metrics]" for missing metrics. Do not output any templates, checklists, situation/action/result headings, asterisks, or markdown clutter.`;
       } else if (chipText.includes('interview')) {
-        prependedPrompt = `Generate 3 role-specific interview preparation questions for my active project: "${selectedProject.jobTitle || 'Role'}".`;
+        prependedPrompt = `Give me 3 realistic, direct, and challenging interview questions tailored for a "${selectedProject.jobTitle || 'Role'}" role at "${selectedProject.company || 'Company'}". Write them in a single, clean, smooth prose paragraph (strictly under 75 words) without numbering, lists, bold formatting, asterisks, or introductory AI fluff.`;
       }
     }
 
     handleSend(prependedPrompt);
   };
 
-  // Render text content and parse LaTeX / mathematical structures beautifully
+  // Render text content and parse beautifully into smooth, plain, unadorned prose paragraphs
   const formatMessageText = (text) => {
     if (!text) return '';
 
-    // Regex to clear raw LaTeX delimiters that standard markdown cannot render
+    // 1. Strip raw markdown tables, blockquotes, and horizontal rules completely
     let cleaned = text
-      .replace(/\$\$([\s\S]*?)\$\$/g, '$1') // $$...$$
-      .replace(/\\\[([\s\S]*?)\\\]/g, '$1') // \[...\]
-      .replace(/\\\(([\s\S]*?)\\\)/g, '$1') // \(...\)
-      .replace(/\\text\{([\s\S]*?)\}/g, '$1') // \text{...}
-      .replace(/\\frac\{([\s\S]*?)\}\{([\s\S]*?)\}/g, '$1 / $2'); // \frac{...}{...}
+      .replace(/\|/g, '') // remove markdown table pipes
+      .replace(/^[>\s\-\*]{3,}/gm, '') // remove horizontal rules
+      .replace(/^\s*>\s*/gm, ''); // remove blockquote indicators
 
-    // Capture inline mathematical weight models and wrap them in high-contrast styled formula boxes
-    const equationRegex = /(\*\*Score\*\*|\*\*ATS Score Breakdown\*\*|\*\*STAR Formula\*\*|\*\*Equation\*\*|\*\*Weight Breakdown\*\*)\s*=\s*([^.\n]+)/gi;
-    if (equationRegex.test(cleaned)) {
-      cleaned = cleaned.replace(equationRegex, (match, title, formula) => {
-        return `\n\n<div class="math-formula-box">
-          <div class="math-formula-title">📋 VERIFIED FORMULA MODEL</div>
-          <div class="math-formula-body">${title} = ${formula}</div>
-        </div>\n\n`;
-      });
-    }
+    // 2. Strip any LaTeX formatting blocks
+    cleaned = cleaned
+      .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
+      .replace(/\\\[([\s\S]*?)\\\]/g, '$1')
+      .replace(/\\\(([\s\S]*?)\\\)/g, '$1')
+      .replace(/\\text\{([\s\S]*?)\}/g, '$1')
+      .replace(/\\frac\{([\s\S]*?)\}\{([\s\S]*?)\}/g, '$1 / $2');
 
-    // Phase 5 client-side Markdown rendering engine
-    cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, '<strong class="markdown-strong">$1</strong>');
-    cleaned = cleaned.replace(/`([^`]+)`/g, '<code class="markdown-code">$1</code>');
+    // 3. Strip formula box syntax if any
+    cleaned = cleaned.replace(/<div class="math-formula-box">[\s\S]*?<\/div>/g, '');
 
+    // 4. Strip ALL markdown headings (hashes) entirely, converting them to normal text
+    cleaned = cleaned.replace(/^[#\s]+/gm, '');
+
+    // 5. Strip ALL asterisks (stars) completely! The user explicitly complained about stars.
+    cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, '$1');
+    cleaned = cleaned.replace(/\*([^*]+)\*/g, '$1');
+
+    // 6. Clean up trailing/leading spaces, replace multiple newlines with clean paragraph breaks
     const lines = cleaned.split('\n');
     let htmlOutput = [];
-    let inList = false;
 
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i].trim();
 
-      if (line === '') {
-        if (inList) {
-          htmlOutput.push('</ul>');
-          inList = false;
-        }
-        continue;
-      }
+      if (line === '') continue;
 
-      if (line.startsWith('### ')) {
-        if (inList) { htmlOutput.push('</ul>'); inList = false; }
-        htmlOutput.push(`<h5 class="markdown-h5">${line.substring(4)}</h5>`);
-      } else if (line.startsWith('## ')) {
-        if (inList) { htmlOutput.push('</ul>'); inList = false; }
-        htmlOutput.push(`<h4 class="markdown-h4">${line.substring(3)}</h4>`);
-      } else if (line.startsWith('# ')) {
-        if (inList) { htmlOutput.push('</ul>'); inList = false; }
-        htmlOutput.push(`<h3 class="markdown-h3">${line.substring(2)}</h3>`);
-      } else if (line.includes('<div class="math-formula-box">') || line.includes('math-formula-title') || line.includes('math-formula-body') || line.includes('</div>')) {
-        if (inList) { htmlOutput.push('</ul>'); inList = false; }
-        htmlOutput.push(line);
-      } else if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
-        if (!inList) {
-          htmlOutput.push('<ul class="markdown-ul">');
-          inList = true;
-        }
-        htmlOutput.push(`<li class="markdown-li">${line.substring(2).trim()}</li>`);
-      } else if (/^\d+\.\s/.test(line)) {
-        if (inList) { htmlOutput.push('</ul>'); inList = false; }
-        const match = line.match(/^(\d+)\.\s(.*)/);
-        htmlOutput.push(`<div class="markdown-ol-item"><span class="markdown-ol-num">${match[1]}.</span><span class="markdown-ol-text">${match[2]}</span></div>`);
-      } else {
-        if (inList) { htmlOutput.push('</ul>'); inList = false; }
-        htmlOutput.push(`<p class="markdown-p">${line}</p>`);
-      }
-    }
+      // Strip bullet points, numbers, or list markers completely to keep prose smooth and simple
+      line = line.replace(/^[\-\*\•\s\+\d\.\/\:]+/, ''); 
 
-    if (inList) {
-      htmlOutput.push('</ul>');
+      // If the line is empty after stripping list prefixes, skip it
+      if (line === '') continue;
+
+      htmlOutput.push(`<p class="markdown-p" style="margin-bottom: 8px; line-height: 1.6; font-size: 12px; font-family: var(--font-inter), sans-serif; color: var(--color-text-primary); font-weight: 400; text-align: left;">${line}</p>`);
     }
 
     return htmlOutput.join('\n');
