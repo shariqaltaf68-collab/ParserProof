@@ -41,10 +41,9 @@ export default function AssistantPage() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isProjectsLoading, setIsProjectsLoading] = useState(false);
 
-  // Guest usage limits
+  // Daily usage limits
   const [isGuest, setIsGuest] = useState(true);
-  const [guestLimit, setGuestLimit] = useState(5);
-  const [guestCount, setGuestCount] = useState(0);
+  const [remainingMessages, setRemainingMessages] = useState(25);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   // Unified Voice Mode States
@@ -68,7 +67,7 @@ export default function AssistantPage() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Load chat history & guest stats
+  // Load chat history & usage stats
   const fetchChatHistory = useCallback(async () => {
     if (status === 'loading') return;
     setIsHistoryLoading(true);
@@ -78,8 +77,9 @@ export default function AssistantPage() {
       if (res.ok) {
         setMessages(data.messages || []);
         setIsGuest(data.isGuest);
-        if (data.isGuest) {
-          setGuestLimit(data.limit);
+        setRemainingMessages(data.remainingMessages);
+        if (data.remainingMessages === 0) {
+          setIsLimitReached(true);
         }
       }
     } catch (err) {
@@ -360,17 +360,17 @@ export default function AssistantPage() {
 
       if (res.status === 403 && data.error === 'limit_reached') {
         setIsLimitReached(true);
-        setGuestCount(data.count);
+        setRemainingMessages(0);
         setMessages((prev) => [
           ...prev,
           {
             role: 'assistant',
-            content: '⚠️ Free guest message limit reached. Please log in or sign up to continue.',
+            content: '⚠️ Daily assistant limit reached. Interactions are capped at 25 per 24 hours. Sign up or upgrade to continue.',
             createdAt: new Date().toISOString(),
           },
         ]);
         if (isVoiceMode) {
-          speakResponse('Free message limit reached. Please log in to continue.');
+          speakResponse('Daily interaction limit reached.');
           setIsVoiceMode(false);
         }
         return;
@@ -390,11 +390,9 @@ export default function AssistantPage() {
 
       setMessages((prev) => [...prev, assistantMsg]);
       setIsGuest(data.isGuest);
-      if (data.isGuest) {
-        setGuestCount(guestLimit - data.remainingMessages);
-        if (data.remainingMessages === 0) {
-          setIsLimitReached(true);
-        }
+      setRemainingMessages(data.remainingMessages);
+      if (data.remainingMessages === 0) {
+        setIsLimitReached(true);
       }
 
       // Read output aloud if voice mode active
@@ -475,7 +473,7 @@ export default function AssistantPage() {
     handleSend(prependedPrompt);
   };
 
-  // Beautiful math renderer formatter helper
+  // Beautiful math renderer and markdown formatter helper
   const formatMessageText = (text) => {
     if (!text) return '';
 
@@ -498,7 +496,58 @@ export default function AssistantPage() {
       });
     }
 
-    return cleaned;
+    // Phase 5 client-side Markdown rendering engine
+    cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, '<strong class="markdown-strong">$1</strong>');
+    cleaned = cleaned.replace(/`([^`]+)`/g, '<code class="markdown-code">$1</code>');
+
+    const lines = cleaned.split('\n');
+    let htmlOutput = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+
+      if (line === '') {
+        if (inList) {
+          htmlOutput.push('</ul>');
+          inList = false;
+        }
+        continue;
+      }
+
+      if (line.startsWith('### ')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<h5 class="markdown-h5">${line.substring(4)}</h5>`);
+      } else if (line.startsWith('## ')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<h4 class="markdown-h4">${line.substring(3)}</h4>`);
+      } else if (line.startsWith('# ')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<h3 class="markdown-h3">${line.substring(2)}</h3>`);
+      } else if (line.includes('<div class="math-formula-box">') || line.includes('math-formula-title') || line.includes('math-formula-body') || line.includes('</div>')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(line);
+      } else if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
+        if (!inList) {
+          htmlOutput.push('<ul class="markdown-ul">');
+          inList = true;
+        }
+        htmlOutput.push(`<li class="markdown-li">${line.substring(2).trim()}</li>`);
+      } else if (/^\d+\.\s/.test(line)) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        const match = line.match(/^(\d+)\.\s(.*)/);
+        htmlOutput.push(`<div class="markdown-ol-item"><span class="markdown-ol-num">${match[1]}.</span><span class="markdown-ol-text">${match[2]}</span></div>`);
+      } else {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<p class="markdown-p">${line}</p>`);
+      }
+    }
+
+    if (inList) {
+      htmlOutput.push('</ul>');
+    }
+
+    return htmlOutput.join('\n');
   };
 
   return (
@@ -591,18 +640,6 @@ export default function AssistantPage() {
 
             {/* Actions Panel */}
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              {isGuest && (
-                <div style={{ fontSize: 'var(--font-size-xs)', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                    <span>Guest Interactivity</span>
-                    <span>{guestCount} / {guestLimit}</span>
-                  </div>
-                  <div style={{ width: '100%', height: '6px', background: 'var(--color-bg-tertiary)', borderRadius: '99px', overflow: 'hidden' }}>
-                    <div style={{ width: `${(guestCount / guestLimit) * 100}%`, height: '100%', background: guestCount >= guestLimit ? 'var(--color-danger)' : 'var(--color-accent)', transition: 'width 0.3s ease' }} />
-                  </div>
-                </div>
-              )}
-              
               <button
                 className="btn btn-secondary"
                 onClick={handleClearHistory}
@@ -624,8 +661,11 @@ export default function AssistantPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                 <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: isSending ? 'var(--color-accent)' : 'var(--color-success)', animation: isSending ? 'pulse 1.5s infinite' : 'none' }} />
                 <div>
-                  <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: '700', color: 'var(--color-text-primary)', margin: 0 }}>
+                  <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: '700', color: 'var(--color-text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     ParserProof AI Co-Pilot
+                    <span className={`header-limit-pill ${remainingMessages === 0 ? 'limit-reached' : ''}`} style={{ fontSize: '10px', padding: '2px 8px' }}>
+                      {remainingMessages} / 25 remaining today
+                    </span>
                   </h3>
                   <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}>
                     {isSending ? 'Synthesizing response...' : 'Ready to analyze profile'}
@@ -771,12 +811,8 @@ export default function AssistantPage() {
                             position: 'relative',
                           }}
                         >
-                          {/* Parse math html blocks cleanly */}
-                          {containsHtmlMath ? (
-                            <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
-                          ) : (
-                            <div style={{ whiteSpace: 'pre-line' }}>{formattedContent}</div>
-                          )}
+                          {/* Parse markdown and math html blocks cleanly */}
+                          <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
 
                           {/* Grounding context reference block (RAG) */}
                           {!isUser && msg.ragSources && msg.ragSources.length > 0 && (
@@ -821,6 +857,12 @@ export default function AssistantPage() {
                     {voiceState === 'thinking' && 'Analyzing grounding RAG guidelines...'}
                     {voiceState === 'speaking' && 'Synthesizing voice response...'}
                   </div>
+
+                  {voiceState === 'speaking' && messages.length > 0 && (
+                    <div className="voice-speech-preview">
+                      "{messages[messages.length - 1]?.content}"
+                    </div>
+                  )}
 
                   {voiceState === 'speaking' && (
                     <button
@@ -948,19 +990,27 @@ export default function AssistantPage() {
                     <AlertTriangle size={32} />
                   </div>
                   <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '800', color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>
-                    Assistant Message Limit Reached
+                    Daily Interaction Limit Reached
                   </h3>
                   <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: 'var(--space-6)' }}>
-                    You have utilized all <strong>{guestLimit} free guest interactions</strong>. Sign up for a free account to unlock unlimited grounded conversations, live resume tailoring, and interview simulations.
+                    You have finished your <strong>25 daily interactions</strong>. {isGuest ? 'Sign up for a free account to unlock higher capacities, live resume tailoring, and interview simulations.' : 'Please come back tomorrow or upgrade your plan to unlock higher limits.'}
                   </p>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    <Link href="/signup" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <UserPlus size={16} /> Sign Up Free
-                    </Link>
-                    <Link href="/login" className="btn btn-secondary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <LogIn size={16} /> Log In
-                    </Link>
+                    {isGuest ? (
+                      <>
+                        <Link href="/signup" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <UserPlus size={16} /> Sign Up Free
+                        </Link>
+                        <Link href="/login" className="btn btn-secondary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <LogIn size={16} /> Log In
+                        </Link>
+                      </>
+                    ) : (
+                      <Link href="/billing" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <Sparkles size={16} /> Upgrade Plan
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

@@ -49,10 +49,9 @@ export default function FloatingAssistant() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isProjectsLoading, setIsProjectsLoading] = useState(false);
 
-  // Guest usage limits
+  // Dynamic RAG usage limits
   const [isGuest, setIsGuest] = useState(true);
-  const [guestLimit, setGuestLimit] = useState(5);
-  const [guestCount, setGuestCount] = useState(0);
+  const [remainingMessages, setRemainingMessages] = useState(25);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   // Unified Voice Mode States
@@ -89,8 +88,9 @@ export default function FloatingAssistant() {
       if (res.ok) {
         setMessages(data.messages || []);
         setIsGuest(data.isGuest);
-        if (data.isGuest) {
-          setGuestLimit(data.limit);
+        setRemainingMessages(data.remainingMessages);
+        if (data.remainingMessages === 0) {
+          setIsLimitReached(true);
         }
       }
     } catch (err) {
@@ -393,17 +393,17 @@ export default function FloatingAssistant() {
 
       if (res.status === 403 && data.error === 'limit_reached') {
         setIsLimitReached(true);
-        setGuestCount(data.count);
+        setRemainingMessages(0);
         setMessages((prev) => [
           ...prev,
           {
             role: 'assistant',
-            content: '⚠️ Free guest message limit reached. Please log in or sign up to continue.',
+            content: '⚠️ Daily assistant limit reached. Interactions are capped at 25 per 24 hours. Sign up or log in to unlock full grounded RAG analysis.',
             createdAt: new Date().toISOString(),
           },
         ]);
         if (isVoiceMode) {
-          speakResponse('Free message limit reached. Please log in to continue.');
+          speakResponse('Daily interaction limit reached.');
           setIsVoiceMode(false);
         }
         return;
@@ -423,11 +423,10 @@ export default function FloatingAssistant() {
 
       setMessages((prev) => [...prev, assistantMsg]);
       setIsGuest(data.isGuest);
-      if (data.isGuest) {
-        setGuestCount(guestLimit - data.remainingMessages);
-        if (data.remainingMessages === 0) {
-          setIsLimitReached(true);
-        }
+      setRemainingMessages(data.remainingMessages);
+      
+      if (data.remainingMessages === 0) {
+        setIsLimitReached(true);
       }
 
       // Read output aloud if voice mode active
@@ -530,7 +529,58 @@ export default function FloatingAssistant() {
       });
     }
 
-    return cleaned;
+    // Phase 5 client-side Markdown rendering engine
+    cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, '<strong class="markdown-strong">$1</strong>');
+    cleaned = cleaned.replace(/`([^`]+)`/g, '<code class="markdown-code">$1</code>');
+
+    const lines = cleaned.split('\n');
+    let htmlOutput = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+
+      if (line === '') {
+        if (inList) {
+          htmlOutput.push('</ul>');
+          inList = false;
+        }
+        continue;
+      }
+
+      if (line.startsWith('### ')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<h5 class="markdown-h5">${line.substring(4)}</h5>`);
+      } else if (line.startsWith('## ')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<h4 class="markdown-h4">${line.substring(3)}</h4>`);
+      } else if (line.startsWith('# ')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<h3 class="markdown-h3">${line.substring(2)}</h3>`);
+      } else if (line.includes('<div class="math-formula-box">') || line.includes('math-formula-title') || line.includes('math-formula-body') || line.includes('</div>')) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(line);
+      } else if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
+        if (!inList) {
+          htmlOutput.push('<ul class="markdown-ul">');
+          inList = true;
+        }
+        htmlOutput.push(`<li class="markdown-li">${line.substring(2).trim()}</li>`);
+      } else if (/^\d+\.\s/.test(line)) {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        const match = line.match(/^(\d+)\.\s(.*)/);
+        htmlOutput.push(`<div class="markdown-ol-item"><span class="markdown-ol-num">${match[1]}.</span><span class="markdown-ol-text">${match[2]}</span></div>`);
+      } else {
+        if (inList) { htmlOutput.push('</ul>'); inList = false; }
+        htmlOutput.push(`<p class="markdown-p">${line}</p>`);
+      }
+    }
+
+    if (inList) {
+      htmlOutput.push('</ul>');
+    }
+
+    return htmlOutput.join('\n');
   };
 
   // Open popover and mark unread as cleared
@@ -576,10 +626,13 @@ export default function FloatingAssistant() {
                 </div>
                 <div>
                   <h4 className="popover-title">ParserProof Co-Pilot</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
                     <span className={`status-orb ${isSending ? 'thinking' : 'online'}`} />
                     <span className="popover-subtitle">
-                      {isSending ? 'Generating context...' : 'Grounded RAG Guard active'}
+                      {isSending ? 'Generating context...' : 'Grounded RAG Guard'}
+                    </span>
+                    <span className={`header-limit-pill ${remainingMessages === 0 ? 'limit-reached' : ''}`}>
+                      {remainingMessages} / 25 remaining today
                     </span>
                   </div>
                 </div>
@@ -719,7 +772,6 @@ export default function FloatingAssistant() {
                   {messages.map((msg, index) => {
                     const isUser = msg.role === 'user';
                     const formattedContent = formatMessageText(msg.content);
-                    const containsHtmlMath = formattedContent.includes('math-formula-box');
 
                     return (
                       <div key={index} className={`popover-bubble-row ${isUser ? 'user' : 'assistant'}`}>
@@ -727,12 +779,7 @@ export default function FloatingAssistant() {
                           className={`popover-bubble ${isUser ? 'user' : 'assistant'}`}
                           style={{ boxShadow: 'var(--shadow-sm)' }}
                         >
-                          {/* Parse math html blocks cleanly */}
-                          {containsHtmlMath ? (
-                            <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
-                          ) : (
-                            <div style={{ whiteSpace: 'pre-line' }}>{formattedContent}</div>
-                          )}
+                          <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
 
                           {/* Grounding context info tags */}
                           {!isUser && msg.ragSources && msg.ragSources.length > 0 && (
@@ -769,8 +816,14 @@ export default function FloatingAssistant() {
                   <div className="voice-state-text">
                     {voiceState === 'listening' && 'Listening to your voice...'}
                     {voiceState === 'thinking' && 'Analyzing grounding RAG guidelines...'}
-                    {voiceState === 'speaking' && 'Synthesizing voice response...'}
+                    {voiceState === 'speaking' && 'Speaking response...'}
                   </div>
+
+                  {voiceState === 'speaking' && messages.length > 0 && (
+                    <div className="voice-speech-preview">
+                      "{messages[messages.length - 1]?.content}"
+                    </div>
+                  )}
 
                   {voiceState === 'speaking' && (
                     <button
@@ -856,25 +909,6 @@ export default function FloatingAssistant() {
                   {isSending ? <Loader2 className="animate-spin" size={14} /> : <Send size={14} />}
                 </button>
               </div>
-
-              {/* Guest message counter panel */}
-              {isGuest && (
-                <div className="popover-guest-meter">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <span>Free anonymous interactions</span>
-                    <span>{guestCount} / {guestLimit}</span>
-                  </div>
-                  <div className="guest-meter-track">
-                    <div
-                      className="guest-meter-bar"
-                      style={{
-                        width: `${(guestCount / guestLimit) * 100}%`,
-                        background: guestCount >= guestLimit ? 'var(--color-danger)' : 'var(--color-accent)',
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* GUEST LIMIT OVERLAY SCREEN */}
@@ -884,15 +918,24 @@ export default function FloatingAssistant() {
                   <AlertTriangle size={24} style={{ color: 'var(--color-danger)', marginBottom: '8px' }} />
                   <h6>Limit Reached</h6>
                   <p>
-                    You have finished your **{guestLimit} free guest messages**. Sign up for a free account to unlock unlimited grounded RAG analysis.
+                    You have finished your **25 daily interactions**. {isGuest ? 'Sign up for a free account to unlock higher capacities' : 'Please come back tomorrow or upgrade for unlimited career assistance'}.
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', marginTop: '4px' }}>
-                    <Link href="/signup" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
-                      <UserPlus size={12} style={{ marginRight: '4px' }} /> Sign Up Free
-                    </Link>
-                    <Link href="/login" className="btn btn-secondary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
-                      <LogIn size={12} style={{ marginRight: '4px' }} /> Log In
-                    </Link>
+                    {isGuest && (
+                      <>
+                        <Link href="/signup" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
+                          <UserPlus size={12} style={{ marginRight: '4px' }} /> Sign Up Free
+                        </Link>
+                        <Link href="/login" className="btn btn-secondary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
+                          <LogIn size={12} style={{ marginRight: '4px' }} /> Log In
+                        </Link>
+                      </>
+                    )}
+                    {!isGuest && (
+                      <Link href="/billing" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
+                        Upgrade Plan
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
