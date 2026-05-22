@@ -1,7 +1,7 @@
 import seoConfig from './(app)/seo/seo-config.json';
 
 export default function sitemap() {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://resumepilot.vercel.app';
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://resume-pilot-lyart.vercel.app';
 
   const baseRoutes = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
