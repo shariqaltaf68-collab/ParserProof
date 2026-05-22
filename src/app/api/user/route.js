@@ -45,9 +45,22 @@ export async function GET() {
       },
     });
 
+    let generationsSinceUpgrade = 0;
+    if (upgradeLog) {
+      generationsSinceUpgrade = await prisma.project.count({
+        where: {
+          userId: session.user.id,
+          createdAt: {
+            gte: upgradeLog.createdAt,
+          },
+        },
+      });
+    }
+
     const userWithUpgrade = {
       ...user,
       lastUpgradeAt: upgradeLog ? upgradeLog.createdAt.toISOString() : null,
+      generationsSinceUpgrade,
     };
 
     return NextResponse.json({ user: userWithUpgrade });

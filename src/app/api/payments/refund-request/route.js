@@ -42,11 +42,21 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Upgrade transaction record not found. Please contact support.' }, { status: 404 });
     }
 
-    // 3. Determine if eligible for refund (1-hour window: 3,600,000 milliseconds)
+    // 3. Determine if eligible for refund (1-hour window: 3,600,000 milliseconds AND <= 2 resume generations)
     const logTime = new Date(upgradeLog.createdAt).getTime();
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
-    const isRefundable = (now - logTime <= oneHour);
+
+    const generationsSinceUpgrade = await prisma.project.count({
+      where: {
+        userId,
+        createdAt: {
+          gte: upgradeLog.createdAt,
+        },
+      },
+    });
+
+    const isRefundable = (now - logTime <= oneHour) && (generationsSinceUpgrade <= 2);
 
     // Parse purchase details
     let orderId = 'N/A';

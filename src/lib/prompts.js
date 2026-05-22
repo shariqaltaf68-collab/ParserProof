@@ -28,7 +28,7 @@ YOUR KEY DIRECTIVES — REWRITE AND ELEVATE:
 2. DO NOT add technologies, tools, or frameworks the candidate has never worked with or mentioned.
 3. DO NOT use generic AI buzzwords, vague corporate fluff, or exaggerated empty marketing adjectives (e.g., NEVER use "revolutionary", "synergy", "cutting-edge", "next-generation platform", "disruptive tech", "innovative visionary", "smart AI magic", "pioneering leader"). Keep your phrasing direct, useful, factual, and honest.
 4. DO rewrite, refine, and significantly elevate the candidate's existing experience descriptions. Take simple or weak phrasing (e.g., "did fluid simulations in ANSYS") and transform them into high-impact, professional accomplishments (e.g., "Executed high-fidelity static structural and computational fluid dynamics (CFD) simulations in **ANSYS** to validate structural integrity and ensure design compliance.") using powerful, active verbs and industry-standard terminology.
-5. DO structure experience descriptions using the STAR method (Situation, Task, Action, Result) or Google's XYZ formula (Accomplished [X] as measured by [Y], by doing [Z]). Quantify impact ONLY based on provided metrics (like GPAs, test scores, output rates, or timeline constraints). Do NOT invent any numbers.
+5. DO structure every experience bullet point strictly using the STAR method (Situation, Task, Action, Result) or Google's XYZ formula: "Accomplished [X], as measured by [Y], by doing [Z]". Take simple tasks and rewrite them to highlight the exact business problem, the action taken, the tools used, and the qualitative or quantitative result. Quantify impact ONLY based on provided metrics (GPAs, test scores, budget, count, time). If a metric is missing, do NOT make one up; focus on qualitative precision or add a bracketed placeholder like "[quantify: e.g., improved loading times by X%]" for the user to complete. Never invent data!
 6. DO integrate relevant keywords from the job description naturally and density-richly into the candidate's existing experience blocks, skills, and summary.
 7. DO highlight key technologies, certifications, metrics, and major methodologies by wrapping them in **double asterisks** (e.g., **SolidWorks**, **ANSYS Fluent**, **94.4%**).
 
@@ -68,7 +68,7 @@ LENGTH: ${lengthInstructions[length] || lengthInstructions.standard}
 YOUR TASKS:
 1. **Improved Resume**: Rewrite the resume to be ATS-optimized according to the rules above, focusing on dynamic improvement, strong verbs, proper markdown structure, and keyword density.
 
-2. **ATS Score**: Calculate a realistic ATS compatibility score (0-100) based on keyword match percentage, proper section headers, quantified achievements, and skills alignment.
+2. **ATS Score**: Evaluate the resume with strict, professional recruiter-level rigor. Do NOT overpredict or return an inflated high score (like 90+) if there is a low keyword match or lack of quantified impact. Calculate a realistic ATS score (0-100) based on keyword overlap, presence of parser-safe structural headers, and quantified metric density. (Your score will be averaged with a programmatic mathematical verification to ensure complete realism.)
 
 3. **Keyword Analysis**: Identify keywords from the job description that are:
    - "matched": Keywords present in or truthfully applicable to the candidate's resume

@@ -594,166 +594,240 @@ ${(() => {
             color: #374151;
             font-size: 11.5px;
             line-height: 1.45;
-            text-align: justify;
+            text-align: justify;          /* ==========================================================
+             PREMIUM RECRUITER TEMPLATE OVERRIDES (PDF COMPILER)
+             ========================================================== */
+
+          /* 1. Silicon Valley Tech (FAANG Standard) */
+          .cv-template-modern {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            color: #1e293b !important;
+            line-height: 1.5 !important;
+          }
+          .cv-template-modern .cv-header {
+            text-align: left !important;
+            margin-bottom: 22px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding-bottom: 12px !important;
+          }
+          .cv-template-modern .cv-name {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 26px !important;
+            font-weight: 850 !important;
+            letter-spacing: -0.03em !important;
+            color: #0f172a !important;
+            text-transform: none !important;
+          }
+          .cv-template-modern .cv-contact {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 11px !important;
+            color: #475569 !important;
+            font-weight: 500 !important;
+            margin-top: 4px !important;
+          }
+          .cv-template-modern .cv-section-container {
+            margin-top: 18px !important;
+            margin-bottom: 8px !important;
+          }
+          .cv-template-modern .cv-section-title {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            color: #2563eb !important; /* Steel Tech Indigo */
+            text-transform: uppercase !important;
+            letter-spacing: 0.06em !important;
+          }
+          .cv-template-modern .cv-section-line {
+            height: 1.5px !important;
+            background-color: #3b82f6 !important;
+            width: 100% !important;
+          }
+          .cv-template-modern .cv-item-title {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+          }
+          .cv-template-modern .cv-item-company {
+            font-family: 'Inter', sans-serif !important;
+            color: #1e293b !important;
+            font-weight: 600 !important;
+          }
+          .cv-template-modern .cv-bullet {
+            color: #2563eb !important;
+          }
+          .cv-template-modern .cv-list-item {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 11.5px !important;
+            color: #334155 !important;
+            line-height: 1.45 !important;
+          }
+          .cv-template-modern .cv-paragraph {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 11.5px !important;
+            color: #334155 !important;
           }
 
-          /* Classic Ivy Template CSS Overrides */
+          /* 2. McKinsey Executive & Harvard Business (Elegant Serif) */
           .cv-template-classic {
             font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             color: #111111 !important;
+            line-height: 1.55 !important;
           }
           .cv-template-classic .cv-header {
             text-align: center !important;
-            margin-bottom: 20px !important;
+            margin-bottom: 24px !important;
           }
           .cv-template-classic .cv-name {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
-            font-size: 26px !important;
+            font-family: 'Lora', 'Georgia', serif !important;
+            font-size: 25px !important;
             font-weight: 500 !important;
-            letter-spacing: 0.05em !important;
+            letter-spacing: 0.06em !important;
             text-transform: uppercase !important;
-            color: #111111 !important;
+            color: #0d2c54 !important; /* McKinsey Executive Navy */
           }
           .cv-template-classic .cv-contact {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
-            font-size: 11px !important;
+            font-family: 'Lora', 'Georgia', serif !important;
+            font-size: 10.5px !important;
             font-style: italic !important;
-            color: #555555 !important;
+            color: #4a5568 !important;
+            margin-top: 6px !important;
           }
           .cv-template-classic .cv-section-container {
             text-align: center !important;
-            margin-top: 20px !important;
+            margin-top: 22px !important;
             margin-bottom: 10px !important;
           }
           .cv-template-classic .cv-section-title {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', serif !important;
             font-size: 13px !important;
             font-weight: 700 !important;
-            color: #1b365d !important;
-            letter-spacing: 0.15em !important;
-            margin-bottom: 3px !important;
+            color: #0d2c54 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.12em !important;
+            margin-bottom: 4px !important;
           }
           .cv-template-classic .cv-section-line {
             height: 1px !important;
-            background-color: #1b365d !important;
-            width: 60% !important;
+            background-color: #0d2c54 !important;
+            width: 45% !important;
             margin: 0 auto !important;
           }
           .cv-template-classic .cv-item-title {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', serif !important;
             font-weight: 700 !important;
             color: #111111 !important;
           }
           .cv-template-classic .cv-item-dates {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', serif !important;
             font-style: italic !important;
             font-weight: 400 !important;
-            color: #555555 !important;
+            color: #4a5568 !important;
           }
           .cv-template-classic .cv-item-company {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', serif !important;
             font-weight: 700 !important;
-            color: #222222 !important;
+            color: #2d3748 !important;
           }
           .cv-template-classic .cv-item-location {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', serif !important;
             font-style: italic !important;
-            color: #555555 !important;
+            color: #4a5568 !important;
           }
           .cv-template-classic .cv-list-item {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', serif !important;
             font-size: 11px !important;
             line-height: 1.5 !important;
-            color: #222222 !important;
+            color: #1a202c !important;
           }
           .cv-template-classic .cv-bullet {
-            color: #1b365d !important;
+            color: #0d2c54 !important;
           }
           .cv-template-classic .cv-paragraph {
-            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
-            font-size: 11.5px !important;
+            font-family: 'Lora', 'Georgia', serif !important;
+            font-size: 11px !important;
             line-height: 1.5 !important;
-            color: #222222 !important;
+            color: #1a202c !important;
           }
 
-          /* Minimalist Swiss Template CSS Overrides */
+          /* 3. Goldman Sachs & Wall Street (Clean Minimal) */
           .cv-template-minimalist {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
             color: #000000 !important;
+            line-height: 1.45 !important;
           }
           .cv-template-minimalist .cv-header {
             text-align: left !important;
-            margin-bottom: 24px !important;
+            margin-bottom: 20px !important;
             border-bottom: 2px solid #000000 !important;
-            padding-bottom: 10px !important;
+            padding-bottom: 8px !important;
           }
           .cv-template-minimalist .cv-name {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-            font-size: 30px !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+            font-size: 28px !important;
             font-weight: 900 !important;
-            letter-spacing: -0.05em !important;
+            letter-spacing: -0.04em !important;
             text-transform: uppercase !important;
             color: #000000 !important;
           }
           .cv-template-minimalist .cv-contact {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-            font-size: 10.5px !important;
-            color: #666666 !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+            font-size: 10px !important;
+            color: #333333 !important;
             margin-top: 4px !important;
             letter-spacing: 0px !important;
           }
           .cv-template-minimalist .cv-section-container {
-            margin-top: 20px !important;
-            margin-bottom: 10px !important;
+            margin-top: 18px !important;
+            margin-bottom: 8px !important;
           }
           .cv-template-minimalist .cv-section-title {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
             font-size: 12px !important;
             font-weight: 800 !important;
             color: #000000 !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.1em !important;
+            letter-spacing: 0.08em !important;
           }
           .cv-template-minimalist .cv-section-line {
-            height: 1.5px !important;
+            height: 1px !important;
             background-color: #000000 !important;
             width: 100% !important;
           }
           .cv-template-minimalist .cv-item-title {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
             font-weight: 800 !important;
             color: #000000 !important;
           }
           .cv-template-minimalist .cv-item-dates {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-            font-weight: 600 !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+            font-weight: 700 !important;
             color: #000000 !important;
           }
           .cv-template-minimalist .cv-item-company {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
             font-weight: 700 !important;
-            color: #333333 !important;
+            color: #000000 !important;
           }
           .cv-template-minimalist .cv-item-location {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-            color: #666666 !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+            color: #333333 !important;
             font-style: normal !important;
             font-weight: 500 !important;
           }
           .cv-template-minimalist .cv-list-item {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
             font-size: 11px !important;
-            line-height: 1.45 !important;
-            color: #222222 !important;
+            line-height: 1.4 !important;
+            color: #111111 !important;
           }
           .cv-template-minimalist .cv-bullet {
             color: #000000 !important;
           }
           .cv-template-minimalist .cv-paragraph {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
             font-size: 11px !important;
-            line-height: 1.45 !important;
-            color: #222222 !important;
+            line-height: 1.4 !important;
+            color: #111111 !important;
           }
         </style>
         ${isDoc ? `
@@ -942,9 +1016,9 @@ ${(() => {
                   outline: 'none',
                 }}
               >
-                <option value="modern">Modern Silicon (Inter)</option>
-                <option value="classic">Classic Ivy (Serif)</option>
-                <option value="minimalist">Minimalist Swiss (Monochrome)</option>
+                <option value="modern">Silicon Valley Tech (FAANG Standard)</option>
+                <option value="classic">McKinsey & Co. / Harvard Business (Elegant Serif)</option>
+                <option value="minimalist">Goldman Sachs / Wall Street (Clean Minimal)</option>
               </select>
             </div>
           )}

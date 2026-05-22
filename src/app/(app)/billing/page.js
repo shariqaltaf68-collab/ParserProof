@@ -266,6 +266,7 @@ export default function BillingPage() {
   const usageCount = user?.usageCount || 0;
   const limit = PLAN_LIMITS[currentPlan] || PLAN_LIMITS.free;
   const usagePercent = Math.min((usageCount / limit) * 100, 100);
+  const isRefundableActive = refundTimeRemaining > 0 && (user?.generationsSinceUpgrade || 0) <= 2;
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-US', {
@@ -370,39 +371,68 @@ export default function BillingPage() {
                 gap: 'var(--space-2)',
               }}
             >
-              {refundTimeRemaining > 0 ? 'Cancel & Claim Refund' : 'Cancel Subscription'}
+              {isRefundableActive ? 'Cancel & Claim Refund' : 'Cancel Subscription'}
             </button>
           )}
         </div>
       </div>
 
       {refundTimeRemaining > 0 && (
-        <div
-          style={{
-            margin: 'var(--space-4) 0',
-            padding: 'var(--space-3) var(--space-4)',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: 'var(--space-2)',
-            fontSize: 'var(--font-size-sm)',
-            color: 'var(--color-danger)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <AlertTriangle size={16} />
-            <span>
-              <strong>1-Hour Refund Window Active!</strong> Cancel within 1 hour for an instant full refund.
-            </span>
+        isRefundableActive ? (
+          <div
+            style={{
+              margin: 'var(--space-4) 0',
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 'var(--space-2)',
+              fontSize: 'var(--font-size-sm)',
+              color: 'var(--color-danger)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <AlertTriangle size={16} />
+              <span>
+                <strong>1-Hour Refund Window Active!</strong> Cancel within 1 hour for a full refund (used {user?.generationsSinceUpgrade || 0}/2 generations).
+              </span>
+            </div>
+            <div style={{ fontWeight: '700', fontFamily: 'monospace' }}>
+              {formatTime(refundTimeRemaining)} remaining
+            </div>
           </div>
-          <div style={{ fontWeight: '700', fontFamily: 'monospace' }}>
-            {formatTime(refundTimeRemaining)} remaining
+        ) : (
+          <div
+            style={{
+              margin: 'var(--space-4) 0',
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'rgba(245, 158, 11, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 'var(--space-2)',
+              fontSize: 'var(--font-size-sm)',
+              color: 'var(--color-warning)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <AlertTriangle size={16} />
+              <span>
+                <strong>Refund Limit Exceeded:</strong> You optimized {user?.generationsSinceUpgrade || 0} resumes since upgrading (max limit is 2 for refund eligibility). Downgrade is available without a refund.
+              </span>
+            </div>
+            <div style={{ fontWeight: '700', fontFamily: 'monospace' }}>
+              {formatTime(refundTimeRemaining)} window active
+            </div>
           </div>
-        </div>
+        )
       )}
 
       {/* Usage This Month */}
@@ -532,7 +562,7 @@ export default function BillingPage() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
             <div className="modal-header">
               <div className="modal-title">
-                {refundTimeRemaining > 0 ? 'Cancel Subscription & Refund' : 'Cancel Subscription'}
+                {isRefundableActive ? 'Cancel Subscription & Refund' : 'Cancel Subscription'}
               </div>
               <button
                 className="modal-close"
@@ -544,8 +574,10 @@ export default function BillingPage() {
             </div>
             
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', lineHeight: 1.5, marginBottom: 'var(--space-4)' }}>
-              {refundTimeRemaining > 0 ? (
-                "We're sorry to see you go. If you are not satisfied with ResumePilot, canceling now will instantly downgrade you to the Free plan, request a full refund to your payment method, and log details for Razorpay processing."
+              {isRefundableActive ? (
+                `We're sorry to see you go. Since you have generated only ${user?.generationsSinceUpgrade || 0} resume(s) and are within the 1-hour window, canceling now will instantly downgrade you to the Free plan and request a full refund via Razorpay.`
+              ) : refundTimeRemaining > 0 ? (
+                `We're sorry to see you go. Canceling your plan will downgrade your account to the Free tier. Note: Because you have generated ${user?.generationsSinceUpgrade || 0} resumes (limit is 2 for refund eligibility), this cancellation does not qualify for a refund.`
               ) : (
                 "We're sorry to see you go. Canceling your plan will downgrade your account to the Free tier. Note: Because the 1-hour refund window has expired, this cancellation does not qualify for a refund."
               )}
@@ -553,7 +585,7 @@ export default function BillingPage() {
 
             <div style={{ marginBottom: 'var(--space-4)' }}>
               <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: '700', marginBottom: 'var(--space-2)', color: 'var(--color-text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {refundTimeRemaining > 0 ? 'Why are you requesting a refund?' : 'Why are you cancelling your subscription?'}
+                {isRefundableActive ? 'Why are you requesting a refund?' : 'Why are you cancelling your subscription?'}
               </label>
               <select
                 value={cancelReason}
@@ -632,7 +664,7 @@ export default function BillingPage() {
                     Cancelling...
                   </>
                 ) : (
-                  refundTimeRemaining > 0 ? 'Confirm Cancel & Refund' : 'Confirm Cancellation'
+                  isRefundableActive ? 'Confirm Cancel & Refund' : 'Confirm Cancellation'
                 )}
               </button>
             </div>

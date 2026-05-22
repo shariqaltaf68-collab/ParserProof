@@ -89,10 +89,7 @@ async function executeGenerationAttempt(model, resumeText, jobDescription, tone,
     reconstructed[targetField] = value;
   }
 
-  if (typeof reconstructed.atsScore !== 'number' || reconstructed.atsScore < 0 || reconstructed.atsScore > 100) {
-    reconstructed.atsScore = Math.min(100, Math.max(0, Number(reconstructed.atsScore) || 0));
-  }
-
+  // Normalize keywordMatch array structures early
   if (!reconstructed.keywordMatch || typeof reconstructed.keywordMatch !== 'object') {
     reconstructed.keywordMatch = { matched: [], missing: [] };
   }
@@ -107,7 +104,71 @@ async function executeGenerationAttempt(model, resumeText, jobDescription, tone,
     reconstructed.interviewQuestions = [];
   }
 
+  // Calculate mathematically grounded, highly realistic ATS score
+  const rawLlmScore = typeof reconstructed.atsScore === 'number'
+    ? reconstructed.atsScore
+    : (Number(reconstructed.atsScore) || 70);
+
+  reconstructed.atsScore = calculateProgrammaticAtsScore(
+    reconstructed.improvedResume,
+    reconstructed.keywordMatch,
+    rawLlmScore
+  );
+
   return reconstructed;
+}
+
+/**
+ * Calculates a highly realistic, mathematically grounded ATS score.
+ * Combines keyword match rate (50%), structural verification (25%), and metric density (25%).
+ * Averaged with the LLM's semantic score to prevent overprediction.
+ */
+function calculateProgrammaticAtsScore(improvedResume, keywordMatch, llmScore) {
+  // 1. Keyword Match Score (50% weight)
+  const matched = Array.isArray(keywordMatch?.matched) ? keywordMatch.matched : [];
+  const missing = Array.isArray(keywordMatch?.missing) ? keywordMatch.missing : [];
+  const totalKeywords = matched.length + missing.length;
+  const keywordScore = totalKeywords > 0 ? (matched.length / totalKeywords) * 100 : 70;
+
+  // 2. Structural Parser-Safe Verification (25% weight)
+  const resumeText = typeof improvedResume === 'string' ? improvedResume : '';
+  const sections = [
+    /##\s*(Summary|Professional\s+Summary|Profile|Career\s+Objective)/i,
+    /##\s*(Experience|Professional\s+Experience|Work\s+Experience|Employment|History)/i,
+    /##\s*(Education|Academic\s+Background|Academic)/i,
+    /##\s*(Skills|Technical\s+Skills|Core\s+Competencies|Expertise)/i
+  ];
+  let sectionsFound = 0;
+  for (const rx of sections) {
+    if (rx.test(resumeText)) {
+      sectionsFound++;
+    }
+  }
+  const structuralScore = (sectionsFound / sections.length) * 100;
+
+  // 3. Metric Quantification Density (25% weight)
+  const lines = resumeText.split('\n');
+  const bulletLines = lines.filter(line => /^\s*-\s+/.test(line));
+  const totalBullets = bulletLines.length;
+
+  // Detect percentages, currencies, scales (k, million, etc.), plus symbols, years, or metric placeholders
+  const metricRegex = /(\b\d+(?:[.,\d]*\d)?\s*%|\$\s*\d+|\b\d+\s*k\b|\b\d+\s*million\b|\b\d+\s*billion\b|₹\s*\d+|\b\d+\+\s*|\[quantify|\[add\s+metric)/i;
+
+  let quantifiedBullets = 0;
+  for (const bullet of bulletLines) {
+    if (metricRegex.test(bullet)) {
+      quantifiedBullets++;
+    }
+  }
+  const metricScore = totalBullets > 0 ? (quantifiedBullets / totalBullets) * 100 : 60;
+
+  // Compute final combined programmatic score
+  const programmaticScore = (keywordScore * 0.50) + (structuralScore * 0.25) + (metricScore * 0.25);
+
+  // Average with LLM semantic score for extreme recruiters-grade realism
+  const finalScore = Math.round((programmaticScore + llmScore) / 2);
+
+  return Math.min(100, Math.max(0, finalScore));
 }
 
 /**
