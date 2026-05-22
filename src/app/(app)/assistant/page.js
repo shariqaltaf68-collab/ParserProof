@@ -51,6 +51,7 @@ export default function AssistantPage() {
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [voiceState, setVoiceState] = useState('idle'); // 'idle' | 'listening' | 'thinking' | 'speaking'
   const [micPermissionError, setMicPermissionError] = useState(false);
+  const [micErrorType, setMicErrorType] = useState('blocked'); // 'blocked' | 'not-found' | 'busy' | 'service-unavailable' | 'generic'
   const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -137,9 +138,38 @@ export default function AssistantPage() {
         rec.onerror = (e) => {
           console.error('Speech recognition error:', e);
           if (e.error === 'not-allowed' || e.error === 'permission-denied') {
-            setMicPermissionError(true);
-            setIsVoiceMode(false);
-            setVoiceState('idle');
+            // Validate the actual hardware status using the HTML5 mediaDevices standard
+            if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+              navigator.mediaDevices.getUserMedia({ audio: true })
+                .then((stream) => {
+                  // getUserMedia succeeded! The microphone is actually allowed, but Chrome's cloud Speech engine failed
+                  stream.getTracks().forEach(track => track.stop());
+                  setMicErrorType('service-unavailable');
+                  setMicPermissionError(true);
+                  setIsVoiceMode(false);
+                  setVoiceState('idle');
+                })
+                .catch((err) => {
+                  // getUserMedia failed! Let's categorize the exact exception
+                  setIsVoiceMode(false);
+                  setVoiceState('idle');
+                  if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    setMicErrorType('blocked');
+                  } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    setMicErrorType('not-found');
+                  } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                    setMicErrorType('busy');
+                  } else {
+                    setMicErrorType('generic');
+                  }
+                  setMicPermissionError(true);
+                });
+            } else {
+              setMicErrorType('blocked');
+              setMicPermissionError(true);
+              setIsVoiceMode(false);
+              setVoiceState('idle');
+            }
           } else {
             if (isVoiceMode) {
               restartListening();
@@ -193,9 +223,18 @@ export default function AssistantPage() {
           })
           .catch((err) => {
             console.error('getUserMedia permission error:', err);
-            setMicPermissionError(true);
             setIsVoiceMode(false);
             setVoiceState('idle');
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+              setMicErrorType('blocked');
+            } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+              setMicErrorType('not-found');
+            } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+              setMicErrorType('busy');
+            } else {
+              setMicErrorType('generic');
+            }
+            setMicPermissionError(true);
           });
       } else {
         startRec();
@@ -624,39 +663,51 @@ export default function AssistantPage() {
               {micPermissionError && (
                 <div className="mic-error-notice animate-slide-in" style={{ position: 'sticky', top: 0, margin: '0 0 var(--space-4) 0', width: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', width: '100%' }}>
-                    <AlertTriangle size={18} className="mic-error-icon" style={{ marginTop: '2px' }} />
+                    <AlertTriangle size={18} className="mic-error-icon" style={{ marginTop: '2px', flexShrink: 0 }} />
                     <div style={{ flexGrow: 1 }}>
-                      <div style={{ fontWeight: '700', fontSize: '12px' }}>Microphone Access Blocked</div>
+                      <div style={{ fontWeight: '700', fontSize: '12px' }}>
+                        {micErrorType === 'blocked' && 'Microphone Access Blocked'}
+                        {micErrorType === 'not-found' && 'No Microphone Detected'}
+                        {micErrorType === 'busy' && 'Microphone is Busy'}
+                        {micErrorType === 'service-unavailable' && 'Speech Service Unavailable'}
+                        {micErrorType === 'generic' && 'Microphone Connection Error'}
+                      </div>
                       <div style={{ fontSize: '10px', marginTop: '2px', lineHeight: '1.4', opacity: 0.9 }}>
-                        To apply your microphone permission, the browser requires a page reload. Click the button below to reload and activate Voice Mode.
+                        {micErrorType === 'blocked' && 'To unblock Voice Mode, click the Lock icon in your browser address bar and enable microphone permissions, then reload.'}
+                        {micErrorType === 'not-found' && 'No physical microphone was detected. Please plug in a mic or check your system audio input device settings.'}
+                        {micErrorType === 'busy' && 'Your microphone is locked by another program (e.g. Zoom, Teams, Discord, or another tab). Close other audio apps and try again.'}
+                        {micErrorType === 'service-unavailable' && 'Browser permission is allowed, but the browser speech recognition engine is unresponsive or offline. Please type instead!'}
+                        {micErrorType === 'generic' && 'An error occurred while establishing a hardware connection with your mic. Check your operating system settings.'}
                       </div>
                     </div>
                     <button onClick={() => setMicPermissionError(false)} className="mic-error-close">
                       <X size={12} />
                     </button>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-                    <button 
-                      onClick={() => window.location.reload()} 
-                      className="btn-reload-mic"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        color: 'white',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      Reload Page
-                    </button>
-                  </div>
+                  {micErrorType === 'blocked' && (
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                      <button 
+                        onClick={() => window.location.reload()} 
+                        className="btn-reload-mic"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.2)',
+                          color: 'white',
+                          border: '1px solid rgba(255, 255, 255, 0.3)',
+                          padding: '4px 10px',
+                          borderRadius: '4px',
+                          fontSize: '10px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        Reload Page
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
