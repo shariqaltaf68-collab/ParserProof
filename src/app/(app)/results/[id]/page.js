@@ -314,6 +314,7 @@ export default function ResultsPage() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('resume');
   const [downloading, setDownloading] = useState(false);
+  const [pdfTemplate, setPdfTemplate] = useState('modern');
 
   useEffect(() => {
     async function load() {
@@ -584,9 +585,168 @@ ${(() => {
             line-height: 1.45;
             text-align: justify;
           }
+
+          /* Classic Ivy Template CSS Overrides */
+          .cv-template-classic {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            color: #111111 !important;
+          }
+          .cv-template-classic .cv-header {
+            text-align: center !important;
+            margin-bottom: 20px !important;
+          }
+          .cv-template-classic .cv-name {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-size: 26px !important;
+            font-weight: 500 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+            color: #111111 !important;
+          }
+          .cv-template-classic .cv-contact {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-size: 11px !important;
+            font-style: italic !important;
+            color: #555555 !important;
+          }
+          .cv-template-classic .cv-section-container {
+            text-align: center !important;
+            margin-top: 20px !important;
+            margin-bottom: 10px !important;
+          }
+          .cv-template-classic .cv-section-title {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #1b365d !important;
+            letter-spacing: 0.15em !important;
+            margin-bottom: 3px !important;
+          }
+          .cv-template-classic .cv-section-line {
+            height: 1px !important;
+            background-color: #1b365d !important;
+            width: 60% !important;
+            margin: 0 auto !important;
+          }
+          .cv-template-classic .cv-item-title {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-weight: 700 !important;
+            color: #111111 !important;
+          }
+          .cv-template-classic .cv-item-dates {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-style: italic !important;
+            font-weight: 400 !important;
+            color: #555555 !important;
+          }
+          .cv-template-classic .cv-item-company {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-weight: 700 !important;
+            color: #222222 !important;
+          }
+          .cv-template-classic .cv-item-location {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-style: italic !important;
+            color: #555555 !important;
+          }
+          .cv-template-classic .cv-list-item {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-size: 11px !important;
+            line-height: 1.5 !important;
+            color: #222222 !important;
+          }
+          .cv-template-classic .cv-bullet {
+            color: #1b365d !important;
+          }
+          .cv-template-classic .cv-paragraph {
+            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-size: 11.5px !important;
+            line-height: 1.5 !important;
+            color: #222222 !important;
+          }
+
+          /* Minimalist Swiss Template CSS Overrides */
+          .cv-template-minimalist {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            color: #000000 !important;
+          }
+          .cv-template-minimalist .cv-header {
+            text-align: left !important;
+            margin-bottom: 24px !important;
+            border-bottom: 2px solid #000000 !important;
+            padding-bottom: 10px !important;
+          }
+          .cv-template-minimalist .cv-name {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-size: 30px !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.05em !important;
+            text-transform: uppercase !important;
+            color: #000000 !important;
+          }
+          .cv-template-minimalist .cv-contact {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-size: 10.5px !important;
+            color: #666666 !important;
+            margin-top: 4px !important;
+            letter-spacing: 0px !important;
+          }
+          .cv-template-minimalist .cv-section-container {
+            margin-top: 20px !important;
+            margin-bottom: 10px !important;
+          }
+          .cv-template-minimalist .cv-section-title {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 800 !important;
+            color: #000000 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+          }
+          .cv-template-minimalist .cv-section-line {
+            height: 1.5px !important;
+            background-color: #000000 !important;
+            width: 100% !important;
+          }
+          .cv-template-minimalist .cv-item-title {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-weight: 800 !important;
+            color: #000000 !important;
+          }
+          .cv-template-minimalist .cv-item-dates {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-weight: 600 !important;
+            color: #000000 !important;
+          }
+          .cv-template-minimalist .cv-item-company {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-weight: 700 !important;
+            color: #333333 !important;
+          }
+          .cv-template-minimalist .cv-item-location {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            color: #666666 !important;
+            font-style: normal !important;
+            font-weight: 500 !important;
+          }
+          .cv-template-minimalist .cv-list-item {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+            color: #222222 !important;
+          }
+          .cv-template-minimalist .cv-bullet {
+            color: #000000 !important;
+          }
+          .cv-template-minimalist .cv-paragraph {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+            color: #222222 !important;
+          }
         </style>
         ${isDoc ? `
-          <div class="cv-content-wrapper">
+          <div class="cv-content-wrapper cv-template-${pdfTemplate}">
             ${parsedTextHtml}
           </div>
         ` : `
@@ -614,7 +774,7 @@ ${(() => {
     } finally {
       setDownloading(false);
     }
-  }, [project, activeTab]);
+  }, [project, activeTab, pdfTemplate]);
 
   if (loading) {
     return (
@@ -750,7 +910,33 @@ ${(() => {
           <ArrowLeft size={16} />
           Dashboard
         </button>
-        <div className="results-header-actions" style={{ display: 'flex', gap: 'var(--space-2)' }}>
+        <div className="results-header-actions" style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+          {(activeTab === 'resume' || activeTab === 'cover') && (
+            <div className="template-select-wrapper" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <span className="template-select-label" style={{ fontSize: 'var(--font-size-xs)', fontWeight: '600', color: 'var(--color-text-secondary)' }}>Template:</span>
+              <select
+                value={pdfTemplate}
+                onChange={(e) => setPdfTemplate(e.target.value)}
+                className="form-select form-select-sm template-select-dropdown"
+                style={{
+                  width: 'auto',
+                  padding: 'var(--space-1) var(--space-4) var(--space-1) var(--space-2)',
+                  fontSize: 'var(--font-size-xs)',
+                  height: '32px',
+                  background: 'var(--color-bg-tertiary)',
+                  borderColor: 'var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--color-text-primary)',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                <option value="modern">Modern Silicon (Inter)</option>
+                <option value="classic">Classic Ivy (Serif)</option>
+                <option value="minimalist">Minimalist Swiss (Monochrome)</option>
+              </select>
+            </div>
+          )}
           <button
             className="btn btn-secondary btn-sm"
             onClick={handleDownload}
@@ -878,7 +1064,7 @@ ${(() => {
             </div>
             <div className="result-panel-body cv-preview-body">
               <div 
-                className="cv-content-wrapper"
+                className={`cv-content-wrapper cv-template-${pdfTemplate}`}
                 dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(project.improvedResume) }}
               />
             </div>
@@ -896,7 +1082,7 @@ ${(() => {
               </div>
               <div className="result-panel-body cv-preview-body">
                 <div 
-                  className="cv-content-wrapper"
+                  className={`cv-content-wrapper cv-template-${pdfTemplate}`}
                   dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(project.coverLetter) }}
                 />
               </div>
