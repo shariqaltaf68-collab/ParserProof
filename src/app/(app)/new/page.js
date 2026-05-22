@@ -120,6 +120,7 @@ export default function NewProjectPage() {
 
   const [logs, setLogs] = useState([]);
   const [percent, setPercent] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const consoleEndRef = useRef(null);
 
   // Animate through the premium optimization steps
@@ -199,6 +200,18 @@ export default function NewProjectPage() {
 
     return () => clearInterval(interval);
   }, [generationStep, isGenerating, projectResult]);
+
+  // Count elapsed seconds during active generation
+  useEffect(() => {
+    if (!isGenerating) {
+      setElapsed(0);
+      return;
+    }
+    const timer = setInterval(() => {
+      setElapsed((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isGenerating]);
 
   // Once the final step has finished AND we have the generated project result, redirect to results page
   useEffect(() => {
@@ -403,27 +416,113 @@ export default function NewProjectPage() {
             </div>
           </div>
 
-          {/* Right Panel: Live AI Processing Console */}
-          <div className="generation-right-panel">
+          {/* Right Panel: Futuristic Animated Compass Radar Scanner */}
+          <div className="generation-right-panel radar-panel">
             <div className="generation-console-header">
               <div className="generation-console-dots">
                 <div className="generation-console-dot red" />
                 <div className="generation-console-dot yellow" />
                 <div className="generation-console-dot green" />
               </div>
-              <div style={{ fontWeight: 600, letterSpacing: '0.05em' }}>DEEP AI LOGS FEED</div>
-              <div>v2.1.0</div>
+              <div style={{ fontWeight: 600, letterSpacing: '0.05em', color: '#818cf8' }}>
+                DEEP RADAR SCANNER
+              </div>
+              <div className="radar-version">v2.5.0</div>
             </div>
+            <div className="radar-scanning-viewport">
+              <div className="radar-scanner-container">
+                {/* SVG Concentric Radar Compass Rings & Sweep */}
+                 <svg className="radar-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="radarSweepGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {/* Concentric grid rings */}
+                  <circle cx="100" cy="100" r="90" className="radar-grid-ring outer" />
+                  <circle cx="100" cy="100" r="65" className="radar-grid-ring middle" />
+                  <circle cx="100" cy="100" r="40" className="radar-grid-ring inner" />
+                  
+                  {/* Cardinal Axis gridlines */}
+                  <line x1="10" y1="100" x2="190" y2="100" className="radar-grid-axis" />
+                  <line x1="100" y1="10" x2="100" y2="190" className="radar-grid-axis" />
+                  <line x1="36.36" y1="36.36" x2="163.64" y2="163.64" className="radar-grid-axis diagonal" />
+                  <line x1="36.36" y1="163.64" x2="163.64" y2="36.36" className="radar-grid-axis diagonal" />
 
-            <div className="generation-console-logs">
-              {logs.map((log, i) => (
-                <div key={i} className="generation-log-line">
-                  <span className="timestamp">[{log.timestamp}]</span>
-                  <span className={`tag ${log.tag}`}>[{log.tag.toUpperCase()}]</span>
-                  <span className="message">{log.msg}</span>
+                  {/* Dynamic pulsing active keyword blips (positioned staggered around rings) */}
+                  <circle cx="65" cy="65" className="radar-blip blip-1" r="3.5" />
+                  <circle cx="140" cy="80" className="radar-blip blip-2" r="4" />
+                  <circle cx="85" cy="135" className="radar-blip blip-3" r="3" />
+                  <circle cx="130" cy="140" className="radar-blip blip-4" r="3.5" />
+                  <circle cx="100" cy="45" className="radar-blip blip-5" r="4" />
+
+                  {/* Rotating Sweeper vector line */}
+                  <g className="radar-sweep-group">
+                    <line x1="100" y1="100" x2="100" y2="10" className="radar-sweep-line" />
+                    <polygon points="100,100 100,10 125,18" className="radar-sweep-gradient" />
+                  </g>
+
+                  {/* Pulsing Central Core */}
+                  <circle cx="100" cy="100" r="16" className="radar-core-pulse-outer" />
+                  <circle cx="100" cy="100" r="11" className="radar-core-pulse-inner" />
+                </svg>
+                
+                {/* Central Core Icon overlay */}
+                <div className="radar-core-icon">
+                  <Sparkles size={12} className="radar-sparkle-spin" />
                 </div>
-              ))}
-              <div ref={consoleEndRef} />
+              </div>
+
+              {/* Dynamic Telemetry Feedback Area */}
+              <div className="radar-telemetry-panel">
+                <div className="radar-active-status-capsule">
+                  <span className="radar-status-dot green" />
+                  <span className="radar-status-text">
+                    {GENERATION_STEPS[generationStep]}
+                  </span>
+                </div>
+
+                <div className="radar-digital-readouts">
+                  <div className="telemetry-stat">
+                    <span className="stat-label">ELAPSED TIMER</span>
+                    <span className="stat-value font-mono">
+                      00:{elapsed < 10 ? `0${elapsed}` : elapsed}s
+                    </span>
+                  </div>
+                  <div className="telemetry-separator" />
+                  <div className="telemetry-stat">
+                    <span className="stat-label">ATS CONFIDENCE</span>
+                    <span className="stat-value font-mono">
+                      {Math.min(99.8, 92.4 + (generationStep * 0.9) + (elapsed * 0.05)).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="telemetry-separator" />
+                  <div className="telemetry-stat">
+                    <span className="stat-label">KEYWORDS SYNCED</span>
+                    <span className="stat-value font-mono">
+                      {Math.min(64, generationStep * 8 + Math.floor(elapsed * 0.4))}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom ticker displaying the single most recent log line for backend realism */}
+                <div className="radar-log-ticker-container">
+                  <div className="ticker-label">LATEST ACTION:</div>
+                  <div className="ticker-message font-mono">
+                    {logs.length > 0 ? (
+                      <>
+                        <span className={`ticker-tag ${logs[logs.length - 1].tag}`}>
+                          [{logs[logs.length - 1].tag.toUpperCase()}]
+                        </span>{' '}
+                        {logs[logs.length - 1].msg}
+                      </>
+                    ) : (
+                      'INITIALIZING SYSTEMS...'
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -37,8 +37,8 @@
   --color-text-inverse: #ffffff;
 
   /* Borders */
-  --color-border: #e2e8f0;
-  --color-border-hover: #cbd5e1;
+  --color-border: #cbd5e1;
+  --color-border-hover: #94a3b8;
   --color-border-focus: var(--color-accent);
 
   /* Gradients */
@@ -737,7 +737,7 @@ h6 { font-size: var(--font-size-lg); }
 
 /* ===== FILE UPLOAD ===== */
 .file-upload {
-  border: 2px dashed var(--color-border);
+  border: 2px dashed #94a3b8;
   border-radius: var(--radius-lg);
   padding: var(--space-10);
   display: flex;
@@ -746,6 +746,7 @@ h6 { font-size: var(--font-size-lg); }
   justify-content: center;
   text-align: center;
   cursor: pointer;
+  background: var(--color-bg-primary);
   transition: all var(--transition-base);
   gap: var(--space-3);
 }
@@ -1325,11 +1326,12 @@ h6 { font-size: var(--font-size-lg); }
 .app-layout {
   display: flex;
   min-height: 100vh;
+  background-color: var(--color-bg-secondary);
 }
 
 .sidebar {
   width: var(--sidebar-width);
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
@@ -1794,7 +1796,7 @@ h6 { font-size: var(--font-size-lg); }
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
-  background: transparent;
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-family);
   text-align: left;
@@ -2317,8 +2319,8 @@ h6 { font-size: var(--font-size-lg); }
 
 .generation-step.active {
   color: var(--color-accent);
-  background: var(--color-accent-light);
-  border-color: rgba(99, 102, 241, 0.15);
+  background: rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.35);
 }
 
 .generation-step.done {
@@ -4233,6 +4235,286 @@ h6 { font-size: var(--font-size-lg); }
     font-size: 11px !important;
     padding-left: 10px !important;
   }
+}
+
+/* ===== FUTURISTIC COMPASS RADAR ===== */
+.radar-panel {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.radar-scanning-viewport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  margin-top: var(--space-4);
+  position: relative;
+}
+
+.radar-scanner-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0) 70%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.radar-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.radar-grid-ring {
+  fill: none;
+  stroke: rgba(99, 102, 241, 0.15);
+  stroke-width: 1;
+}
+
+.radar-grid-ring.outer {
+  stroke-dasharray: 4 4;
+  animation: radar-spin-slow 60s linear infinite;
+  transform-origin: 100px 100px;
+}
+
+.radar-grid-ring.middle {
+  stroke: rgba(99, 102, 241, 0.2);
+}
+
+.radar-grid-ring.inner {
+  stroke-dasharray: 2 2;
+}
+
+.radar-grid-axis {
+  stroke: rgba(99, 102, 241, 0.1);
+  stroke-width: 1;
+}
+
+.radar-grid-axis.diagonal {
+  stroke-dasharray: 2 4;
+}
+
+/* Pulsing Core and Sparkles */
+.radar-core-pulse-outer {
+  fill: rgba(99, 102, 241, 0.15);
+  animation: radar-core-scale 3s ease-out infinite;
+  transform-origin: 100px 100px;
+}
+
+.radar-core-pulse-inner {
+  fill: rgba(99, 102, 241, 0.35);
+  animation: radar-core-scale 1.5s ease-out infinite alternate;
+  transform-origin: 100px 100px;
+}
+
+.radar-core-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #1e1b4b; /* very dark indigo */
+  border: 2px solid #818cf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
+  color: #818cf8;
+}
+
+.radar-sparkle-spin {
+  animation: spin 6s linear infinite;
+}
+
+/* Sweep Line & Gradient */
+.radar-sweep-group {
+  transform-origin: 100px 100px;
+  animation: radar-sweep 4s linear infinite;
+}
+
+.radar-sweep-line {
+  stroke: #818cf8;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px #818cf8);
+}
+
+.radar-sweep-gradient {
+  fill: url(#radarSweepGrad);
+}
+
+/* Pulsing Active Blips */
+.radar-blip {
+  fill: #818cf8;
+  filter: drop-shadow(0 0 3px #818cf8);
+  opacity: 0;
+  animation: radar-blip-pulse 4s ease-out infinite;
+}
+
+.radar-blip.blip-1 { animation-delay: 0.5s; }
+.radar-blip.blip-2 { animation-delay: 1.5s; }
+.radar-blip.blip-3 { animation-delay: 2.5s; }
+.radar-blip.blip-4 { animation-delay: 0.8s; }
+.radar-blip.blip-5 { animation-delay: 3.2s; }
+
+/* Telemetry & digital panels */
+.radar-telemetry-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.radar-active-status-capsule {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 20px;
+  padding: 6px var(--space-4);
+  align-self: center;
+  max-width: 90%;
+  font-size: 11px;
+}
+
+.radar-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981; /* emerald-500 */
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse 1s infinite;
+}
+
+.radar-status-text {
+  color: #e2e8f0;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+.radar-digital-readouts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(9, 13, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.telemetry-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: #64748b; /* slate-500 */
+  margin-bottom: 2px;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #38bdf8; /* sky-400 */
+  letter-spacing: 0.02em;
+}
+
+.telemetry-separator {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Bottom Log Ticker */
+.radar-log-ticker-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 6px var(--space-3);
+  font-size: 10px;
+}
+
+.ticker-label {
+  color: #818cf8;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.ticker-message {
+  color: #94a3b8; /* slate-400 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: left;
+}
+
+.ticker-tag {
+  font-weight: 700;
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ticker-tag.sys { color: #f472b6; }
+.ticker-tag.parse { color: #c084fc; }
+.ticker-tag.ats { color: #fbbf24; }
+.ticker-tag.jd { color: #38bdf8; }
+.ticker-tag.align { color: #818cf8; }
+.ticker-tag.star { color: #f43f5e; }
+.ticker-tag.letter { color: #fbbf24; }
+.ticker-tag.coach { color: #2dd4bf; }
+.ticker-tag.build { color: #34d399; }
+
+/* Keyframes */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes radar-spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes radar-core-scale {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes radar-blip-pulse {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; transform: scale(1.2); }
+  30% { opacity: 0.4; transform: scale(1); }
+  60% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 0; }
 }
 
 
