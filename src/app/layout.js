@@ -9,18 +9,17 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: 'ResumePilot — AI Resume & Cover Letter Builder',
+  title: 'ResumePilot — ATS Resume Checker & Optimization Platform',
   description:
-    'Build ATS-optimized resumes, tailored cover letters, and interview prep in minutes. Upload your resume, paste any job description, and let AI match keywords, boost your ATS score, and generate polished documents ready to send.',
+    'Increase your job interview response rate. Scan your resume against target job description filters, analyze keyword gaps, fix parsing formatting blocks, and optimize your experience bullet points with quantifiable outcomes.',
   keywords: [
-    'ATS resume builder',
-    'resume tailor',
-    'cover letter generator',
-    'resume keyword matcher',
-    'AI resume optimization',
-    'ATS score checker',
-    'job application tools',
-    'interview preparation',
+    'ATS resume checker',
+    'resume keyword optimizer',
+    'fresher resume format',
+    'resume match score analysis',
+    'ATS compatibility checker',
+    'job application keyword gap tool',
+    'off-campus placement prep',
   ],
   authors: [{ name: 'ResumePilot' }],
   creator: 'ResumePilot',
@@ -29,23 +28,23 @@ export const metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'ResumePilot',
-    title: 'ResumePilot — AI Resume & Cover Letter Builder',
+    title: 'ResumePilot — ATS Resume Checker & Optimization Platform',
     description:
-      'Build ATS-optimized resumes, tailored cover letters, and interview prep in minutes. Let AI match keywords, boost your ATS score, and generate polished documents.',
+      'Increase your job interview response rate. Scan your resume against target job description filters, analyze keyword gaps, and optimize experience descriptions.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'ResumePilot — AI-Powered Resume Optimization',
+        alt: 'ResumePilot — ATS Resume Optimization',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ResumePilot — AI Resume & Cover Letter Builder',
+    title: 'ResumePilot — ATS Resume Checker & Optimization Platform',
     description:
-      'Build ATS-optimized resumes, tailored cover letters, and interview prep in minutes.',
+      'Increase your job interview response rate. Scan your resume against target filters and optimize your content.',
     images: ['/og-image.png'],
     creator: '@resumepilot',
   },

@@ -227,10 +227,10 @@ export default function NewProjectPage() {
             <Sparkles size={36} />
           </div>
           <h1 className="generation-loading-title">
-            Generating Your Tailored Resume
+            Analyzing & Optimizing Resume
           </h1>
           <p className="generation-loading-subtitle">
-            Our AI is analyzing your resume against the job description...
+            Running ATS parser simulation and fixing keyword gaps...
           </p>
           <div className="generation-steps">
             {GENERATION_STEPS.map((step, index) => {
@@ -263,9 +263,19 @@ export default function NewProjectPage() {
         <h1 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>
           New Project
         </h1>
-        <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-base)', marginBottom: 'var(--space-8)' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-base)', marginBottom: 'var(--space-6)' }}>
           Create a tailored resume optimized for your target position
         </p>
+
+        <div className="security-banner">
+          <div className="security-banner-icon">
+            <span style={{ fontSize: '18px' }}>🔒</span>
+          </div>
+          <div className="security-banner-content">
+            <div className="security-banner-title">Safe & Confidential Resume Scans</div>
+            <div className="security-banner-desc">Your resume content is securely encrypted and never shared. We maintain a strict zero-fabrication policy and only format your actual background truthfully.</div>
+          </div>
+        </div>
 
         {errors.general && (
           <div className="toast toast-error" style={{ marginBottom: 'var(--space-6)', minWidth: 'auto', maxWidth: '100%', animation: 'none' }}>
@@ -310,17 +320,20 @@ export default function NewProjectPage() {
 
           {inputMethod === 'paste' ? (
             <div className="form-group">
-              <textarea
-                id="resume-text-input"
-                className="form-textarea"
-                style={{ minHeight: '250px' }}
-                placeholder="Paste your complete resume here..."
-                value={resumeText}
-                onChange={(e) => {
-                  setResumeText(e.target.value);
-                  if (errors.resumeText) setErrors((prev) => ({ ...prev, resumeText: undefined }));
-                }}
-              />
+              <div className="textarea-count-wrapper">
+                <textarea
+                  id="resume-text-input"
+                  className="form-textarea"
+                  style={{ minHeight: '250px', paddingBottom: 'var(--space-8)' }}
+                  placeholder="Paste your complete resume here..."
+                  value={resumeText}
+                  onChange={(e) => {
+                    setResumeText(e.target.value);
+                    if (errors.resumeText) setErrors((prev) => ({ ...prev, resumeText: undefined }));
+                  }}
+                />
+                <div className="textarea-char-count">{resumeText.length} characters</div>
+              </div>
               {errors.resumeText && (
                 <span className="form-error">
                   <AlertCircle size={14} />
@@ -410,17 +423,20 @@ export default function NewProjectPage() {
           </p>
 
           <div className="form-group" style={{ marginBottom: 'var(--space-4)' }}>
-            <textarea
-              id="job-description-input"
-              className="form-textarea"
-              style={{ minHeight: '250px' }}
-              placeholder="Paste the complete job description here..."
-              value={jobDescription}
-              onChange={(e) => {
-                setJobDescription(e.target.value);
-                if (errors.jobDescription) setErrors((prev) => ({ ...prev, jobDescription: undefined }));
-              }}
-            />
+            <div className="textarea-count-wrapper">
+              <textarea
+                id="job-description-input"
+                className="form-textarea"
+                style={{ minHeight: '250px', paddingBottom: 'var(--space-8)' }}
+                placeholder="Paste the complete job description here..."
+                value={jobDescription}
+                onChange={(e) => {
+                  setJobDescription(e.target.value);
+                  if (errors.jobDescription) setErrors((prev) => ({ ...prev, jobDescription: undefined }));
+                }}
+              />
+              <div className="textarea-char-count">{jobDescription.length} characters</div>
+            </div>
             {errors.jobDescription && (
               <span className="form-error">
                 <AlertCircle size={14} />
@@ -522,7 +538,7 @@ export default function NewProjectPage() {
           type="button"
         >
           <Sparkles size={20} />
-          Generate Tailored Resume
+          Analyze & Optimize Resume
         </button>
       </div>
     </div>

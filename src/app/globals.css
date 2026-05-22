@@ -2710,3 +2710,440 @@ h6 { font-size: var(--font-size-lg); }
   box-shadow: 0 8px 24px hsl(var(--hue-accent) 60% 50% / 0.35);
 }
 
+/* ======================================
+   PRODUCT TRANSFORMATION STYLES
+   ====================================== */
+
+/* ATS Rejection reality funnel styles */
+.ats-funnel-section {
+  padding: var(--space-20) var(--space-6);
+  background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ats-funnel-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-12);
+  align-items: center;
+  max-width: var(--max-landing-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 992px) {
+  .ats-funnel-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+.ats-funnel-stages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ats-funnel-stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: all var(--transition-base);
+}
+
+.ats-funnel-stage:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(4px);
+}
+
+.ats-funnel-stage-num {
+  font-size: var(--font-size-3xl);
+  font-weight: 900;
+  color: var(--color-accent);
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ats-funnel-stage-info {
+  flex: 1;
+}
+
+.ats-funnel-stage-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.ats-funnel-stage-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.ats-funnel-stage-percentage {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  text-align: right;
+  min-width: 80px;
+}
+
+/* Common Fresher Mistakes cards styling */
+.mistakes-section {
+  padding: var(--space-20) var(--space-6);
+  max-width: var(--max-landing-width);
+  margin: 0 auto;
+}
+
+.mistakes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 992px) {
+  .mistakes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .mistakes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mistake-card {
+  padding: var(--space-6);
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.mistake-card:hover {
+  border-color: var(--color-danger);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.08);
+}
+
+.mistake-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.mistake-card-title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+}
+
+.mistake-card-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Before vs After comparison container */
+.before-after-section {
+  padding: var(--space-20) var(--space-6);
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.before-after-container {
+  max-width: 900px;
+  margin: var(--space-10) auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.before-after-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.before-after-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.before-header-tab, .after-header-tab {
+  padding: var(--space-4) var(--space-6);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.before-header-tab {
+  color: var(--color-danger);
+  border-right: 1px solid var(--color-border);
+}
+
+.after-header-tab {
+  color: var(--color-success);
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.before-after-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .before-after-header, .before-after-body {
+    grid-template-columns: 1fr;
+  }
+  .before-header-tab {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+.before-content, .after-content {
+  padding: var(--space-6);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+.before-content {
+  color: var(--color-text-secondary);
+  background: rgba(239, 68, 68, 0.01);
+}
+
+.after-content {
+  color: var(--color-text-primary);
+  background: rgba(16, 185, 129, 0.01);
+  border-left: 1px solid var(--color-border);
+}
+
+@media (max-width: 768px) {
+  .after-content {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.before-content ul, .after-content ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.before-content li {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.before-content li::before {
+  content: '✕';
+  position: absolute;
+  left: 0;
+  color: var(--color-danger);
+  font-weight: bold;
+}
+
+.after-content li {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.after-content li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+/* Indian Freshers Testimonials styling */
+.testimonials-section {
+  padding: var(--space-20) var(--space-6);
+  max-width: var(--max-landing-width);
+  margin: 0 auto;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.testimonial-card {
+  padding: var(--space-8);
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-base);
+}
+
+.testimonial-card:hover {
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: var(--shadow-md);
+}
+
+.testimonial-text {
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: var(--space-6);
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.testimonial-avatar-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+}
+
+.testimonial-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-name {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.testimonial-role {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.testimonial-college {
+  font-size: var(--font-size-xs);
+  color: var(--color-accent-hover);
+  margin-top: 1px;
+}
+
+/* Security Trust Bar and Trust Badges */
+.trust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: var(--space-6);
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.trust-badge-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.trust-badge-item svg {
+  color: var(--color-success);
+}
+
+/* Safe security banner for New Project Page */
+.security-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+}
+
+.security-banner-icon {
+  color: var(--color-success);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.security-banner-content {
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.security-banner-title {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.security-banner-desc {
+  color: var(--color-text-secondary);
+}
+
+/* Textarea wrapper with character counts */
+.textarea-count-wrapper {
+  position: relative;
+}
+
+.textarea-char-count {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  background: var(--color-bg-elevated);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+

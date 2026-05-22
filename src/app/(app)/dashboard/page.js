@@ -127,7 +127,7 @@ export default function DashboardPage() {
           Welcome back, {firstName}
         </h2>
         <p className="dashboard-welcome-subtitle">
-          Optimize your resume and advance your career with AI-powered insights.
+          Let&apos;s get you more interviews. View your ATS compatibility analyses and optimize your job applications below.
         </p>
       </section>
 
@@ -142,10 +142,10 @@ export default function DashboardPage() {
       ) : stats ? (
         <div className="usage-meter">
           <div className="usage-meter-header">
-            <span className="usage-meter-label">AI Generations</span>
+            <span className="usage-meter-label">Usage Tracker</span>
             <span className="usage-meter-count">
               <strong>{stats.usage.used}</strong> of {stats.usage.limit} free
-              generations used this month
+              optimizations used this month
             </span>
           </div>
           <div className="progress-bar">
@@ -210,7 +210,7 @@ export default function DashboardPage() {
               <div className="stat-card-meta">Across all projects</div>
             </div>
             <div className="stat-card">
-              <div className="stat-card-label">This Month&apos;s Generations</div>
+              <div className="stat-card-label">This Month&apos;s Optimizations</div>
               <div className="stat-card-value">{stats?.usage?.used ?? 0}</div>
               <div className="stat-card-meta">
                 {stats?.usage?.remaining ?? 0} remaining
@@ -338,9 +338,9 @@ export default function DashboardPage() {
             <div className="empty-state-icon">
               <FileText size={36} />
             </div>
-            <div className="empty-state-title">No projects yet</div>
+            <div className="empty-state-title">No projects scanned yet</div>
             <div className="empty-state-description">
-              Create your first project to start optimizing your resume.
+              Most freshers need 3-5 custom applications to land the right interview. Create your first project to scan your resume against a target role.
             </div>
             <Link href="/new" className="btn btn-primary" id="empty-state-new-project">
               <PlusCircle size={16} />
