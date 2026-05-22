@@ -98,7 +98,7 @@ const pricingPlans = [
     amount: '₹199',
     period: '/month',
     features: [
-      { text: '10 tailoring optimizations / mo', enabled: true },
+      { text: '15 tailoring optimizations / mo', enabled: true },
       { text: 'Includes all Free features', enabled: true },
       { text: 'Tailored cover letter generation', enabled: true },
       { text: 'JD keyword gap match analyses', enabled: true },
@@ -114,7 +114,7 @@ const pricingPlans = [
     amount: '₹399',
     period: '/month',
     features: [
-      { text: '30 tailoring optimizations / mo', enabled: true },
+      { text: '25 tailoring optimizations / mo', enabled: true },
       { text: 'Includes all Starter features', enabled: true },
       { text: 'Detailed interview prep guides', enabled: true },
       { text: 'Comprehensive skill gap analysis', enabled: true },
@@ -199,6 +199,19 @@ export default function LandingPage() {
 
   return (
     <>
+      {/* High-Converting Premium Comparison Banner */}
+      <div className="promo-banner">
+        <div className="promo-banner-inner">
+          <span className="promo-tag">🇮🇳 FAIR INDIAN PRICING</span>
+          <p className="promo-text">
+            Why pay <strong>₹1,500+/mo ($20)</strong> for expensive Western resume builders? ResumePilot is designed specifically for Indian freshers — get <strong>15 full ATS optimizations</strong> for just <strong>₹199/month</strong>.
+          </p>
+          <button className="promo-btn" onClick={() => scrollTo('pricing')}>
+            View Plans <ArrowRight size={14} />
+          </button>
+        </div>
+      </div>
+
       {/* Navigation */}
       <nav className="landing-nav">
         <div className="landing-nav-inner">
@@ -542,6 +555,64 @@ export default function LandingPage() {
         <p className="section-subtitle">
           Start for free to check your scores. Upgrade to tailoring mode when you are ready to send off-campus applications.
         </p>
+
+        {/* Cost-Savings Comparison Banner */}
+        <div className="comparison-banner" style={{
+          maxWidth: '800px',
+          margin: '0 auto var(--space-8) auto',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)',
+          border: '1px solid rgba(99, 102, 241, 0.2)',
+          borderRadius: 'var(--radius-xl)',
+          padding: 'var(--space-6)',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-50%',
+            left: '-50%',
+            width: '200%',
+            height: '200%',
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+          
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <span style={{
+              background: 'linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)',
+              color: '#ffffff',
+              fontSize: 'var(--font-size-xs)',
+              fontWeight: '700',
+              padding: 'var(--space-1) var(--space-3)',
+              borderRadius: '9999px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              display: 'inline-block',
+              marginBottom: 'var(--space-3)',
+            }}>
+              🇮🇳 Indian Cost Advantage
+            </span>
+            <h3 style={{
+              fontSize: 'var(--font-size-lg)',
+              fontWeight: '700',
+              color: '#ffffff',
+              marginBottom: 'var(--space-2)',
+            }}>
+              Why pay ₹1,600+ ($20/mo) for Western SaaS builders?
+            </h3>
+            <p style={{
+              fontSize: 'var(--font-size-sm)',
+              color: 'var(--color-text-secondary)',
+              lineHeight: '1.6',
+              maxWidth: '650px',
+              margin: '0 auto',
+            }}>
+              Most resume tools charge premium US pricing. ResumePilot offers <strong style={{ color: 'var(--color-accent)' }}>100% equivalent high-accuracy Groq AI optimization</strong> at less than a fraction of the cost—starting at just <strong style={{ color: '#ffffff' }}>₹199/month</strong>. Save over 85% on premium job applications!
+            </p>
+          </div>
+        </div>
 
         <div className="pricing-grid">
           {pricingPlans.map((plan) => (

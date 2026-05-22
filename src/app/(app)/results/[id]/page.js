@@ -436,13 +436,24 @@ ${(() => {
 
       element.innerHTML = `
         <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+          
           .pdf-export-container {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #1f2937;
             background: #ffffff;
-            padding: 25px 30px;
+            padding: ${isDoc ? '0px !important' : '25px 30px !important'};
             font-size: 12px;
             line-height: 1.5;
+          }
+          .cv-content-wrapper {
+            background: #ffffff !important;
+            color: #1f2937 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            line-height: 1.55 !important;
+            font-size: 11px !important;
           }
           .pdf-header {
             border-bottom: 2px solid #6366f1;
@@ -588,7 +599,7 @@ ${(() => {
 
           /* Classic Ivy Template CSS Overrides */
           .cv-template-classic {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             color: #111111 !important;
           }
           .cv-template-classic .cv-header {
@@ -596,7 +607,7 @@ ${(() => {
             margin-bottom: 20px !important;
           }
           .cv-template-classic .cv-name {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-size: 26px !important;
             font-weight: 500 !important;
             letter-spacing: 0.05em !important;
@@ -604,7 +615,7 @@ ${(() => {
             color: #111111 !important;
           }
           .cv-template-classic .cv-contact {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-size: 11px !important;
             font-style: italic !important;
             color: #555555 !important;
@@ -615,7 +626,7 @@ ${(() => {
             margin-bottom: 10px !important;
           }
           .cv-template-classic .cv-section-title {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-size: 13px !important;
             font-weight: 700 !important;
             color: #1b365d !important;
@@ -629,28 +640,28 @@ ${(() => {
             margin: 0 auto !important;
           }
           .cv-template-classic .cv-item-title {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-weight: 700 !important;
             color: #111111 !important;
           }
           .cv-template-classic .cv-item-dates {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-style: italic !important;
             font-weight: 400 !important;
             color: #555555 !important;
           }
           .cv-template-classic .cv-item-company {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-weight: 700 !important;
             color: #222222 !important;
           }
           .cv-template-classic .cv-item-location {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-style: italic !important;
             color: #555555 !important;
           }
           .cv-template-classic .cv-list-item {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-size: 11px !important;
             line-height: 1.5 !important;
             color: #222222 !important;
@@ -659,7 +670,7 @@ ${(() => {
             color: #1b365d !important;
           }
           .cv-template-classic .cv-paragraph {
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            font-family: 'Lora', 'Georgia', 'Times New Roman', serif !important;
             font-size: 11.5px !important;
             line-height: 1.5 !important;
             color: #222222 !important;

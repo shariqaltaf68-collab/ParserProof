@@ -12,6 +12,7 @@ import {
   Zap,
   ShieldCheck,
   CreditCard,
+  AlertTriangle,
 } from 'lucide-react';
 
 const PLANS = [
@@ -39,7 +40,7 @@ const PLANS = [
     period: '/month',
     popular: true,
     features: [
-      { text: '10 optimizations / month', included: true },
+      { text: '15 optimizations / month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -56,7 +57,7 @@ const PLANS = [
     price: '₹399',
     period: '/month',
     features: [
-      { text: '30 optimizations / month', included: true },
+      { text: '25 optimizations / month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -69,7 +70,7 @@ const PLANS = [
   },
 ];
 
-const PLAN_LIMITS = { free: 3, starter: 10, pro: 30 };
+const PLAN_LIMITS = { free: 3, starter: 15, pro: 25 };
 
 export default function BillingPage() {
   const { data: session, update: updateSession } = useSession();
@@ -78,6 +79,13 @@ export default function BillingPage() {
   const [toast, setToast] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  // Refund request state
+  const [refundTimeRemaining, setRefundTimeRemaining] = useState(0);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+  const [cancellingPlan, setCancellingPlan] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
@@ -95,6 +103,31 @@ export default function BillingPage() {
     }
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (!user?.lastUpgradeAt || user?.plan === 'free') {
+      setRefundTimeRemaining(0);
+      return;
+    }
+    const upgradeTime = new Date(user.lastUpgradeAt).getTime();
+    
+    // Set initial value
+    const initialElapsed = Date.now() - upgradeTime;
+    const initialRemaining = Math.max(0, 60 * 60 * 1000 - initialElapsed);
+    setRefundTimeRemaining(initialRemaining);
+
+    if (initialRemaining <= 0) return;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - upgradeTime;
+      const remaining = Math.max(0, 60 * 60 * 1000 - elapsed);
+      setRefundTimeRemaining(remaining);
+      if (remaining <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [user?.lastUpgradeAt, user?.plan]);
 
   const showToast = useCallback((message, type = 'info') => {
     setToast({ message, type });
@@ -253,6 +286,49 @@ export default function BillingPage() {
     return { label: 'Upgrade', className: 'btn btn-primary', disabled: false };
   }
 
+  const handleRefundRequest = async () => {
+    if (!cancelReason) {
+      showToast('Please select a cancellation reason.', 'error');
+      return;
+    }
+    
+    const reasonText = cancelReason === 'other' ? `Other: ${customReason}` : cancelReason;
+    setCancellingPlan(true);
+
+    try {
+      const res = await fetch('/api/payments/refund-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reasonText }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to submit refund request.');
+      }
+
+      const data = await res.json();
+      
+      // Update session and local user state
+      await updateSession();
+      setUser((prev) => ({ ...prev, plan: 'free', lastUpgradeAt: null }));
+      setShowCancelModal(false);
+      showToast(data.message || 'Plan cancelled and refund requested successfully!', 'success');
+    } catch (err) {
+      console.error('Cancel error:', err);
+      showToast(err.message || 'Failed to process refund request.', 'error');
+    } finally {
+      setCancellingPlan(false);
+    }
+  };
+
+  const formatTime = (ms) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${mins}m ${secs}s`;
+  };
+
   return (
     <div className="page-content">
       {/* Load Razorpay checkout script */}
@@ -265,17 +341,69 @@ export default function BillingPage() {
       <h1 style={{ marginBottom: 'var(--space-8)' }}>Billing</h1>
 
       {/* Current Plan */}
-      <div className="billing-current">
+      <div className="billing-current" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
         <div>
           <div className="billing-plan-name" style={{ textTransform: 'capitalize' }}>
             {currentPlan}
           </div>
           <div className="billing-plan-meta">Member since {memberSince}</div>
         </div>
-        <span className="badge badge-accent" style={{ textTransform: 'capitalize' }}>
-          {currentPlan}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+          <span className="badge badge-accent" style={{ textTransform: 'capitalize' }}>
+            {currentPlan}
+          </span>
+          {currentPlan !== 'free' && (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="btn btn-danger btn-sm"
+              style={{
+                fontSize: 'var(--font-size-xs)',
+                fontWeight: '600',
+                padding: 'var(--space-2) var(--space-4)',
+                background: 'hsl(0, 75%, 45%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+              }}
+            >
+              {refundTimeRemaining > 0 ? 'Cancel & Claim Refund' : 'Cancel Subscription'}
+            </button>
+          )}
+        </div>
       </div>
+
+      {refundTimeRemaining > 0 && (
+        <div
+          style={{
+            margin: 'var(--space-4) 0',
+            padding: 'var(--space-3) var(--space-4)',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 'var(--space-2)',
+            fontSize: 'var(--font-size-sm)',
+            color: 'var(--color-danger)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <AlertTriangle size={16} />
+            <span>
+              <strong>1-Hour Refund Window Active!</strong> Cancel within 1 hour for an instant full refund.
+            </span>
+          </div>
+          <div style={{ fontWeight: '700', fontFamily: 'monospace' }}>
+            {formatTime(refundTimeRemaining)} remaining
+          </div>
+        </div>
+      )}
 
       {/* Usage This Month */}
       <div className="usage-meter">
@@ -398,6 +526,119 @@ export default function BillingPage() {
         </span>
         <CreditCard size={18} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
       </div>
+      {/* Cancellation Reason & Refund Request Modal */}
+      {showCancelModal && (
+        <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <div className="modal-title">
+                {refundTimeRemaining > 0 ? 'Cancel Subscription & Refund' : 'Cancel Subscription'}
+              </div>
+              <button
+                className="modal-close"
+                onClick={() => setShowCancelModal(false)}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', lineHeight: 1.5, marginBottom: 'var(--space-4)' }}>
+              {refundTimeRemaining > 0 ? (
+                "We're sorry to see you go. If you are not satisfied with ResumePilot, canceling now will instantly downgrade you to the Free plan, request a full refund to your payment method, and log details for Razorpay processing."
+              ) : (
+                "We're sorry to see you go. Canceling your plan will downgrade your account to the Free tier. Note: Because the 1-hour refund window has expired, this cancellation does not qualify for a refund."
+              )}
+            </p>
+
+            <div style={{ marginBottom: 'var(--space-4)' }}>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: '700', marginBottom: 'var(--space-2)', color: 'var(--color-text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {refundTimeRemaining > 0 ? 'Why are you requesting a refund?' : 'Why are you cancelling your subscription?'}
+              </label>
+              <select
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="form-select"
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-2) var(--space-4)',
+                  background: 'var(--color-bg-tertiary)',
+                  borderColor: 'var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  height: '42px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="">-- Select a reason --</option>
+                <option value="No accuracy / ATS score was low">Low accuracy / low ATS score match</option>
+                <option value="AI predictions were not realistic">AI generated fake details / predictions</option>
+                <option value="Fonts, margins, or alignments were not up to the mark">Bad template alignment, fonts or margins</option>
+                <option value="Features did not meet my expectations">Features did not meet expectations</option>
+                <option value="other">Other reason (explain below)</option>
+              </select>
+            </div>
+
+            {cancelReason === 'other' && (
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: '700', marginBottom: 'var(--space-2)', color: 'var(--color-text-primary)' }}>
+                  Provide details:
+                </label>
+                <textarea
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  className="form-input"
+                  rows={3}
+                  placeholder="Tell us what we can improve..."
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2) var(--space-3)',
+                    background: 'var(--color-bg-tertiary)',
+                    borderColor: 'var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--color-text-primary)',
+                    fontSize: 'var(--font-size-sm)',
+                    outline: 'none',
+                    resize: 'none',
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancellingPlan}
+              >
+                Keep Subscription
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleRefundRequest}
+                disabled={cancellingPlan || !cancelReason || (cancelReason === 'other' && !customReason.trim())}
+                style={{
+                  background: 'hsl(0, 75%, 45%)',
+                  borderColor: 'hsl(0, 75%, 40%)',
+                }}
+              >
+                {cancellingPlan ? (
+                  <>
+                    <Loader2 size={16} className="spin" />
+                    Cancelling...
+                  </>
+                ) : (
+                  refundTimeRemaining > 0 ? 'Confirm Cancel & Refund' : 'Confirm Cancellation'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (

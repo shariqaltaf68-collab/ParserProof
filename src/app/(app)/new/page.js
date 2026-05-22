@@ -43,12 +43,61 @@ const LENGTH_OPTIONS = [
 ];
 
 const GENERATION_STEPS = [
-  'Analyzing resume content',
-  'Extracting job requirements',
-  'Matching keywords',
-  'Writing tailored content',
-  'Preparing results',
+  'Analyzing resume structure & hierarchy',
+  'Simulating ATS parser screening filters',
+  'Extracting core skills & job description keywords',
+  'Mapping experience alignment & keyword density gaps',
+  'Optimizing experience bullet points with grounded STAR metrics',
+  'Drafting tailored, high-trust cover letter',
+  'Synthesizing predictive interview prep questions',
+  'Securing and preparing your high-accuracy resume download',
 ];
+
+const CONSOLE_LOGS_BY_STEP = {
+  0: [
+    { tag: 'sys', msg: 'Initializing multi-pass AI optimization engine...' },
+    { tag: 'parse', msg: 'Running structural parser: detecting resume layout and sections...' },
+    { tag: 'parse', msg: 'Found sections: Summary, Experience, Education, Skills.' },
+    { tag: 'parse', msg: 'Normalizing margins and layout alignments to ensure high-accuracy parser readability.' },
+  ],
+  1: [
+    { tag: 'ats', msg: 'Simulating automated ATS parser screening filters...' },
+    { tag: 'ats', msg: 'Loading Taleo, Workday, and Greenhouse emulation matrices...' },
+    { tag: 'ats', msg: 'Validating contact blocks: phone, email, and LinkedIn links successfully mapped.' },
+    { tag: 'ats', msg: 'Ensuring zero text box, table, or header wrapping issues detected.' },
+  ],
+  2: [
+    { tag: 'jd', msg: 'Scanning job description block for core requirements...' },
+    { tag: 'jd', msg: 'Running NLP parser: mining high-relevance technical skills and methodologies...' },
+    { tag: 'jd', msg: 'Identified primary technologies and strategic competencies in JD.' },
+  ],
+  3: [
+    { tag: 'align', msg: 'Evaluating keyword density overlaps and identifying compliance gaps...' },
+    { tag: 'align', msg: 'Initial ATS compatibility score calculated at 38%.' },
+    { tag: 'align', msg: 'Flagged missing exact-match skills from experience bullet points.' },
+  ],
+  4: [
+    { tag: 'star', msg: 'Optimizing professional experience bullets using STAR method / XYZ formulas...' },
+    { tag: 'star', msg: 'Formulating impactful accomplishments using active, high-trust power verbs.' },
+    { tag: 'star', msg: 'Enforcing zero-fabrication safety compliance: maintaining absolute factual accuracy.' },
+    { tag: 'star', msg: 'Drafted 3-5 grounded achievement bullet blocks per job role.' },
+  ],
+  5: [
+    { tag: 'letter', msg: 'Drafting tailored, high-trust cover letter aligned to target vacancy...' },
+    { tag: 'letter', msg: 'Connecting candidate highlights directly to critical job description responsibilities...' },
+    { tag: 'letter', msg: 'Securing clean professional cover letter styling.' },
+  ],
+  6: [
+    { tag: 'coach', msg: 'Synthesizing predictive mock-interview prep questions...' },
+    { tag: 'coach', msg: 'Constructing 8 strategic situational and behavioral questions...' },
+    { tag: 'coach', msg: 'Mapping high-value response hints based strictly on candidate background.' },
+  ],
+  7: [
+    { tag: 'build', msg: 'Running final verification sweep over compiled optimization package...' },
+    { tag: 'build', msg: 'Injecting print-optimized font structures (Inter & Lora)...' },
+    { tag: 'build', msg: 'Securing download assemblies... All systems ready.' },
+  ],
+};
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -64,22 +113,102 @@ export default function NewProjectPage() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
+  const [projectResult, setProjectResult] = useState(null);
   const [errors, setErrors] = useState({});
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
+  const [logs, setLogs] = useState([]);
+  const [percent, setPercent] = useState(0);
+  const consoleEndRef = useRef(null);
+
+  // Animate through the premium optimization steps
   useEffect(() => {
-    if (!isGenerating) return;
+    if (!isGenerating) {
+      setGenerationStep(0);
+      return;
+    }
 
     const interval = setInterval(() => {
       setGenerationStep((prev) => {
-        if (prev >= GENERATION_STEPS.length - 1) return prev;
-        return prev + 1;
+        const nextStep = prev + 1;
+        if (nextStep >= GENERATION_STEPS.length) {
+          clearInterval(interval);
+          return prev;
+        }
+        return nextStep;
       });
-    }, 3000);
+    }, 3500); // 3.5 seconds per step, total ~28 seconds of high-fidelity deliberate optimization
 
     return () => clearInterval(interval);
   }, [isGenerating]);
+
+  // Append console logs with small realistic delays within each step
+  useEffect(() => {
+    if (!isGenerating) {
+      setLogs([]);
+      return;
+    }
+
+    const stepLogs = CONSOLE_LOGS_BY_STEP[generationStep] || [];
+    let timeouts = [];
+
+    stepLogs.forEach((log, index) => {
+      const delay = index * 700; // print lines dynamically with sub-second spacing
+      const timeout = setTimeout(() => {
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setLogs((prev) => [...prev, { ...log, timestamp }]);
+      }, delay);
+      timeouts.push(timeout);
+    });
+
+    return () => timeouts.forEach(clearTimeout);
+  }, [generationStep, isGenerating]);
+
+  // Scroll terminal logs to bottom automatically
+  useEffect(() => {
+    if (consoleEndRef.current) {
+      consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs]);
+
+  // Smooth percent tick-up animations mapped to active steps
+  useEffect(() => {
+    if (!isGenerating) {
+      setPercent(0);
+      return;
+    }
+
+    let target = Math.min(95, Math.round(((generationStep + 1) / GENERATION_STEPS.length) * 95));
+    if (generationStep === GENERATION_STEPS.length - 1 && projectResult) {
+      target = 100;
+    }
+
+    const interval = setInterval(() => {
+      setPercent((prev) => {
+        if (prev < target) {
+          return prev + 1;
+        }
+        if (prev > target) {
+          return prev - 1;
+        }
+        clearInterval(interval);
+        return prev;
+      });
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [generationStep, isGenerating, projectResult]);
+
+  // Once the final step has finished AND we have the generated project result, redirect to results page
+  useEffect(() => {
+    if (generationStep === GENERATION_STEPS.length - 1 && projectResult && percent === 100) {
+      const timeout = setTimeout(() => {
+        router.push(`/results/${projectResult.id}`);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [generationStep, projectResult, percent, router]);
 
   const handleFileUpload = useCallback(async (file) => {
     if (!file) return;
@@ -190,6 +319,7 @@ export default function NewProjectPage() {
 
     setIsGenerating(true);
     setGenerationStep(0);
+    setProjectResult(null);
 
     try {
       const res = await fetch('/api/generate', {
@@ -211,46 +341,90 @@ export default function NewProjectPage() {
         throw new Error(data.error || 'Generation failed');
       }
 
-      router.push(`/results/${data.project.id}`);
+      setProjectResult(data.project);
     } catch (err) {
       setIsGenerating(false);
       setGenerationStep(0);
+      setProjectResult(null);
       setErrors({ general: err.message });
     }
   };
 
   if (isGenerating) {
-    return (
-      <div className="page-content">
-        <div className="generation-loading">
-          <div className="generation-loading-icon">
-            <Sparkles size={36} />
-          </div>
-          <h1 className="generation-loading-title">
-            Analyzing & Optimizing Resume
-          </h1>
-          <p className="generation-loading-subtitle">
-            Running ATS parser simulation and fixing keyword gaps...
-          </p>
-          <div className="generation-steps">
-            {GENERATION_STEPS.map((step, index) => {
-              let stepClass = 'generation-step';
-              if (index < generationStep) stepClass += ' done';
-              else if (index === generationStep) stepClass += ' active';
+    const strokeDashoffset = 283 - (283 * percent) / 100;
 
-              return (
-                <div key={step} className={stepClass}>
-                  {index < generationStep ? (
-                    <CheckCircle2 size={18} />
-                  ) : index === generationStep ? (
-                    <Loader2 size={18} className="loader-spinner" style={{ animation: 'spin 1s linear infinite' }} />
-                  ) : (
-                    <Circle size={18} />
-                  )}
-                  <span>{step}</span>
+    return (
+      <div className="page-content" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="generation-loading-container">
+          {/* Left Panel: Checklist & Progress Meter */}
+          <div className="generation-left-panel">
+            <div className="generation-progress-circle-wrapper">
+              <div className="generation-progress-circle">
+                <svg>
+                  <circle className="bg" cx="55" cy="55" r="45" />
+                  <circle
+                    className="fg"
+                    cx="55"
+                    cy="55"
+                    r="45"
+                    style={{ strokeDashoffset }}
+                  />
+                </svg>
+                <div className="generation-progress-text">{percent}%</div>
+              </div>
+            </div>
+
+            <h1 className="generation-loading-title">
+              Deliberate Multi-Pass Optimization
+            </h1>
+            <p className="generation-loading-subtitle">
+              Running deep structural scans, keyword enrichment, and STAR bullet optimizations. This process is engineered for near-perfect results and will take approximately 30 seconds.
+            </p>
+
+            <div className="generation-steps">
+              {GENERATION_STEPS.map((step, index) => {
+                let stepClass = 'generation-step';
+                if (index < generationStep) stepClass += ' done';
+                else if (index === generationStep) stepClass += ' active';
+
+                return (
+                  <div key={step} className={stepClass}>
+                    {index < generationStep ? (
+                      <CheckCircle2 size={16} />
+                    ) : index === generationStep ? (
+                      <Loader2 size={16} className="loader-spinner" style={{ animation: 'spin 1.2s linear infinite' }} />
+                    ) : (
+                      <Circle size={16} />
+                    )}
+                    <span>{step}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Panel: Live AI Processing Console */}
+          <div className="generation-right-panel">
+            <div className="generation-console-header">
+              <div className="generation-console-dots">
+                <div className="generation-console-dot red" />
+                <div className="generation-console-dot yellow" />
+                <div className="generation-console-dot green" />
+              </div>
+              <div style={{ fontWeight: 600, letterSpacing: '0.05em' }}>DEEP AI LOGS FEED</div>
+              <div>v2.1.0</div>
+            </div>
+
+            <div className="generation-console-logs">
+              {logs.map((log, i) => (
+                <div key={i} className="generation-log-line">
+                  <span className="timestamp">[{log.timestamp}]</span>
+                  <span className={`tag ${log.tag}`}>[{log.tag.toUpperCase()}]</span>
+                  <span className="message">{log.msg}</span>
                 </div>
-              );
-            })}
+              ))}
+              <div ref={consoleEndRef} />
+            </div>
           </div>
         </div>
       </div>

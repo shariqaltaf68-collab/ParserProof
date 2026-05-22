@@ -5,8 +5,8 @@
 
 export const PLAN_LIMITS = {
   free: 3,
-  starter: 10,
-  pro: 30,
+  starter: 15,
+  pro: 25,
 };
 
 /** Razorpay pricing — amounts in paise (smallest currency unit) */
@@ -79,7 +79,7 @@ export const PLANS = [
     period: '/month',
     description: 'Unlock deeper job-description intelligence',
     features: [
-      { text: '10 optimizations per month', included: true },
+      { text: '15 optimizations per month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },
@@ -99,7 +99,7 @@ export const PLANS = [
     period: '/month',
     description: 'Complete job application intelligence suite',
     features: [
-      { text: '30 optimizations per month', included: true },
+      { text: '25 optimizations per month', included: true },
       { text: 'ATS-optimized resume rewrite', included: true },
       { text: 'ATS compatibility score', included: true },
       { text: 'PDF & TXT export', included: true },

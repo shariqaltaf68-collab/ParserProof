@@ -311,3 +311,132 @@ If you did not request a password reset, you can safely ignore this email.
     return { success: false, method: 'fallback_error', error: error.message };
   }
 }
+
+/**
+ * Sends a notification email to the administrator for a refund request or cancellation.
+ *
+ * @param {Object} params - Refund alert parameters.
+ * @param {string} params.userEmail - User who requested the refund.
+ * @param {string} params.userId - User ID.
+ * @param {string} params.planId - The plan being refunded or cancelled.
+ * @param {string} params.orderId - Razorpay Order ID.
+ * @param {string} params.paymentId - Razorpay Payment ID.
+ * @param {string} params.reason - User-specified reason for cancellation.
+ * @param {boolean} params.isRefundable - Whether this cancellation qualifies for a refund.
+ * @returns {Promise<Object>} Result.
+ */
+export async function sendRefundRequestEmail({ userEmail, userId, planId, orderId, paymentId, reason, isRefundable = true }) {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const adminEmail = 'guys4929@gmail.com';
+
+  const titleText = isRefundable ? '🚨 Refund Alert: Plan Cancellation' : 'ℹ️ Subscription Cancelled (No Refund)';
+  const introText = isRefundable 
+    ? 'A customer has cancelled their subscription and requested a refund within the 1-hour window.'
+    : 'A customer has cancelled their subscription. Since this cancellation is outside the 1-hour refund window, no refund is required, and their account has been downgraded to Free.';
+  const headerColor = isRefundable ? '#ef4444' : '#64748b';
+  const actionText = isRefundable 
+    ? '👉 Action Required: Log into the Razorpay Dashboard, search for the payment ID above, and issue a full refund immediately.'
+    : '👉 No Action Required: The subscription was cancelled after the 1-hour window, so no refund is necessary. The account has been reset to Free.';
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; padding: 20px; }
+        .card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+        .header { border-bottom: 2px solid ${headerColor}; padding-bottom: 12px; margin-bottom: 20px; }
+        .title { color: ${headerColor}; margin: 0; font-size: 20px; font-weight: bold; }
+        .field { margin-bottom: 12px; }
+        .label { font-weight: bold; color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .value { font-size: 15px; color: #0f172a; background-color: #f1f5f9; padding: 8px 12px; border-radius: 4px; margin-top: 4px; font-family: monospace; }
+        .value-text { font-family: inherit; background-color: transparent; padding: 0; margin: 0; }
+        .footer { margin-top: 24px; font-size: 12px; color: #64748b; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <h2 class="title">${titleText}</h2>
+        </div>
+        <p>${introText}</p>
+        
+        <div class="field">
+          <div class="label">Customer Email</div>
+          <div class="value">${userEmail}</div>
+        </div>
+        
+        <div class="field">
+          <div class="label">User ID</div>
+          <div class="value">${userId}</div>
+        </div>
+        
+        <div class="field">
+          <div class="label">Cancelled Plan</div>
+          <div class="value" style="text-transform: uppercase; font-weight: bold; color: #4f46e5;">${planId}</div>
+        </div>
+        
+        <div class="field">
+          <div class="label">Razorpay Order ID</div>
+          <div class="value">${orderId || 'N/A'}</div>
+        </div>
+        
+        <div class="field">
+          <div class="label">Razorpay Payment ID</div>
+          <div class="value">${paymentId || 'N/A'}</div>
+        </div>
+        
+        <div class="field">
+          <div class="label">Cancellation Reason</div>
+          <div class="value value-text">${reason || 'No reason provided.'}</div>
+        </div>
+
+        <div class="field">
+          <div class="label">Request Time</div>
+          <div class="value">${new Date().toLocaleString()}</div>
+        </div>
+        
+        <p style="margin-top: 20px; font-weight: bold; color: #0f172a;">${actionText}</p>
+      </div>
+      <div class="footer">&copy; ResumePilot Billing System</div>
+    </body>
+    </html>
+  `;
+
+  if (!smtpUser || !smtpPass) {
+    console.log(`\n🚨 RESUMEPILOT - SMTP ADMIN REFUND ALERT DEV FALLBACK (Refundable: ${isRefundable})`);
+    console.log(`User: ${userEmail}`);
+    console.log(`Plan: ${planId}`);
+    console.log(`Order: ${orderId}`);
+    console.log(`Payment: ${paymentId}`);
+    console.log(`Reason: ${reason}`);
+    console.log('='.repeat(60) + '\n');
+    return { success: true, method: 'fallback' };
+  }
+
+  const subjectText = isRefundable 
+    ? `🚨 REFUND REQUESTED: ${userEmail} (${planId.toUpperCase()})`
+    : `ℹ️ SUBSCRIPTION CANCELLED: ${userEmail} (${planId.toUpperCase()})`;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: { user: smtpUser, pass: smtpPass },
+    });
+
+    await transporter.sendMail({
+      from: `"ResumePilot Billing" <${smtpUser}>`,
+      to: adminEmail,
+      subject: subjectText,
+      html: htmlContent,
+    });
+
+    return { success: true, method: 'smtp' };
+  } catch (error) {
+    console.error('Error sending support refund request email:', error);
+    return { success: false, error: error.message };
+  }
+}

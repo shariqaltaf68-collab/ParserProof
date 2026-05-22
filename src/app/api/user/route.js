@@ -31,7 +31,26 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ user });
+    // Fetch latest plan upgrade timestamp to calculate refund window
+    const upgradeLog = await prisma.auditLog.findFirst({
+      where: {
+        userId: session.user.id,
+        action: 'plan_upgrade',
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    const userWithUpgrade = {
+      ...user,
+      lastUpgradeAt: upgradeLog ? upgradeLog.createdAt.toISOString() : null,
+    };
+
+    return NextResponse.json({ user: userWithUpgrade });
   } catch (error) {
     console.error('GET /api/user error:', error);
     return NextResponse.json(
