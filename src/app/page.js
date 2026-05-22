@@ -565,7 +565,7 @@ export default function LandingPage() {
           borderRadius: 'var(--radius-xl)',
           padding: 'var(--space-6)',
           textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+          boxShadow: 'var(--shadow-md)',
           position: 'relative',
           overflow: 'hidden',
         }}>

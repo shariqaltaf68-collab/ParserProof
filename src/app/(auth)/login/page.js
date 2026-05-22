@@ -92,7 +92,7 @@ function LoginForm() {
                 <Link
                   href={`/signup?email=${encodeURIComponent(form.email)}&step=verification`}
                   style={{
-                    color: 'var(--color-accent-light)',
+                    color: 'var(--color-accent)',
                     textDecoration: 'underline',
                     fontWeight: 600,
                     fontSize: 'var(--font-size-sm)',
@@ -131,7 +131,7 @@ function LoginForm() {
                 href="/forgot-password"
                 id="login-forgot-password-link"
                 style={{
-                  color: 'var(--color-accent-light)',
+                  color: 'var(--color-accent)',
                   textDecoration: 'none',
                   fontWeight: 500,
                   fontSize: 'var(--font-size-xs)',
