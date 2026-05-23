@@ -226,35 +226,30 @@ export function calculateProgrammaticAtsScore(improvedResume, keywordMatch, llmS
  * @throws {Error} If the API call fails or the response cannot be parsed.
  */
 export async function generateTailoredContent(resumeText, jobDescription, tone = 'professional', length = 'standard') {
-  let primaryModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
-  if (primaryModel.toLowerCase().trim() === 'qwen') {
-    primaryModel = 'qwen-2.5-coder-32b';
+  const modelsToTry = [
+    'llama-3.3-70b-versatile',
+    'gemma2-9b-it',
+    'llama-3.1-8b-instant',
+    'mixtral-8x7b-instruct'
+  ];
+
+  let lastError = null;
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`Attempting tailored generation using model: ${modelName}`);
+      return await executeGenerationAttempt(modelName, resumeText, jobDescription, tone, length);
+    } catch (apiError) {
+      lastError = apiError;
+      console.warn(`Model ${modelName} failed in generation (status: ${apiError.status}): ${apiError.message}`);
+      // If it's a rate limit or server error, proceed to the next fallback model.
+      if (apiError.status === 429 || apiError.status >= 500 || apiError.message.includes('rate-limited')) {
+        continue;
+      }
+      throw apiError;
+    }
   }
 
-  try {
-    console.log(`Attempting tailored generation using primary model: ${primaryModel}`);
-    return await executeGenerationAttempt(primaryModel, resumeText, jobDescription, tone, length);
-  } catch (primaryError) {
-    console.warn(`Primary model ${primaryModel} failed or returned truncated output: ${primaryError.message}`);
-
-    // If primary was not the fallback model, retry once then try the fallback
-    if (primaryModel !== 'llama-3.3-70b-versatile') {
-      // Retry primary once (transient failures)
-      try {
-        console.log(`Retrying primary model ${primaryModel} once...`);
-        return await executeGenerationAttempt(primaryModel, resumeText, jobDescription, tone, length);
-      } catch (retryError) {
-        console.warn(`Primary model retry also failed: ${retryError.message}`);
-      }
-
-      console.log('Automatically falling back to Llama-3.3-70b-versatile to ensure seamless service delivery.');
-      try {
-        return await executeGenerationAttempt('llama-3.3-70b-versatile', resumeText, jobDescription, tone, length);
-      } catch (fallbackError) {
-        console.error('Fallback model also failed:', fallbackError.message);
-        throw new Error(`AI service failed on fallback: ${fallbackError.message}`);
-      }
-    }
-    throw primaryError;
+  if (lastError) {
+    throw lastError;
   }
 }

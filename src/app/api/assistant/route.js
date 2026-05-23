@@ -304,31 +304,40 @@ Example JSON output when asked a standard question:
     };
 
     let completion;
-    let primaryModel = getValidModelName(process.env.GROQ_MODEL);
+    const modelsToTry = [
+      'llama-3.3-70b-versatile',
+      'gemma2-9b-it',
+      'llama-3.1-8b-instant',
+      'mixtral-8x7b-instruct'
+    ];
 
-    try {
-      console.log(`[Assistant API] Attempting completion using model: ${primaryModel}`);
-      completion = await openai.chat.completions.create({
-        model: primaryModel,
-        messages: apiMessages,
-        temperature: 0.3,
-        max_tokens: 4000,
-        response_format: { type: "json_object" },
-      });
-    } catch (primaryError) {
-      console.warn(`[Assistant API] Primary model ${primaryModel} failed: ${primaryError.message}. Retrying with fallback llama-3.3-70b-versatile...`);
+    let lastError = null;
+    for (const modelName of modelsToTry) {
       try {
+        console.log(`[Assistant API] Attempting completion using model: ${modelName}`);
         completion = await openai.chat.completions.create({
-          model: 'llama-3.3-70b-versatile',
+          model: modelName,
           messages: apiMessages,
           temperature: 0.3,
           max_tokens: 4000,
           response_format: { type: "json_object" },
         });
-      } catch (fallbackError) {
-        console.error(`[Assistant API] Fallback model failed: ${fallbackError.message}`);
-        throw fallbackError;
+        lastError = null;
+        break; // Success! Break out of the loop.
+      } catch (apiError) {
+        lastError = apiError;
+        console.warn(`[Assistant API] Model ${modelName} failed (status: ${apiError.status}): ${apiError.message}`);
+        // If it's a rate limit (429) or temporary server error (500/503), try the next model.
+        if (apiError.status === 429 || apiError.status >= 500) {
+          continue;
+        }
+        // If it's a structural or auth error, throw immediately.
+        throw apiError;
       }
+    }
+
+    if (lastError) {
+      throw lastError;
     }
 
     const aiResponse = completion.choices?.[0]?.message?.content;
