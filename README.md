@@ -34,6 +34,8 @@ AI-powered resume optimization platform that helps job seekers land more intervi
 
 ### Setup
 
+
+
 1. Clone the repo:
    ```bash
    git clone https://github.com/your-username/parser-proof.git
