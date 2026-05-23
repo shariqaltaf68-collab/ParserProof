@@ -55,17 +55,48 @@ export async function POST(request, { params }) {
     2. Start each bullet directly with a strong active recruiter verb (e.g. Engineered, Accelerated, Designed).
     3. Absolutely NO asterisks (*) or bold formatting in the output strings. Output plain, unadorned text only.`;
 
-    console.log(`[Bullet Optimizer API] Fetching 3 STAR bullet optimizations from Groq...`);
-    const completion = await openai.chat.completions.create({
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: 'You are an elite recruiter assistant that outputs valid JSON only.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 800,
-      response_format: { type: "json_object" }
-    });
+    // Helper to resolve custom GROQ_MODEL name typos
+    const getValidModelName = (envModel) => {
+      if (!envModel) return 'llama-3.3-70b-versatile';
+      const clean = envModel.toLowerCase().trim();
+      if (clean === 'qwen') return 'qwen-2.5-coder-32b';
+      if (clean === 'llama' || clean === 'llama3') return 'llama-3.3-70b-versatile';
+      return envModel;
+    };
+
+    let completion;
+    let primaryModel = getValidModelName(process.env.GROQ_MODEL);
+
+    console.log(`[Bullet Optimizer API] Fetching 3 STAR bullet optimizations using model ${primaryModel}...`);
+    try {
+      completion = await openai.chat.completions.create({
+        model: primaryModel,
+        messages: [
+          { role: 'system', content: 'You are an elite recruiter assistant that outputs valid JSON only.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 800,
+        response_format: { type: "json_object" }
+      });
+    } catch (primaryError) {
+      console.warn(`[Bullet Optimizer API] Primary model ${primaryModel} failed: ${primaryError.message}. Retrying with fallback llama-3.3-70b-versatile...`);
+      try {
+        completion = await openai.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            { role: 'system', content: 'You are an elite recruiter assistant that outputs valid JSON only.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.3,
+          max_tokens: 800,
+          response_format: { type: "json_object" }
+        });
+      } catch (fallbackError) {
+        console.error(`[Bullet Optimizer API] Fallback model failed: ${fallbackError.message}`);
+        throw fallbackError;
+      }
+    }
 
     const content = completion.choices?.[0]?.message?.content;
     if (!content) {

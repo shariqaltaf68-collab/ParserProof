@@ -226,7 +226,10 @@ export function calculateProgrammaticAtsScore(improvedResume, keywordMatch, llmS
  * @throws {Error} If the API call fails or the response cannot be parsed.
  */
 export async function generateTailoredContent(resumeText, jobDescription, tone = 'professional', length = 'standard') {
-  const primaryModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  let primaryModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  if (primaryModel.toLowerCase().trim() === 'qwen') {
+    primaryModel = 'qwen-2.5-coder-32b';
+  }
 
   try {
     console.log(`Attempting tailored generation using primary model: ${primaryModel}`);

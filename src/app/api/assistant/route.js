@@ -280,15 +280,42 @@ Example JSON output when asked a standard question:
       { role: 'user', content: cleanMessage },
     ];
 
-    console.log(`[Assistant API] Dispatching prompt to Groq for user. RAG match confidence: ${ragResult.averageConfidence}%`);
+    // Helper to resolve custom GROQ_MODEL name typos
+    const getValidModelName = (envModel) => {
+      if (!envModel) return 'llama-3.3-70b-versatile';
+      const clean = envModel.toLowerCase().trim();
+      if (clean === 'qwen') return 'qwen-2.5-coder-32b'; // heal common typo
+      if (clean === 'llama' || clean === 'llama3') return 'llama-3.3-70b-versatile';
+      return envModel;
+    };
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      messages: apiMessages,
-      temperature: 0.3,
-      max_tokens: 1500,
-      response_format: { type: "json_object" },
-    });
+    let completion;
+    let primaryModel = getValidModelName(process.env.GROQ_MODEL);
+
+    try {
+      console.log(`[Assistant API] Attempting completion using model: ${primaryModel}`);
+      completion = await openai.chat.completions.create({
+        model: primaryModel,
+        messages: apiMessages,
+        temperature: 0.3,
+        max_tokens: 1500,
+        response_format: { type: "json_object" },
+      });
+    } catch (primaryError) {
+      console.warn(`[Assistant API] Primary model ${primaryModel} failed: ${primaryError.message}. Retrying with fallback llama-3.3-70b-versatile...`);
+      try {
+        completion = await openai.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: apiMessages,
+          temperature: 0.3,
+          max_tokens: 1500,
+          response_format: { type: "json_object" },
+        });
+      } catch (fallbackError) {
+        console.error(`[Assistant API] Fallback model failed: ${fallbackError.message}`);
+        throw fallbackError;
+      }
+    }
 
     const aiResponse = completion.choices?.[0]?.message?.content;
     if (!aiResponse) {
