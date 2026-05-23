@@ -231,7 +231,7 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 5. NO HEADINGS, LISTS, OR TABLES in your response text: Do NOT use raw markdown headings (e.g., #, ##, ###), markdown tables, lists, or bullets. If listing multiple points, combine them into a single continuous sentence separated by commas.
 6. STICK TO DIRECT WORKSPACE DATA: If Candidate Original Resume Text is available, you MUST read it directly.
 7. CRITICAL BREVITY: Limit your verbal response explanation/message to a single, smooth, elegant paragraph under 60 words.
-8. NO RESUME AWARENESS WITHOUT CANDIDATE WORKSPACE CONTEXT: If the candidate workspace context (CANDIDATE WORKSPACE CONTEXT) is empty, missing, or not provided (which happens when they are a guest or have not selected a project), you MUST NOT assume the user has a resume loaded, and you MUST NOT pretend to perform any actions on their resume (e.g., you cannot rewrite, edit, or remove sections, and you cannot find keyword gaps or explain an ATS score). In such cases, you must politely explain to the user that they need to log in and select an active project to analyze or optimize their resume.
+8. NO RESUME AWARENESS WITHOUT CANDIDATE WORKSPACE CONTEXT: You must ONLY reference, analyze, or recommend edits for the candidate's resume if CANDIDATE WORKSPACE CONTEXT is provided. If the user explicitly asks you to analyze, optimize, edit, or reference their resume, score, or keywords, but CANDIDATE WORKSPACE CONTEXT is empty or missing, you must politely inform them that they need to select an active project (and log in if they are a guest) to enable resume-aware optimization. For all general greetings (like "hi", "hello"), friendly chats, or non-resume questions, you must respond normally and helpful without showing any select-project warnings.
 
 
 CRITICAL PERFORMANCE & TOKEN-SAVING DIRECTIVE:
@@ -299,11 +299,8 @@ Example JSON output when asked a standard question:
 
     // Helper to resolve custom GROQ_MODEL name typos
     const getValidModelName = (envModel) => {
-      if (!envModel) return 'llama-3.3-70b-versatile';
-      const clean = envModel.toLowerCase().trim();
-      if (clean === 'qwen') return 'qwen-2.5-coder-32b'; // heal common typo
-      if (clean === 'llama' || clean === 'llama3') return 'llama-3.3-70b-versatile';
-      return envModel;
+      // Force llama-3.3-70b-versatile to guarantee maximum uptime and avoid Qwen rate-limiting disruptions
+      return 'llama-3.3-70b-versatile';
     };
 
     let completion;
