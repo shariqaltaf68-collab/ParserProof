@@ -30,11 +30,10 @@ import BattlegroundPanel from '@/components/BattlegroundPanel';
 
 const TABS = [
   { key: 'resume', label: 'Improved Resume', icon: FileText, requiredPlan: 'free' },
-  { key: 'xray', label: 'ATS X-Ray', icon: Shield, requiredPlan: 'free' },
-  { key: 'cover', label: 'Cover Letter', icon: Sparkles, requiredPlan: 'starter' },
   { key: 'roadmap', label: 'Skill & JD Roadmap', icon: Search, requiredPlan: 'free' },
-  { key: 'interview', label: 'Interview Prep', icon: MessageSquare, requiredPlan: 'pro' },
   { key: 'outreach', label: 'Career Outreach', icon: Target, requiredPlan: 'free' },
+  { key: 'cover', label: 'Cover Letter', icon: Sparkles, requiredPlan: 'starter' },
+  { key: 'interview', label: 'Interview Prep', icon: MessageSquare, requiredPlan: 'pro' },
 ];
 
 const PLAN_ORDER = { free: 0, starter: 1, pro: 2 };
