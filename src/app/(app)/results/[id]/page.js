@@ -32,11 +32,9 @@ const TABS = [
   { key: 'resume', label: 'Improved Resume', icon: FileText, requiredPlan: 'free' },
   { key: 'xray', label: 'ATS X-Ray', icon: Shield, requiredPlan: 'free' },
   { key: 'cover', label: 'Cover Letter', icon: Sparkles, requiredPlan: 'starter' },
-  { key: 'keywords', label: 'Keywords', icon: Search, requiredPlan: 'starter' },
+  { key: 'roadmap', label: 'Skill & JD Roadmap', icon: Search, requiredPlan: 'free' },
   { key: 'interview', label: 'Interview Prep', icon: MessageSquare, requiredPlan: 'pro' },
-  { key: 'gap', label: 'Skill Gap', icon: BarChart3, requiredPlan: 'pro' },
-  { key: 'outreach', label: 'Outreach Accelerator', icon: Target, requiredPlan: 'free' },
-  { key: 'battleground', label: 'Placement Battleground', icon: Crown, requiredPlan: 'free' },
+  { key: 'outreach', label: 'Career Outreach', icon: Target, requiredPlan: 'free' },
 ];
 
 const PLAN_ORDER = { free: 0, starter: 1, pro: 2 };
@@ -323,6 +321,7 @@ export default function ResultsPage() {
   const [activeTab, setActiveTab] = useState('resume');
   const [downloading, setDownloading] = useState(false);
   const [pdfTemplate, setPdfTemplate] = useState('modern');
+  const [showTechAudit, setShowTechAudit] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -465,18 +464,15 @@ ${(() => {
       } else if (activeTab === 'cover') {
         docType = 'Tailored Cover Letter';
         rawText = project.coverLetter || '';
-      } else if (activeTab === 'gap') {
-        docType = 'Skill Gap Analysis';
-        rawText = project.skillGap || '';
-      } else if (activeTab === 'keywords') {
-        docType = 'Keyword Analysis';
+      } else if (activeTab === 'roadmap') {
+        docType = 'Skill & JD Roadmap';
         try {
           const kw = typeof project.keywordMatch === 'string' ? JSON.parse(project.keywordMatch) : project.keywordMatch;
-          if (kw) {
-            rawText = `Matched Keywords:\n${kw.matched?.join(', ') || 'None'}\n\nMissing Keywords:\n${kw.missing?.join(', ') || 'None'}`;
-          }
+          const matched = kw?.matched?.join(', ') || 'None';
+          const missing = kw?.missing?.join(', ') || 'None';
+          rawText = `Matched Keywords:\n${matched}\n\nMissing Keywords:\n${missing}\n\nSkill Gap Analysis:\n${project.skillGap || 'N/A'}`;
         } catch {
-          rawText = 'N/A';
+          rawText = project.skillGap || 'N/A';
         }
       } else if (activeTab === 'interview') {
         docType = 'Interview Preparation';
@@ -498,7 +494,7 @@ ${(() => {
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
           
           .pdf-export-container {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #1f2937;
             background: #ffffff;
             padding: ${isDoc ? '0px !important' : '25px 30px !important'};
@@ -510,7 +506,7 @@ ${(() => {
             color: #1f2937 !important;
             width: 100% !important;
             box-sizing: border-box !important;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             line-height: 1.55 !important;
             font-size: 11px !important;
           }
@@ -1319,173 +1315,6 @@ ${(() => {
         <AtsScoreRing score={project.atsScore || 0} />
       </div>
 
-      {/* Blunt Reality Assessment Card */}
-      <div className={`ats-reality-check-card ${cardClass}`}>
-        <div className="ats-reality-header">
-          <div className="ats-reality-icon">
-            {realityStatus === 'danger' && <XCircle size={20} />}
-            {realityStatus === 'warning' && <AlertTriangle size={20} />}
-            {realityStatus === 'success' && <CheckCircle size={20} />}
-          </div>
-          <h2 className="ats-reality-title">{realityTitle}</h2>
-        </div>
-
-        <div className="ats-reality-blunt-text">
-          <strong>The Blunt Reality:</strong> {realityWarning}
-        </div>
-
-        <div className="ats-reality-grid">
-          <div>
-            <h3 className="ats-reality-section-title">
-              <AlertTriangle size={14} /> Why your ATS score is {atsScore}%
-            </h3>
-            <ul className="ats-reality-list">
-              {realityWhy.map((why, index) => (
-                <li key={index} className="ats-reality-item">{why}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="ats-reality-section-title">
-              <CheckCircle size={14} /> Action plan to align & apply
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              {realityAction.map((action, index) => (
-                <button
-                  key={index}
-                  className="ats-reality-action-btn"
-                  onClick={() => {
-                    setActiveTab(action.tab);
-                    const el = document.querySelector('.results-tabs');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >
-                  <span style={{ marginRight: 'var(--space-2)', fontWeight: 'bold' }}>{index + 1}.</span>
-                  <span>{action.text}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Grounded RAG Intelligence Audit Card */}
-      <div className={`rag-audit-card ${ragCardClass}`}>
-        <div className="rag-audit-header">
-          <div className="rag-audit-title-block">
-            <div className="rag-audit-icon">
-              <Shield size={20} />
-            </div>
-            <div>
-              <h2 className="rag-audit-title">ParserProof Grounding Audit</h2>
-              <div className="rag-audit-subtitle">Factual Verification &amp; Anti-Hallucination Log</div>
-            </div>
-          </div>
-          <div className={`rag-confidence-badge-pill rag-confidence-${ragStatus}`}>
-            <Shield size={12} />
-            <span>{ragStatusText} {ragConfidence !== null ? `(${ragConfidence}%)` : ''}</span>
-          </div>
-        </div>
-
-        <div className="rag-audit-meta-grid">
-          <div className="rag-audit-explain">
-            <p>
-              {ragStatus === 'high' && (
-                <>
-                  Our automated RAG engine has successfully matched your profile against our core ATS knowledge bases. 
-                  Every recommendation, keyword mapping, and resume bullet point generated is <strong>100% grounded</strong> 
-                  in the trusted rules of the system.
-                </>
-              )}
-              {ragStatus === 'moderate' && (
-                <>
-                  Our automated RAG engine matched your profile against general career optimization models. The generated content is safe and aligned, but we recommend checking that the specific tool categories reflect your direct experience.
-                </>
-              )}
-              {ragStatus === 'weak' && (
-                <>
-                  <strong>Caution:</strong> The target job post or resume text provided did not produce strong matches in our ATS database. Fallback guidelines have been applied. Factual relevance might be reduced, and we strongly suggest a manual review of all generated sections.
-                </>
-              )}
-            </p>
-            <div className="rag-shield-container">
-              <div className="rag-shield-icon">
-                <CheckCircle size={16} />
-              </div>
-              <div className="rag-shield-text">
-                <div className="rag-shield-title">Anti-Hallucination Safeguard Active</div>
-                <div>We never fabricate employers, graduation dates, fake certifications, or ungrounded statistics. If context was missing, bracketed placeholders like <code>[quantify]</code> were inserted for you to safely complete.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rag-sources-panel">
-            <h3 className="rag-sources-title">Grounded Sources ({ragSources.length || 'Default Guidelines'})</h3>
-            <div className="rag-source-list">
-              {ragSources.length > 0 ? (
-                ragSources.map((source, index) => (
-                  <div key={index} className="rag-source-item">
-                    <div className="rag-source-info">
-                      <span className="rag-source-name">
-                        {source.title.replace('Approved High-Impact ', '').replace('Approved ', '')}
-                      </span>
-                      <span className="rag-source-cat">
-                        {source.category.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <div className="rag-source-relevance">
-                      <span>{source.relevance}%</span>
-                      <div className="rag-source-relevance-bar">
-                        <div 
-                          className="rag-source-relevance-fill" 
-                          style={{ width: `${source.relevance}%` }} 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <>
-                  <div className="rag-source-item">
-                    <div className="rag-source-info">
-                      <span className="rag-source-name">ATS Optimization &amp; Section Headings</span>
-                      <span className="rag-source-cat">ats optimization</span>
-                    </div>
-                    <div className="rag-source-relevance">
-                      <span>100%</span>
-                      <div className="rag-source-relevance-bar">
-                        <div className="rag-source-relevance-fill" style={{ width: '100%' }} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="rag-source-item">
-                    <div className="rag-source-info">
-                      <span className="rag-source-name">STAR Method &amp; XYZ Achievements</span>
-                      <span className="rag-source-cat">resume writing</span>
-                    </div>
-                    <div className="rag-source-relevance">
-                      <span>100%</span>
-                      <div className="rag-source-relevance-bar">
-                        <div className="rag-source-relevance-fill" style={{ width: '100%' }} />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {ragStatus === 'weak' && (
-          <div className="rag-weak-warning">
-            <AlertTriangle size={18} />
-            <div>
-              <strong>Low context relevance detected:</strong> Because retrieval scores fell below 35%, the generator relied on general default templates. Avoid copying bullets directly if the tools listed do not match your background.
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* Tabs */}
       <div className="results-tabs">
@@ -1574,24 +1403,24 @@ ${(() => {
           )
         )}
 
-        {activeTab === 'keywords' && (
-          isTabLocked('starter', userPlan) ? (
-            <LockedTabContent requiredPlan="starter" />
-          ) : (
-            <div className="result-panel">
-              <div className="result-panel-header">
-                <h2>Keyword Analysis</h2>
-              </div>
-              <div className="result-panel-body">
+        {activeTab === 'roadmap' && (
+          <div className="result-panel">
+            <div className="result-panel-header">
+              <h2>Skill &amp; JD Roadmap</h2>
+            </div>
+            <div className="result-panel-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)', padding: '24px' }}>
+              
+              {/* Keyword Comparison Block */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
                 {keywordData.matched?.length > 0 && (
-                  <div className="keyword-group">
-                    <h3 className="keyword-group-title">
-                      <CheckCircle size={16} className="icon-success" />
+                  <div className="keyword-group" style={{ background: 'rgba(16, 185, 129, 0.03)', border: '1px solid rgba(16, 185, 129, 0.08)', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                    <h3 className="keyword-group-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '700', color: 'var(--color-success)', marginBottom: '12px' }}>
+                      <CheckCircle size={15} />
                       Matched Keywords ({keywordData.matched.length})
                     </h3>
-                    <div className="keyword-tags">
+                    <div className="keyword-tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {keywordData.matched.map((kw, i) => (
-                        <span key={i} className="badge badge-success">
+                        <span key={i} className="badge badge-success" style={{ padding: '4px 8px', fontSize: '10.5px', fontWeight: '500', borderRadius: '4px' }}>
                           {kw}
                         </span>
                       ))}
@@ -1599,28 +1428,91 @@ ${(() => {
                   </div>
                 )}
                 {keywordData.missing?.length > 0 && (
-                  <div className="keyword-group">
-                    <h3 className="keyword-group-title">
-                      <XCircle size={16} className="icon-error" />
+                  <div className="keyword-group" style={{ background: 'rgba(239, 68, 68, 0.03)', border: '1px solid rgba(239, 68, 68, 0.08)', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)' }}>
+                    <h3 className="keyword-group-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '700', color: 'var(--color-error)', marginBottom: '12px' }}>
+                      <XCircle size={15} />
                       Missing Keywords ({keywordData.missing.length})
                     </h3>
-                    <div className="keyword-tags">
+                    <div className="keyword-tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {keywordData.missing.map((kw, i) => (
-                        <span key={i} className="badge badge-error">
+                        <span key={i} className="badge badge-error" style={{ padding: '4px 8px', fontSize: '10.5px', fontWeight: '500', borderRadius: '4px' }}>
                           {kw}
                         </span>
                       ))}
                     </div>
                   </div>
                 )}
-                {keywordData.score != null && (
-                  <div className="keyword-score">
-                    <strong>Match Rate:</strong> {keywordData.score}%
-                  </div>
-                )}
               </div>
+
+              {/* Dynamic Online Learning Traffic Hub */}
+              {keywordData.missing?.length > 0 && (
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-5)' }}>
+                  <h3 style={{ fontSize: '13.5px', fontWeight: '800', color: 'var(--color-text-primary)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={15} style={{ color: 'var(--color-accent)' }} />
+                    Skill Acquisition Hub (Real-Time Platform Training)
+                  </h3>
+                  <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>
+                    Acquire these underrepresented credentials by clicking a platform below to search for direct tutorials, lessons, and certification guides:
+                  </p>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {keywordData.missing.slice(0, 12).map((kw, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', flexWrap: 'wrap', gap: '10px' }}>
+                        <span style={{ fontWeight: '700', fontSize: '11.5px', color: 'var(--color-text-primary)' }}>{kw}</span>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          <a 
+                            href={`https://www.coursera.org/search?query=${encodeURIComponent(kw)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-ghost btn-sm"
+                            style={{ fontSize: '9.5px', padding: '2px 8px', height: '24px', background: 'rgba(0, 86, 179, 0.04)', color: '#0056b3', border: '1px solid rgba(0, 86, 179, 0.12)', borderRadius: '4px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+                          >
+                            🎓 Coursera
+                          </a>
+                          <a 
+                            href={`https://www.udemy.com/courses/search/?q=${encodeURIComponent(kw)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-ghost btn-sm"
+                            style={{ fontSize: '9.5px', padding: '2px 8px', height: '24px', background: 'rgba(164, 53, 240, 0.04)', color: '#a435f0', border: '1px solid rgba(164, 53, 240, 0.12)', borderRadius: '4px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+                          >
+                            💻 Udemy
+                          </a>
+                          <a 
+                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(kw)}+tutorial`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-ghost btn-sm"
+                            style={{ fontSize: '9.5px', padding: '2px 8px', height: '24px', background: 'rgba(255, 0, 0, 0.04)', color: '#ff0000', border: '1px solid rgba(255, 0, 0, 0.12)', borderRadius: '4px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+                          >
+                            🎥 YouTube
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                    {keywordData.missing.length > 12 && (
+                      <span style={{ fontSize: '10.5px', color: 'var(--color-text-secondary)', fontStyle: 'italic', textAlign: 'center', marginTop: '6px' }}>
+                        Showing top 12 missing skill acquisition paths. Align more keywords in real time using the co-pilot!
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Conceptual Skill Gap Analysis */}
+              {project.skillGap && (
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-5)' }}>
+                  <h3 style={{ fontSize: '13.5px', fontWeight: '800', color: 'var(--color-text-primary)', marginBottom: '12px' }}>
+                    Conceptual Optimization Gap
+                  </h3>
+                  <div style={{ background: 'var(--color-bg-secondary)', padding: '16px 20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+                    <pre className="result-text" style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'var(--font-inter), sans-serif', fontSize: '11.5px', lineHeight: '1.6', color: 'var(--color-text-primary)' }}>{project.skillGap}</pre>
+                  </div>
+                </div>
+              )}
+
             </div>
-          )
+          </div>
         )}
 
         {activeTab === 'interview' && (
@@ -1631,39 +1523,24 @@ ${(() => {
               <div className="result-panel-header">
                 <h2>Interview Questions</h2>
               </div>
-              <div className="result-panel-body">
-                <ol className="interview-list">
+              <div className="result-panel-body" style={{ padding: '24px' }}>
+                <ol className="interview-list" style={{ margin: 0, paddingLeft: '20px', listStyleType: 'decimal' }}>
                   {interviewQuestions.map((q, i) => (
-                    <li key={i} className="interview-item">
-                      <div className="interview-question">
-                        <MessageSquare size={16} />
+                    <li key={i} className="interview-item" style={{ marginBottom: '16px', fontSize: '12px', color: 'var(--color-text-primary)' }}>
+                      <div className="interview-question" style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontWeight: '700', fontSize: '12.5px', color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                        <MessageSquare size={15} style={{ marginTop: '3px', flexShrink: 0, color: 'var(--color-accent)' }} />
                         <span>
                           {typeof q === 'string' ? q : q.question || ''}
                         </span>
                       </div>
                       {typeof q === 'object' && q.hint && (
-                        <div className="interview-hint">
+                        <div className="interview-hint" style={{ marginTop: '6px', fontSize: '11px', color: 'var(--color-text-secondary)', background: 'var(--color-bg-secondary)', padding: '8px 12px', borderRadius: '4px', borderLeft: '3px solid var(--color-accent)', lineHeight: '1.5' }}>
                           <strong>Hint:</strong> {q.hint}
                         </div>
                       )}
                     </li>
                   ))}
                 </ol>
-              </div>
-            </div>
-          )
-        )}
-
-        {activeTab === 'gap' && project.skillGap && (
-          isTabLocked('pro', userPlan) ? (
-            <LockedTabContent requiredPlan="pro" />
-          ) : (
-            <div className="result-panel">
-              <div className="result-panel-header">
-                <h2>Skill Gap Analysis</h2>
-              </div>
-              <div className="result-panel-body">
-                <pre className="result-text">{project.skillGap}</pre>
               </div>
             </div>
           )
@@ -1681,6 +1558,191 @@ ${(() => {
           <BattlegroundPanel projectId={project.id} />
         )}
       </div>
+
+      {/* Collapsible Tech Verification Logs (Anti-Hype & Decluttering upgrade) */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-6)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-4)', paddingBottom: 'var(--space-2)' }}>
+        <button 
+          onClick={() => setShowTechAudit(!showTechAudit)}
+          className="btn btn-ghost btn-sm"
+          style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', background: 'transparent', border: 'none', transition: 'all 0.2s' }}
+        >
+          <Shield size={12} style={{ color: 'var(--color-accent)' }} />
+          {showTechAudit ? 'Hide' : 'Show'} Advanced Grounding Audit &amp; Technical Parser Verification Logs
+        </button>
+      </div>
+
+      {showTechAudit && (
+        <div className="animate-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%', marginTop: 'var(--space-4)', paddingBottom: 'var(--space-6)' }}>
+          
+          {/* Blunt Reality Assessment Card */}
+          <div className={`ats-reality-check-card ${cardClass}`} style={{ marginBottom: 0 }}>
+            <div className="ats-reality-header">
+              <div className="ats-reality-icon">
+                {realityStatus === 'danger' && <XCircle size={20} />}
+                {realityStatus === 'warning' && <AlertTriangle size={20} />}
+                {realityStatus === 'success' && <CheckCircle size={20} />}
+              </div>
+              <h2 className="ats-reality-title">{realityTitle}</h2>
+            </div>
+
+            <div className="ats-reality-blunt-text">
+              <strong>The Blunt Reality:</strong> {realityWarning}
+            </div>
+
+            <div className="ats-reality-grid">
+              <div>
+                <h3 className="ats-reality-section-title">
+                  <AlertTriangle size={14} /> Why your ATS score is {atsScore}%
+                </h3>
+                <ul className="ats-reality-list">
+                  {realityWhy.map((why, index) => (
+                    <li key={index} className="ats-reality-item">{why}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="ats-reality-section-title">
+                  <CheckCircle size={14} /> Action plan to align & apply
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {realityAction.map((action, index) => (
+                    <button
+                      key={index}
+                      className="ats-reality-action-btn"
+                      onClick={() => {
+                        setActiveTab(action.tab);
+                        const el = document.querySelector('.results-tabs');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                    >
+                      <span style={{ marginRight: 'var(--space-2)', fontWeight: 'bold' }}>{index + 1}.</span>
+                      <span>{action.text}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Grounded RAG Intelligence Audit Card */}
+          <div className={`rag-audit-card ${ragCardClass}`} style={{ marginBottom: 0 }}>
+            <div className="rag-audit-header">
+              <div className="rag-audit-title-block">
+                <div className="rag-audit-icon">
+                  <Shield size={20} />
+                </div>
+                <div>
+                  <h2 className="rag-audit-title">ParserProof Grounding Audit</h2>
+                  <div className="rag-audit-subtitle">Factual Verification &amp; Anti-Hallucination Log</div>
+                </div>
+              </div>
+              <div className={`rag-confidence-badge-pill rag-confidence-${ragStatus}`}>
+                <Shield size={12} />
+                <span>{ragStatusText} {ragConfidence !== null ? `(${ragConfidence}%)` : ''}</span>
+              </div>
+            </div>
+
+            <div className="rag-audit-meta-grid">
+              <div className="rag-audit-explain">
+                <p>
+                  {ragStatus === 'high' && (
+                    <>
+                      Our automated RAG engine has successfully matched your profile against our core ATS knowledge bases. 
+                      Every recommendation, keyword mapping, and resume bullet point generated is <strong>100% grounded</strong> 
+                      in the trusted rules of the system.
+                    </>
+                  )}
+                  {ragStatus === 'moderate' && (
+                    <>
+                      Our automated RAG engine matched your profile against general career optimization models. The generated content is safe and aligned, but we recommend checking that the specific tool categories reflect your direct experience.
+                    </>
+                  )}
+                  {ragStatus === 'weak' && (
+                    <>
+                      <strong>Caution:</strong> The target job post or resume text provided did not produce strong matches in our ATS database. Fallback guidelines have been applied. Factual relevance might be reduced, and we strongly suggest a manual review of all generated sections.
+                    </>
+                  )}
+                </p>
+                <div className="rag-shield-container">
+                  <div className="rag-shield-icon">
+                    <CheckCircle size={16} />
+                  </div>
+                  <div className="rag-shield-text">
+                    <div className="rag-shield-title">Anti-Hallucination Safeguard Active</div>
+                    <div>We never fabricate employers, graduation dates, fake certifications, or ungrounded statistics. If context was missing, bracketed placeholders like <code>[quantify]</code> were inserted for you to safely complete.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rag-sources-panel">
+                <h3 className="rag-sources-title">Grounded Sources ({ragSources.length || 'Default Guidelines'})</h3>
+                <div className="rag-source-list">
+                  {ragSources.length > 0 ? (
+                    ragSources.map((source, index) => (
+                      <div key={index} className="rag-source-item">
+                        <div className="rag-source-info">
+                          <span className="rag-source-name">
+                            {source.title.replace('Approved High-Impact ', '').replace('Approved ', '')}
+                          </span>
+                          <span className="rag-source-cat">
+                            {source.category.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="rag-source-relevance">
+                          <span>{source.relevance}%</span>
+                          <div className="rag-source-relevance-bar">
+                            <div 
+                              className="rag-source-relevance-fill" 
+                              style={{ width: `${source.relevance}%` }} 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      <div className="rag-source-item">
+                        <div className="rag-source-info">
+                          <span className="rag-source-name">ATS Optimization &amp; Section Headings</span>
+                          <span className="rag-source-cat">ats optimization</span>
+                        </div>
+                        <div className="rag-source-relevance">
+                          <span>100%</span>
+                          <div className="rag-source-relevance-bar">
+                            <div className="rag-source-relevance-fill" style={{ width: '100%' }} />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rag-source-item">
+                        <div className="rag-source-info">
+                          <span className="rag-source-name">STAR Method &amp; XYZ Achievements</span>
+                          <span className="rag-source-cat">resume writing</span>
+                        </div>
+                        <div className="rag-source-relevance">
+                          <span>100%</span>
+                          <div className="rag-source-relevance-bar">
+                            <div className="rag-source-relevance-fill" style={{ width: '100%' }} />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {ragStatus === 'weak' && (
+              <div className="rag-weak-warning">
+                <AlertTriangle size={18} />
+                <div>
+                  <strong>Low context relevance detected:</strong> Because retrieval scores fell below 35%, the generator relied on general default templates. Avoid copying bullets directly if the tools listed do not match your background.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -246,6 +246,10 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 6. STICK TO DIRECT WORKSPACE DATA: If Candidate Original Resume Text is available, you MUST read it directly.
 7. CRITICAL BREVITY: Limit your verbal response explanation/message to a single, smooth, elegant paragraph under 60 words.
 
+CRITICAL PERFORMANCE & TOKEN-SAVING DIRECTIVE:
+- Always prefer using targeted, highly precise actions like APPEND_SKILLS, REPLACE_TEXT, and APPEND_TEXT for normal edits.
+- Only use UPDATE_FULL_RESUME as a last resort if the user explicitly demands a total redesign of the entire resume or renaming of all headers simultaneously. This prevents token truncation and response slowdown.
+
 OUTPUT FORMAT:
 You MUST respond ONLY with a JSON object. You are strictly forbidden from writing any conversational filler outside the JSON. The JSON object must contain exactly:
 1. "response": (string) Your single-paragraph plain-text advice or answer, following all constraints above.
@@ -323,7 +327,7 @@ Example JSON output when asked a standard question:
         model: primaryModel,
         messages: apiMessages,
         temperature: 0.3,
-        max_tokens: 1500,
+        max_tokens: 4000,
         response_format: { type: "json_object" },
       });
     } catch (primaryError) {
@@ -333,7 +337,7 @@ Example JSON output when asked a standard question:
           model: 'llama-3.3-70b-versatile',
           messages: apiMessages,
           temperature: 0.3,
-          max_tokens: 1500,
+          max_tokens: 4000,
           response_format: { type: "json_object" },
         });
       } catch (fallbackError) {

@@ -1,11 +1,32 @@
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { Inter, Lora, Outfit, Raleway } from 'next/font/google';
 
 const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
   display: 'swap',
   variable: '--font-inter',
+});
+
+const lora = Lora({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-lora',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-outfit',
+});
+
+const raleway = Raleway({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-raleway',
 });
 
 export const metadata = {
@@ -61,7 +82,7 @@ import Providers from './providers';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${lora.variable} ${outfit.variable} ${raleway.variable}`}>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
