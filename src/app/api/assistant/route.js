@@ -245,7 +245,7 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 
 
 CRITICAL PERFORMANCE & TOKEN-SAVING DIRECTIVE:
-- Always prefer using targeted, highly precise actions like APPEND_SKILLS, REPLACE_TEXT, and APPEND_TEXT for normal edits.
+- Always prefer using targeted, highly precise actions like APPEND_SKILLS, REPLACE_SKILLS, REPLACE_TEXT, and APPEND_TEXT for normal edits.
 - Only use UPDATE_FULL_RESUME as a last resort if the user explicitly demands a total redesign of the entire resume or renaming of all headers simultaneously. This prevents token truncation and response slowdown.
 
 OUTPUT FORMAT:
@@ -253,6 +253,7 @@ You MUST respond ONLY with a JSON object. You are strictly forbidden from writin
 1. "response": (string) Your single-paragraph plain-text advice or answer, following all constraints above.
 2. "actions": (array of objects, optional) If the user explicitly asks to edit, add, update, remove, or modify their resume content, include the structured action object(s) here. Supported action types are:
    - {"type": "APPEND_SKILLS", "skills": ["Skill1", "Skill2"]} -> To add new technical/soft skills to the skills section.
+   - {"type": "REPLACE_SKILLS", "skills": ["Skill1", "Skill2"]} -> Use this when the user asks to rewrite, remove, replace, filter, or keep only specific skills in the skills section. Do NOT use UPDATE_FULL_RESUME to replace skills!
    - {"type": "REPLACE_TEXT", "target": "exact old text to find", "replacement": "new text to replace it with"} -> To update/optimize specific experience bullets, project sentences, or summaries.
    - {"type": "APPEND_TEXT", "text": "Markdown-formatted text to append to the end of the resume"} -> Use this to add entirely new sections (e.g. adding a "Languages" section, a new "Certifications" section, or an "Education" section) if they do not yet exist.
    - {"type": "UPDATE_FULL_RESUME", "improvedResume": "new full resume text in Markdown format"} -> Use this only when the user requests comprehensive structural changes, renaming multiple headings (e.g. to standard ATS headings), or a complete resume overhaul.

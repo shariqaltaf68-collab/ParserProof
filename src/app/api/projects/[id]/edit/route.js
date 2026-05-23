@@ -110,6 +110,98 @@ export async function POST(request, { params }) {
           updatedImprovedResume = `${updatedImprovedResume}\n\nTechnical Skills: ${skillsText}`;
         }
 
+      } else if (action.type === 'REPLACE_SKILLS' && Array.isArray(action.skills)) {
+        const newlyAdded = action.skills.map(s => s.toLowerCase().trim());
+        const missing = keywordMatch.missing || [];
+        const matched = keywordMatch.matched || [];
+        const stillMissing = [];
+        
+        for (const item of missing) {
+          if (newlyAdded.some(skill => skill.includes(item.toLowerCase().trim()) || item.toLowerCase().trim().includes(skill))) {
+            if (!matched.includes(item)) {
+              matched.push(item);
+            }
+          } else {
+            stillMissing.push(item);
+          }
+        }
+        keywordMatch.missing = stillMissing;
+        keywordMatch.matched = matched;
+
+        // 1. Update resumeText (plain text)
+        let replacedRaw = false;
+        const rawHeaders = [
+          /(Technical\s+Skills|Professional\s+Skills|Skills\s+&\s+Tools|Core\s+Competencies|Skills|Expertise)\s*:\s*/i,
+          /(Technical\s+Skills|Professional\s+Skills|Skills\s+&\s+Tools|Core\s+Competencies|Skills|Expertise)\s*\n/i
+        ];
+        
+        for (const rx of rawHeaders) {
+          if (rx.test(updatedResumeText)) {
+            const match = updatedResumeText.match(rx);
+            const headerText = match[0];
+            const headerIdx = updatedResumeText.indexOf(headerText);
+            
+            const afterHeader = updatedResumeText.substring(headerIdx + headerText.length);
+            const nextSectionMatch = afterHeader.match(/\n\n[A-Z]/);
+            
+            const skillsText = action.skills.join(', ');
+            
+            if (nextSectionMatch) {
+              const nextSectionIdx = nextSectionMatch.index;
+              updatedResumeText = 
+                updatedResumeText.substring(0, headerIdx) + 
+                headerText + 
+                skillsText + 
+                afterHeader.substring(nextSectionIdx);
+            } else {
+              updatedResumeText = 
+                updatedResumeText.substring(0, headerIdx) + 
+                headerText + 
+                skillsText;
+            }
+            replacedRaw = true;
+            break;
+          }
+        }
+
+        if (!replacedRaw) {
+          updatedResumeText = `${updatedResumeText}\n\nTechnical Skills: ${action.skills.join(', ')}`;
+        }
+
+        // 2. Update improvedResume (markdown)
+        let replacedImp = false;
+        const markdownHeaderRx = /## (Technical\s+Skills|Professional\s+Skills|Skills\s+&\s+Tools|Core\s+Competencies|Skills|Expertise)/i;
+        
+        if (markdownHeaderRx.test(updatedImprovedResume)) {
+          const match = updatedImprovedResume.match(markdownHeaderRx);
+          const headerText = match[0];
+          const headerIdx = updatedImprovedResume.indexOf(headerText);
+          
+          const afterHeader = updatedImprovedResume.substring(headerIdx + headerText.length);
+          const nextHeaderMatch = afterHeader.match(/\n## /);
+          
+          const skillsContent = '\n\n' + action.skills.map(s => `- ${s}`).join('\n') + '\n';
+          
+          if (nextHeaderMatch) {
+            const nextHeaderIdx = nextHeaderMatch.index;
+            updatedImprovedResume = 
+              updatedImprovedResume.substring(0, headerIdx) + 
+              headerText + 
+              skillsContent + 
+              afterHeader.substring(nextHeaderIdx);
+          } else {
+            updatedImprovedResume = 
+              updatedImprovedResume.substring(0, headerIdx) + 
+              headerText + 
+              skillsContent;
+          }
+          replacedImp = true;
+        }
+
+        if (!replacedImp && updatedImprovedResume) {
+          updatedImprovedResume = `${updatedImprovedResume}\n\n## Skills\n\n${action.skills.map(s => `- ${s}`).join('\n')}`;
+        }
+
       } else if (action.type === 'REPLACE_TEXT' && action.target && action.replacement) {
         const targetClean = action.target.trim();
         const replacementClean = action.replacement.trim();
@@ -186,9 +278,16 @@ export async function POST(request, { params }) {
           updatedImprovedResume = textToAppend;
         }
       } else if (action.type === 'UPDATE_FULL_RESUME' && action.improvedResume) {
-        updatedImprovedResume = action.improvedResume;
-        if (!updatedResumeText) {
-          updatedResumeText = action.improvedResume;
+        const currentLength = updatedImprovedResume ? updatedImprovedResume.length : 0;
+        const newLength = action.improvedResume.length;
+        
+        if (currentLength > 200 && newLength < currentLength * 0.4) {
+          console.warn(`[Edit Route] Safety guard triggered: Blocked UPDATE_FULL_RESUME because new length (${newLength}) is suspiciously shorter than original length (${currentLength}).`);
+        } else {
+          updatedImprovedResume = action.improvedResume;
+          if (!updatedResumeText) {
+            updatedResumeText = action.improvedResume;
+          }
         }
       }
     }
