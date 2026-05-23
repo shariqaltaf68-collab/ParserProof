@@ -399,7 +399,7 @@ export default function FloatingAssistant() {
         body: JSON.stringify({
           message: textMessage,
           projectId: selectedProjectId || undefined,
-          history: updatedMessages.slice(0, -1),
+          history: updatedMessages.slice(0, -1).filter(msg => !msg.isAgentActionNotification),
           displayMessage: displayMessage || undefined,
         }),
       });
