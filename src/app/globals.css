@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 /* ===== DESIGN TOKENS ===== */
 :root {
@@ -3211,6 +3211,162 @@ h6 { font-size: var(--font-size-lg); }
 }
 .cv-preview-body .cv-template-minimalist strong {
   color: #000000 !important;
+}
+
+/* --- Creative Executive Template Overrides (Web Preview) --- */
+.cv-preview-body .cv-content-wrapper.cv-template-creative {
+  font-family: 'Outfit', sans-serif !important;
+  color: #1e293b !important;
+  line-height: 1.5 !important;
+}
+.cv-preview-body .cv-template-creative .cv-header {
+  text-align: left !important;
+  margin-bottom: 22px !important;
+  border-bottom: 3px solid #0f766e !important;
+  padding-bottom: 12px !important;
+}
+.cv-preview-body .cv-template-creative .cv-name {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: #115e59 !important;
+  text-transform: none !important;
+}
+.cv-preview-body .cv-template-creative .cv-contact {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 11px !important;
+  color: #0f766e !important;
+  font-weight: 500 !important;
+  margin-top: 6px !important;
+}
+.cv-preview-body .cv-template-creative .cv-section-container {
+  margin-top: 20px !important;
+  margin-bottom: 10px !important;
+}
+.cv-preview-body .cv-template-creative .cv-section-title {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #0f766e !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+.cv-preview-body .cv-template-creative .cv-section-line {
+  height: 2px !important;
+  background-color: #0f766e !important;
+  width: 100% !important;
+}
+.cv-preview-body .cv-template-creative .cv-item-title {
+  font-family: 'Outfit', sans-serif !important;
+  font-weight: 700 !important;
+  color: #115e59 !important;
+}
+.cv-preview-body .cv-template-creative .cv-item-company {
+  font-family: 'Outfit', sans-serif !important;
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+.cv-preview-body .cv-template-creative .cv-bullet {
+  color: #0f766e !important;
+}
+.cv-preview-body .cv-template-creative .cv-list-item {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 11.5px !important;
+  color: #334155 !important;
+  line-height: 1.45 !important;
+}
+.cv-preview-body .cv-template-creative .cv-paragraph {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 11.5px !important;
+  color: #334155 !important;
+}
+
+/* --- Corporate Director Template Overrides (Web Preview) --- */
+.cv-preview-body .cv-content-wrapper.cv-template-executive {
+  font-family: 'Inter', sans-serif !important;
+  color: #111827 !important;
+  line-height: 1.55 !important;
+}
+.cv-preview-body .cv-template-executive .cv-header {
+  text-align: center !important;
+  margin-bottom: 24px !important;
+  border-bottom: 1px double #9f1239 !important;
+  padding-bottom: 14px !important;
+}
+.cv-preview-body .cv-template-executive .cv-name {
+  font-family: 'Lora', 'Georgia', serif !important;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  color: #881337 !important;
+}
+.cv-preview-body .cv-template-executive .cv-contact {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10.5px !important;
+  color: #4b5563 !important;
+  margin-top: 6px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+}
+.cv-preview-body .cv-template-executive .cv-section-container {
+  margin-top: 22px !important;
+  margin-bottom: 10px !important;
+}
+.cv-preview-body .cv-template-executive .cv-section-title {
+  font-family: 'Lora', 'Georgia', serif !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #881337 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  margin-bottom: 4px !important;
+}
+.cv-preview-body .cv-template-executive .cv-section-line {
+  height: 1.5px !important;
+  background-color: #881337 !important;
+  width: 100% !important;
+}
+.cv-preview-body .cv-template-executive .cv-item-title {
+  font-family: 'Lora', 'Georgia', serif !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  font-size: 12.5px !important;
+}
+.cv-preview-body .cv-template-executive .cv-item-dates {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  color: #881337 !important;
+}
+.cv-preview-body .cv-template-executive .cv-item-company {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+}
+.cv-preview-body .cv-template-executive .cv-item-location {
+  font-family: 'Inter', sans-serif !important;
+  font-style: italic !important;
+  color: #4b5563 !important;
+}
+.cv-preview-body .cv-template-executive .cv-list-item {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+  color: #1f2937 !important;
+}
+.cv-preview-body .cv-template-executive .cv-bullet {
+  color: #881337 !important;
+  font-weight: bold !important;
+}
+.cv-preview-body .cv-template-executive .cv-paragraph {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+  color: #1f2937 !important;
+}
+.cv-preview-body .cv-template-executive strong {
+  color: #111827 !important;
 }
 
 /* Dynamic Responsive Layout for Action Bar and CV Preview Paper */

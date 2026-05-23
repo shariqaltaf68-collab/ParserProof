@@ -193,6 +193,8 @@ Target Job Description:
 ${selectedProject.jobDescription || ''}
 Candidate Original Resume Text:
 ${selectedProject.resumeText || ''}
+Current Improved Resume (Optimized Markdown):
+${selectedProject.improvedResume || ''}
 Programmatic ATS Score: ${selectedProject.atsScore || 'N/A'}%
         `.trim();
       }

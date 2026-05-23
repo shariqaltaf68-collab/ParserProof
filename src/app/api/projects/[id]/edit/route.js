@@ -32,6 +32,7 @@ export async function POST(request, { params }) {
     }
 
     let updatedResumeText = project.resumeText;
+    let updatedImprovedResume = project.improvedResume || '';
     let keywordMatch = { matched: [], missing: [] };
     try {
       if (project.keywordMatch) {
@@ -71,6 +72,7 @@ export async function POST(request, { params }) {
           /(Technical\s+Skills|Professional\s+Skills|Skills\s+&\s+Tools|Core\s+Competencies|Skills|Expertise)\s*\n/i
         ];
         
+        // 1. Update resumeText
         let foundHeader = false;
         for (const rx of skillsHeaders) {
           if (rx.test(updatedResumeText)) {
@@ -89,10 +91,30 @@ export async function POST(request, { params }) {
           updatedResumeText = `${updatedResumeText}\n\nTechnical Skills: ${skillsText}`;
         }
 
+        // 2. Update improvedResume
+        let foundHeaderImp = false;
+        for (const rx of skillsHeaders) {
+          if (rx.test(updatedImprovedResume)) {
+            updatedImprovedResume = updatedImprovedResume.replace(rx, (match) => {
+              foundHeaderImp = true;
+              if (match.endsWith('\n')) {
+                return `${match}${skillsText}, \n`;
+              }
+              return `${match} ${skillsText}, `;
+            });
+            break;
+          }
+        }
+
+        if (!foundHeaderImp && updatedImprovedResume) {
+          updatedImprovedResume = `${updatedImprovedResume}\n\nTechnical Skills: ${skillsText}`;
+        }
+
       } else if (action.type === 'REPLACE_TEXT' && action.target && action.replacement) {
         const targetClean = action.target.trim();
         const replacementClean = action.replacement.trim();
         
+        // 1. Run replacement on updatedResumeText
         if (updatedResumeText.includes(targetClean)) {
           updatedResumeText = updatedResumeText.replaceAll(targetClean, replacementClean);
         } else {
@@ -112,7 +134,39 @@ export async function POST(request, { params }) {
             lines[matchedLineIdx] = lines[matchedLineIdx].replace(lines[matchedLineIdx], replacementClean);
             updatedResumeText = lines.join('\n');
           } else {
-            console.warn(`[Edit Route] Target text for replacement not found in resume: "${targetClean}"`);
+            console.warn(`[Edit Route] Target text for replacement not found in resumeText: "${targetClean}"`);
+          }
+        }
+
+        // 2. Run replacement on updatedImprovedResume
+        if (updatedImprovedResume) {
+          if (updatedImprovedResume.includes(targetClean)) {
+            updatedImprovedResume = updatedImprovedResume.replaceAll(targetClean, replacementClean);
+          } else {
+            const normTarget = targetClean.replace(/\s+/g, ' ');
+            const lines = updatedImprovedResume.split('\n');
+            let matchedLineIdx = -1;
+            
+            for (let i = 0; i < lines.length; i++) {
+              if (lines[i].replace(/\s+/g, ' ').includes(normTarget)) {
+                matchedLineIdx = i;
+                break;
+              }
+            }
+            
+            if (matchedLineIdx !== -1) {
+              lines[matchedLineIdx] = lines[matchedLineIdx].replace(lines[matchedLineIdx], replacementClean);
+              updatedImprovedResume = lines.join('\n');
+            } else {
+              // Soft subset match for markdown formatting differences
+              const cleanedTarget = targetClean.replace(/^[\s\-\*\•]+/, '').trim();
+              const cleanedReplacement = replacementClean.replace(/^[\s\-\*\•]+/, '').trim();
+              if (updatedImprovedResume.includes(cleanedTarget)) {
+                updatedImprovedResume = updatedImprovedResume.replaceAll(cleanedTarget, cleanedReplacement);
+              } else {
+                console.warn(`[Edit Route] Target text for replacement not found in improvedResume: "${targetClean}"`);
+              }
+            }
           }
         }
       }
@@ -120,9 +174,9 @@ export async function POST(request, { params }) {
 
     // 2. Recalculate programmatic ATS score (with a semantic baseline of 75)
     const freshAtsScore = calculateProgrammaticAtsScore(
-      updatedResumeText,
+      updatedImprovedResume || updatedResumeText,
       keywordMatch,
-      project.ragConfidence || 75
+      project.atsScore || 75
     );
 
     // 3. Save the updated project to the database
@@ -130,6 +184,7 @@ export async function POST(request, { params }) {
       where: { id },
       data: {
         resumeText: updatedResumeText,
+        improvedResume: updatedImprovedResume,
         atsScore: freshAtsScore,
         keywordMatch: JSON.stringify(keywordMatch),
       },
@@ -154,6 +209,7 @@ export async function POST(request, { params }) {
       project: {
         id: updatedProject.id,
         resumeText: updatedProject.resumeText,
+        improvedResume: updatedProject.improvedResume,
         atsScore: updatedProject.atsScore,
         keywordMatch: updatedProject.keywordMatch,
       },
