@@ -117,8 +117,11 @@ function parseMarkdownToHtml(markdown) {
     ];
     
     for (const l of sectionLines) {
-      const trimmed = l.trim();
+      let trimmed = l.trim();
       if (trimmed === '') continue;
+      
+      // Strip markdown bullet/list prefixes to make sure placeholders match correctly
+      trimmed = trimmed.replace(/^[\s\-\*\•\+]+/, '').trim();
       
       const isPlaceholder = emptyPhrases.some(regex => regex.test(trimmed));
       if (isPlaceholder) {

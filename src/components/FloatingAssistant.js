@@ -135,17 +135,26 @@ export default function FloatingAssistant() {
 
   // Handle URL navigation checks to sync project selection dynamically
   useEffect(() => {
-    if (projects.length > 0 && pathname && pathname.startsWith('/results/')) {
+    if (pathname && pathname.startsWith('/results/')) {
       const pathParts = pathname.split('/');
       const projectId = pathParts[pathParts.length - 1];
       if (projectId) {
-        const matchedProject = projects.find(p => p.id === projectId);
-        if (matchedProject) {
-          setSelectedProjectId(matchedProject.id);
+        if (selectedProjectId !== projectId) {
+          setSelectedProjectId(projectId);
+          
+          // Re-fetch project list if this project is newly created and not yet in projects list
+          const exists = projects.some(p => p.id === projectId);
+          if (!exists) {
+            fetchProjects();
+          }
         }
       }
+    } else if (pathname === '/dashboard' || pathname === '/new') {
+      if (selectedProjectId !== '') {
+        setSelectedProjectId('');
+      }
     }
-  }, [pathname, projects]);
+  }, [pathname, projects, selectedProjectId, fetchProjects]);
 
   // Bootup hooks
   useEffect(() => {

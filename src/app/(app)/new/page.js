@@ -111,6 +111,7 @@ export default function NewProjectPage() {
   const [length, setLength] = useState('standard');
   const [inputMethod, setInputMethod] = useState('paste');
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
   const [projectResult, setProjectResult] = useState(null);
@@ -239,6 +240,8 @@ export default function NewProjectPage() {
 
     setUploadError('');
     setUploadedFile(file);
+    setIsUploading(true);
+    setResumeText(''); // clear previous text
 
     const formData = new FormData();
     formData.append('file', file);
@@ -254,6 +257,7 @@ export default function NewProjectPage() {
       if (!res.ok) {
         setUploadError(data.error || 'Failed to process file');
         setUploadedFile(null);
+        setIsUploading(false);
         return;
       }
 
@@ -261,6 +265,8 @@ export default function NewProjectPage() {
     } catch {
       setUploadError('Failed to upload file. Please try again.');
       setUploadedFile(null);
+    } finally {
+      setIsUploading(false);
     }
   }, []);
 
@@ -299,6 +305,7 @@ export default function NewProjectPage() {
     setUploadedFile(null);
     setResumeText('');
     setUploadError('');
+    setIsUploading(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -612,26 +619,40 @@ export default function NewProjectPage() {
                   </span>
                 </div>
               ) : (
-                <div className="file-upload-selected">
-                  <FileText size={20} />
-                  <span style={{ flex: 1 }}>{uploadedFile.name}</span>
-                  <button
-                    id="remove-uploaded-file"
-                    onClick={removeFile}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'inherit',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      padding: '2px',
-                    }}
-                    aria-label="Remove file"
-                    type="button"
-                  >
-                    <X size={16} />
-                  </button>
+                <div className="file-upload-selected" style={{ borderColor: isUploading ? 'var(--color-accent)' : 'var(--color-success-border)', background: isUploading ? 'var(--color-bg-tertiary)' : 'var(--color-success-bg)' }}>
+                  {isUploading ? (
+                    <Loader2 className="spin" size={20} style={{ color: 'var(--color-accent)', animation: 'spin 1.2s linear infinite' }} />
+                  ) : (
+                    <FileText size={20} />
+                  )}
+                  <span style={{ flex: 1, marginLeft: '8px' }}>
+                    {isUploading ? `Parsing ${uploadedFile.name}...` : uploadedFile.name}
+                  </span>
+                  {!isUploading && (
+                    <button
+                      id="remove-uploaded-file"
+                      onClick={removeFile}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        padding: '2px',
+                      }}
+                      aria-label="Remove file"
+                      type="button"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
                 </div>
+              )}
+              {!isUploading && resumeText && (
+                <span className="form-error" style={{ color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: 'var(--space-2)' }}>
+                  <CheckCircle2 size={14} />
+                  Successfully extracted {resumeText.split(/\s+/).filter(Boolean).length} words from your resume.
+                </span>
               )}
               {uploadError && (
                 <span className="form-error">
@@ -769,10 +790,20 @@ export default function NewProjectPage() {
           className="btn btn-primary btn-lg"
           style={{ width: '100%' }}
           onClick={handleGenerate}
+          disabled={isUploading}
           type="button"
         >
-          <Sparkles size={20} />
-          Analyze & Optimize Resume
+          {isUploading ? (
+            <>
+              <Loader2 className="spin" size={20} style={{ marginRight: '8px', animation: 'spin 1.2s linear infinite' }} />
+              Uploading &amp; Parsing Resume...
+            </>
+          ) : (
+            <>
+              <Sparkles size={20} />
+              Analyze &amp; Optimize Resume
+            </>
+          )}
         </button>
       </div>
     </div>
