@@ -639,7 +639,7 @@ export default function NewProjectPage() {
                   {uploadError}
                 </span>
               )}
-              {errors.resumeText && !uploadedFile && (
+              {errors.resumeText && (
                 <span className="form-error">
                   <AlertCircle size={14} />
                   {errors.resumeText}

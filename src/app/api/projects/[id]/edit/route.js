@@ -202,6 +202,51 @@ export async function POST(request, { params }) {
           updatedImprovedResume = `${updatedImprovedResume}\n\n## Skills\n\n${action.skills.map(s => `- ${s}`).join('\n')}`;
         }
 
+      } else if (action.type === 'DELETE_SECTION' && action.section) {
+        const sectionName = action.section.trim();
+        const sectionRegex = new RegExp(`## (${sectionName}|${sectionName}\\s+.*)`, 'i');
+        
+        // 1. Update improvedResume (markdown)
+        if (sectionRegex.test(updatedImprovedResume)) {
+          const match = updatedImprovedResume.match(sectionRegex);
+          const headerText = match[0];
+          const headerIdx = updatedImprovedResume.indexOf(headerText);
+          
+          const afterHeader = updatedImprovedResume.substring(headerIdx + headerText.length);
+          const nextHeaderMatch = afterHeader.match(/\n## /);
+          
+          if (nextHeaderMatch) {
+            const nextHeaderIdx = nextHeaderMatch.index;
+            updatedImprovedResume = 
+              updatedImprovedResume.substring(0, headerIdx).trimEnd() + 
+              '\n\n' +
+              afterHeader.substring(nextHeaderIdx + 1).trimStart();
+          } else {
+            updatedImprovedResume = updatedImprovedResume.substring(0, headerIdx).trimEnd();
+          }
+        }
+
+        // 2. Update resumeText (plain text)
+        const plainRegex = new RegExp(`(${sectionName}|${sectionName}\\s+.*)\\s*(\\n|:)`, 'i');
+        if (plainRegex.test(updatedResumeText)) {
+          const match = updatedResumeText.match(plainRegex);
+          const headerText = match[0];
+          const headerIdx = updatedResumeText.indexOf(headerText);
+          
+          const afterHeader = updatedResumeText.substring(headerIdx + headerText.length);
+          const nextSectionMatch = afterHeader.match(/\n\n[A-Z]/);
+          
+          if (nextSectionMatch) {
+            const nextSectionIdx = nextSectionMatch.index;
+            updatedResumeText = 
+              updatedResumeText.substring(0, headerIdx).trimEnd() + 
+              '\n\n' +
+              afterHeader.substring(nextSectionIdx + 2).trimStart();
+          } else {
+            updatedResumeText = updatedResumeText.substring(0, headerIdx).trimEnd();
+          }
+        }
+
       } else if (action.type === 'REPLACE_TEXT' && action.target && action.replacement) {
         const targetClean = action.target.trim();
         const replacementClean = action.replacement.trim();

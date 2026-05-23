@@ -27,7 +27,6 @@ const NAV_ITEMS = [
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'New Project', href: '/new', icon: PlusCircle },
-      { name: 'AI Assistant', href: '/assistant', icon: Sparkles },
       { name: 'History', href: '/history', icon: History },
     ],
   },
