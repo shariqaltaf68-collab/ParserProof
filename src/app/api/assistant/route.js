@@ -249,17 +249,42 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 OUTPUT FORMAT:
 You MUST respond ONLY with a JSON object. You are strictly forbidden from writing any conversational filler outside the JSON. The JSON object must contain exactly:
 1. "response": (string) Your single-paragraph plain-text advice or answer, following all constraints above.
-2. "actions": (array of objects, optional) If the user explicitly asks to edit, add, update, remove, or modify their resume skills, summary, or bullet points, include the structured action object(s) here. Supported action types are:
-   - {"type": "APPEND_SKILLS", "skills": ["Skill1", "Skill2"]} -> To add new technical/soft skills.
-   - {"type": "REPLACE_TEXT", "target": "exact old text to find", "replacement": "new text to replace it with"} -> To update/optimize experience bullets, project sentences, or summaries.
+2. "actions": (array of objects, optional) If the user explicitly asks to edit, add, update, remove, or modify their resume content, include the structured action object(s) here. Supported action types are:
+   - {"type": "APPEND_SKILLS", "skills": ["Skill1", "Skill2"]} -> To add new technical/soft skills to the skills section.
+   - {"type": "REPLACE_TEXT", "target": "exact old text to find", "replacement": "new text to replace it with"} -> To update/optimize specific experience bullets, project sentences, or summaries.
+   - {"type": "APPEND_TEXT", "text": "Markdown-formatted text to append to the end of the resume"} -> Use this to add entirely new sections (e.g. adding a "Languages" section, a new "Certifications" section, or an "Education" section) if they do not yet exist.
+   - {"type": "UPDATE_FULL_RESUME", "improvedResume": "new full resume text in Markdown format"} -> Use this only when the user requests comprehensive structural changes, renaming multiple headings (e.g. to standard ATS headings), or a complete resume overhaul.
 
-Example JSON output when asked to add a skill:
+Example JSON output when asked to add a new languages section:
 {
-  "response": "I have successfully added openFOAM and MATLAB to your technical skills.",
+  "response": "I have successfully added English and Hindi with fluent proficiency under a Languages section on your resume.",
   "actions": [
     {
-      "type": "APPEND_SKILLS",
-      "skills": ["openFOAM", "MATLAB"]
+      "type": "APPEND_TEXT",
+      "text": "## Languages\n\n- English: Fluent Proficiency\n- Hindi: Fluent Proficiency"
+    }
+  ]
+}
+
+Example JSON output when asked to rewrite the entire resume with standard ATS headings:
+{
+  "response": "I have successfully renamed all headings on your resume to standard ATS formats (Experience, Projects, Skills, Education).",
+  "actions": [
+    {
+      "type": "UPDATE_FULL_RESUME",
+      "improvedResume": "# Candidate Name\n\n## Experience\n...\n\n## Education\n...\n\n## Skills\n..."
+    }
+  ]
+}
+
+Example JSON output when asked to optimize a bullet point:
+{
+  "response": "I have optimized the structural finite element analysis bullet under Clavrit Digital using the STAR Google XYZ format.",
+  "actions": [
+    {
+      "type": "REPLACE_TEXT",
+      "target": "Performed static structural and fluid flow simulations in ANSYS for preliminary design validation.",
+      "replacement": "Engineered static structural and fluid-flow simulations in Ansys Mechanical (Workbench), scripting mesh convergence with APDL and post-processing results, accomplishing a [quantify: stress reduction] as measured by peak-stress decrease of [quantify: %] by optimizing mesh density."
     }
   ]
 }

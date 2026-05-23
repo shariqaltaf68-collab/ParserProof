@@ -169,6 +169,27 @@ export async function POST(request, { params }) {
             }
           }
         }
+      } else if (action.type === 'APPEND_TEXT' && action.text) {
+        const textToAppend = action.text.trim();
+        
+        // 1. Update resumeText
+        if (updatedResumeText) {
+          updatedResumeText = `${updatedResumeText.trim()}\n\n${textToAppend}`;
+        } else {
+          updatedResumeText = textToAppend;
+        }
+        
+        // 2. Update improvedResume
+        if (updatedImprovedResume) {
+          updatedImprovedResume = `${updatedImprovedResume.trim()}\n\n${textToAppend}`;
+        } else {
+          updatedImprovedResume = textToAppend;
+        }
+      } else if (action.type === 'UPDATE_FULL_RESUME' && action.improvedResume) {
+        updatedImprovedResume = action.improvedResume;
+        if (!updatedResumeText) {
+          updatedResumeText = action.improvedResume;
+        }
       }
     }
 
