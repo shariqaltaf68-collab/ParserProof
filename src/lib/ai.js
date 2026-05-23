@@ -228,9 +228,9 @@ export function calculateProgrammaticAtsScore(improvedResume, keywordMatch, llmS
 export async function generateTailoredContent(resumeText, jobDescription, tone = 'professional', length = 'standard') {
   const modelsToTry = [
     'llama-3.3-70b-versatile',
-    'gemma2-9b-it',
     'llama-3.1-8b-instant',
-    'mixtral-8x7b-instruct'
+    'qwen/qwen3-32b',
+    'meta-llama/llama-4-scout-17b-16e-instruct'
   ];
 
   let lastError = null;
@@ -240,12 +240,13 @@ export async function generateTailoredContent(resumeText, jobDescription, tone =
       return await executeGenerationAttempt(modelName, resumeText, jobDescription, tone, length);
     } catch (apiError) {
       lastError = apiError;
-      console.warn(`Model ${modelName} failed in generation (status: ${apiError.status}): ${apiError.message}`);
-      // If it's a rate limit or server error, proceed to the next fallback model.
-      if (apiError.status === 429 || apiError.status >= 500 || apiError.message.includes('rate-limited')) {
-        continue;
+      console.warn(`Model ${modelName} failed in generation (status: ${apiError?.status}): ${apiError?.message}`);
+      // If it's a structural or authorization/authentication error (401/403), throw immediately.
+      if (apiError.status === 401 || apiError.status === 403) {
+        throw apiError;
       }
-      throw apiError;
+      // Try the next model for all other errors (429 rate limit, 400 decommissioned, 500 server error, etc.)
+      continue;
     }
   }
 
