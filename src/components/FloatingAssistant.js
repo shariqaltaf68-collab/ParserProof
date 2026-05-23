@@ -363,7 +363,7 @@ export default function FloatingAssistant() {
   }, [selectedProjectId, projects]);
 
   // Main sending handler
-  const handleSend = async (messageToSend) => {
+  const handleSend = async (messageToSend, displayMessage) => {
     const textMessage = typeof messageToSend === 'string' ? messageToSend : inputValue;
     if (!textMessage || textMessage.trim() === '' || isSending || isLimitReached) return;
 
@@ -374,7 +374,8 @@ export default function FloatingAssistant() {
       synthRef.current.cancel();
     }
 
-    const userMsg = { role: 'user', content: textMessage, createdAt: new Date().toISOString() };
+    const uiMessage = displayMessage || textMessage;
+    const userMsg = { role: 'user', content: uiMessage, createdAt: new Date().toISOString() };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
 
@@ -386,6 +387,7 @@ export default function FloatingAssistant() {
           message: textMessage,
           projectId: selectedProjectId || undefined,
           history: updatedMessages.slice(0, -1),
+          displayMessage: displayMessage || undefined,
         }),
       });
 
@@ -427,6 +429,37 @@ export default function FloatingAssistant() {
       
       if (data.remainingMessages === 0) {
         setIsLimitReached(true);
+      }
+
+      // Execute direct resume edit actions in real time
+      if (data.actions && data.actions.length > 0 && selectedProjectId) {
+        try {
+          const editRes = await fetch(`/api/projects/${selectedProjectId}/edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ actions: data.actions }),
+          });
+          const editData = await editRes.json();
+          if (editRes.ok && editData.success) {
+            window.dispatchEvent(new CustomEvent('resume-updated', { detail: editData.project }));
+            
+            const confirmationMsg = {
+              role: 'assistant',
+              content: `✨ ParserProof Co-Pilot Action: Successfully updated your resume in real time! Re-optimized details and updated skills. Live ATS Score updated to ${editData.project.atsScore}%.`,
+              createdAt: new Date().toISOString(),
+              isAgentActionNotification: true,
+            };
+            
+            setMessages((prev) => [...prev, confirmationMsg]);
+            
+            if (isVoiceMode) {
+              speakResponse(`${data.response} I have also successfully updated your resume in real time. Live A T S Score is now ${editData.project.atsScore} percent.`);
+              return;
+            }
+          }
+        } catch (editError) {
+          console.error('[Floating Co-Pilot] Background edit execution failed:', editError);
+        }
       }
 
       // Read output aloud if voice mode active
@@ -503,7 +536,7 @@ export default function FloatingAssistant() {
       }
     }
 
-    handleSend(prependedPrompt);
+    handleSend(prependedPrompt, chipText);
   };
 
   // Render text content and parse beautifully into smooth, plain, unadorned prose paragraphs
@@ -749,16 +782,6 @@ export default function FloatingAssistant() {
                           style={{ boxShadow: 'var(--shadow-sm)' }}
                         >
                           <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
-
-                          {/* Grounding context info tags */}
-                          {!isUser && msg.ragSources && msg.ragSources.length > 0 && (
-                            <div className="popover-bubble-grounding">
-                              <span className="grounding-header">✓ Source Grounded:</span>
-                              <span className="grounding-title">
-                                {msg.ragSources.map(s => s.title).join(', ')}
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     );

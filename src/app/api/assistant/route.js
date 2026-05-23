@@ -99,13 +99,14 @@ export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
     const body = await request.json();
-    const { message, projectId, history = [] } = body;
+    const { message, projectId, history = [], displayMessage } = body;
 
     if (!message || typeof message !== 'string' || message.trim() === '') {
       return NextResponse.json({ error: 'Message content is required.' }, { status: 400 });
     }
 
     const cleanMessage = sanitizeInput(message);
+    const cleanDisplayMessage = displayMessage ? sanitizeInput(displayMessage) : null;
     const userId = session?.user?.id;
     const isGuest = !userId;
 
@@ -238,10 +239,34 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 1. Never invent experience, achievements, tools, degrees, or certifications for the user. If they ask to optimize a bullet, do NOT fabricate metrics; use a bracketed placeholder like "[quantify: metrics]" instead.
 2. Maintain a direct, calm, blunt, and highly realistic tone. Avoid motivational AI fluff (e.g. "off to an amazing start!" or "Congratulations!").
 3. ParserProof plans are: Free Plan (₹0/mo, 3 generations), Starter Plan (₹499/mo, 15 generations, Cover Letters), Pro Plan (₹999/mo, 50 generations, Interview Prep & Skill Gaps).
-4. ABSOLUTELY ZERO ASTERISKS OR BOLDING: You MUST NEVER use any asterisks (*) or double asterisks (**). Do not bold or italicize any words. Output plain, unadorned text only.
-5. NO HEADINGS, LISTS, OR TABLES: Do NOT use raw markdown headings (e.g., #, ##, ###), markdown tables, lists, or bullets (dashes, stars, or numbering). If listing multiple points, combine them into a single continuous sentence separated by commas. Do not write Situation/Action/Result guides or checklist outlines.
-6. STICK TO DIRECT WORKSPACE DATA: If Candidate Original Resume Text is available, you MUST read it directly. When they ask for keyword gaps or bullet optimizations, immediately extract real details from their resume text, and do the analysis/rewrite using those details. Never ask them to paste their resume if it is already provided.
-7. CRITICAL BREVITY & INTEGRATED REWRITES: Limit all responses to a single, smooth, elegant paragraph under 60 words. Do not write introductory filler or polite closings. Start directly with the optimized answer or direct resume bullet rewrite.`;
+4. ABSOLUTELY ZERO ASTERISKS OR BOLDING in your response text: You MUST NEVER use any asterisks (*) or double asterisks (**). Do not bold or italicize any words. Output plain, unadorned text only.
+5. NO HEADINGS, LISTS, OR TABLES in your response text: Do NOT use raw markdown headings (e.g., #, ##, ###), markdown tables, lists, or bullets. If listing multiple points, combine them into a single continuous sentence separated by commas.
+6. STICK TO DIRECT WORKSPACE DATA: If Candidate Original Resume Text is available, you MUST read it directly.
+7. CRITICAL BREVITY: Limit your verbal response explanation/message to a single, smooth, elegant paragraph under 60 words.
+
+OUTPUT FORMAT:
+You MUST respond ONLY with a JSON object. You are strictly forbidden from writing any conversational filler outside the JSON. The JSON object must contain exactly:
+1. "response": (string) Your single-paragraph plain-text advice or answer, following all constraints above.
+2. "actions": (array of objects, optional) If the user explicitly asks to edit, add, update, remove, or modify their resume skills, summary, or bullet points, include the structured action object(s) here. Supported action types are:
+   - {"type": "APPEND_SKILLS", "skills": ["Skill1", "Skill2"]} -> To add new technical/soft skills.
+   - {"type": "REPLACE_TEXT", "target": "exact old text to find", "replacement": "new text to replace it with"} -> To update/optimize experience bullets, project sentences, or summaries.
+
+Example JSON output when asked to add a skill:
+{
+  "response": "I have successfully added openFOAM and MATLAB to your technical skills.",
+  "actions": [
+    {
+      "type": "APPEND_SKILLS",
+      "skills": ["openFOAM", "MATLAB"]
+    }
+  ]
+}
+
+Example JSON output when asked a standard question:
+{
+  "response": "Your ATS score is 61% because your resume lacks critical target keywords like APDL scripting and ANSYS CFX, which are essential for CFD simulation engineer roles.",
+  "actions": []
+}`;
 
     // 6. Assemble Messages for Groq completion
     const apiMessages = [
@@ -260,11 +285,23 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
       messages: apiMessages,
       temperature: 0.3,
       max_tokens: 1500,
+      response_format: { type: "json_object" },
     });
 
     const aiResponse = completion.choices?.[0]?.message?.content;
     if (!aiResponse) {
       throw new Error('Groq AI returned an empty response.');
+    }
+
+    let responseText = aiResponse;
+    let actions = [];
+
+    try {
+      const parsed = JSON.parse(aiResponse);
+      responseText = parsed.response || aiResponse;
+      actions = parsed.actions || [];
+    } catch (e) {
+      console.warn('[Assistant API] Failed to parse AI JSON response, falling back to raw text:', e);
     }
 
     // 7. DB Persistence & Usage Increment
@@ -284,7 +321,7 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
           data: {
             userId,
             role: 'user',
-            content: cleanMessage,
+            content: cleanDisplayMessage || cleanMessage,
             projectId: projectId || null,
           }
         }),
@@ -292,7 +329,7 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
           data: {
             userId,
             role: 'assistant',
-            content: aiResponse,
+            content: responseText,
             projectId: projectId || null,
           }
         })
@@ -302,7 +339,8 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
     }
 
     return NextResponse.json({
-      response: aiResponse,
+      response: responseText,
+      actions: actions,
       ragConfidence: ragResult.averageConfidence,
       ragSources: ragResult.chunks.map(c => ({ id: c.id, title: c.title, category: c.category })),
       remainingMessages: remainingVal,

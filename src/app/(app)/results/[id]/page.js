@@ -24,12 +24,19 @@ import {
   Shield,
 } from 'lucide-react';
 
+import XRayScanner from '@/components/XRayScanner';
+import OutreachAccelerator from '@/components/OutreachAccelerator';
+import BattlegroundPanel from '@/components/BattlegroundPanel';
+
 const TABS = [
   { key: 'resume', label: 'Improved Resume', icon: FileText, requiredPlan: 'free' },
+  { key: 'xray', label: 'ATS X-Ray', icon: Shield, requiredPlan: 'free' },
   { key: 'cover', label: 'Cover Letter', icon: Sparkles, requiredPlan: 'starter' },
   { key: 'keywords', label: 'Keywords', icon: Search, requiredPlan: 'starter' },
   { key: 'interview', label: 'Interview Prep', icon: MessageSquare, requiredPlan: 'pro' },
   { key: 'gap', label: 'Skill Gap', icon: BarChart3, requiredPlan: 'pro' },
+  { key: 'outreach', label: 'Outreach Accelerator', icon: Target, requiredPlan: 'free' },
+  { key: 'battleground', label: 'Placement Battleground', icon: Crown, requiredPlan: 'free' },
 ];
 
 const PLAN_ORDER = { free: 0, starter: 1, pro: 2 };
@@ -335,6 +342,57 @@ export default function ResultsPage() {
     }
     load();
   }, [params.id]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail && e.detail.id === params.id) {
+        setProject((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            resumeText: e.detail.resumeText,
+            atsScore: e.detail.atsScore,
+            keywordMatch: e.detail.keywordMatch,
+            improvedResume: e.detail.improvedResume || prev.improvedResume,
+          };
+        });
+      }
+    };
+    
+    window.addEventListener('resume-updated', handleUpdate);
+    return () => window.removeEventListener('resume-updated', handleUpdate);
+  }, [params.id]);
+
+  const handleApplyBulletReplacement = useCallback(async (oldBullet, newBullet) => {
+    if (!project) return;
+    try {
+      const cleanOld = oldBullet.replace(/^[\s\-\*\•]+/, '').trim();
+      const cleanNew = newBullet.replace(/^[\s\-\*\•]+/, '').trim();
+      
+      const res = await fetch(`/api/projects/${project.id}/edit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actions: [
+            {
+              type: 'REPLACE_TEXT',
+              target: cleanOld,
+              replacement: cleanNew,
+            }
+          ]
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        window.dispatchEvent(new CustomEvent('resume-updated', { detail: data.project }));
+        alert('✨ Resume optimized! Bullet applied successfully and Live ATS score updated.');
+      } else {
+        throw new Error(data.error || 'Failed to apply bullet edit.');
+      }
+    } catch (e) {
+      alert(`⚠️ Edit error: ${e.message}`);
+    }
+  }, [project]);
 
   const handleDownload = useCallback(async () => {
     if (!project) return;
@@ -1294,16 +1352,47 @@ ${(() => {
       {/* Tab Content */}
       <div className="results-content">
         {activeTab === 'resume' && (
-          <div className="result-panel">
-            <div className="result-panel-header">
-              <h2>Improved Resume</h2>
-              <CopyButton text={project.improvedResume || ''} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div className="result-panel">
+              <div className="result-panel-header">
+                <h2>Improved Resume</h2>
+                <CopyButton text={project.improvedResume || ''} />
+              </div>
+              <div className="result-panel-body cv-preview-body">
+                <div 
+                  className={`cv-content-wrapper cv-template-${pdfTemplate}`}
+                  dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(project.improvedResume) }}
+                />
+              </div>
             </div>
-            <div className="result-panel-body cv-preview-body">
-              <div 
-                className={`cv-content-wrapper cv-template-${pdfTemplate}`}
-                dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(project.improvedResume) }}
-              />
+
+            {/* Live Inline Sandbox Workbench */}
+            <div className="card" style={{ padding: 'var(--space-4)', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--color-border)', paddingBottom: '10px' }}>
+                <Sparkles size={18} style={{ color: 'var(--color-accent)' }} />
+                <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
+                  Inline STAR &amp; Google XYZ Sandbox Workbench
+                </h3>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', margin: 0 }}>
+                Select an experience bullet point below to optimize with the Google XYZ formula, tweak in real time, and dynamically update your live ATS score.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                {(project?.resumeText || '')
+                  .split('\n')
+                  .map(line => line.trim())
+                  .filter(line => line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• '))
+                  .slice(0, 5)
+                  .map((bullet, idx) => (
+                    <SandboxBulletRow 
+                      key={idx} 
+                      bullet={bullet} 
+                      projectId={project.id} 
+                      onApplied={(newBullet) => handleApplyBulletReplacement(bullet, newBullet)}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
         )}
@@ -1421,7 +1510,144 @@ ${(() => {
             </div>
           )
         )}
+
+        {activeTab === 'xray' && (
+          <XRayScanner project={project} />
+        )}
+
+        {activeTab === 'outreach' && (
+          <OutreachAccelerator projectId={project.id} />
+        )}
+
+        {activeTab === 'battleground' && (
+          <BattlegroundPanel projectId={project.id} />
+        )}
       </div>
+    </div>
+  );
+}
+
+function SandboxBulletRow({ bullet, projectId, onApplied }) {
+  const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestion, setSelectedSuggestion] = useState('');
+  const [customText, setCustomText] = useState(bullet.replace(/^[\s\-\*\•]+/, ''));
+  const [expanded, setExpanded] = useState(false);
+
+  const loadSuggestions = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/optimize-bullet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bulletText: bullet }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuggestions(data.suggestions);
+        if (data.suggestions.length > 0) {
+          setSelectedSuggestion(data.suggestions[0]);
+          setCustomText(data.suggestions[0]);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load bullet suggestions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggle = () => {
+    const nextVal = !expanded;
+    setExpanded(nextVal);
+    if (nextVal && suggestions.length === 0) {
+      loadSuggestions();
+    }
+  };
+
+  return (
+    <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-md)', background: 'var(--color-bg-primary)', overflow: 'hidden', marginBottom: '8px' }}>
+      <div 
+        onClick={handleToggle}
+        style={{ padding: 'var(--space-3)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <div style={{ fontSize: '11.5px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '85%' }}>
+          {bullet}
+        </div>
+        <button className="btn btn-ghost btn-sm" style={{ height: '22px', padding: '0 8px', fontSize: '10px', flexShrink: 0 }}>
+          {expanded ? 'Collapse' : 'Optimize'}
+        </button>
+      </div>
+
+      {expanded && (
+        <div style={{ padding: 'var(--space-3)', borderTop: '1px solid var(--color-border)', background: 'rgba(99, 102, 241, 0.01)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {loading ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+              <Loader2 size={12} className="animate-spin" /> Tailoring Google XYZ alternatives...
+            </div>
+          ) : (
+            <>
+              {suggestions.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Google XYZ Alternatives:
+                  </span>
+                  {suggestions.map((sug, i) => (
+                    <label 
+                      key={i} 
+                      style={{ 
+                        display: 'flex', 
+                        gap: '8px', 
+                        alignItems: 'flex-start', 
+                        padding: '6px 10px', 
+                        borderRadius: '4px', 
+                        border: '1px solid var(--color-border)', 
+                        background: selectedSuggestion === sug ? 'rgba(99, 102, 241, 0.04)' : 'var(--color-bg-primary)',
+                        cursor: 'pointer',
+                        fontSize: '11.5px',
+                        lineHeight: '1.4'
+                      }}
+                    >
+                      <input 
+                        type="radio" 
+                        name={`sug-${bullet}`} 
+                        checked={selectedSuggestion === sug}
+                        onChange={() => {
+                          setSelectedSuggestion(sug);
+                          setCustomText(sug);
+                        }}
+                        style={{ marginTop: '2px' }}
+                      />
+                      <span style={{ color: 'var(--color-text-primary)' }}>{sug}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Tweak or Finalize Bullet:
+                </span>
+                <textarea 
+                  value={customText}
+                  onChange={(e) => setCustomText(e.target.value)}
+                  style={{ width: '100%', minHeight: '60px', padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-border)', fontSize: '11.5px', color: 'var(--color-text-primary)', background: 'var(--color-bg-primary)', fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button 
+                  className="btn btn-primary btn-sm"
+                  onClick={() => onApplied(customText)}
+                  style={{ height: '26px', fontSize: '10.5px', padding: '0 12px' }}
+                >
+                  Apply &amp; Recalculate
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

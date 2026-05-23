@@ -166,7 +166,7 @@ STRICT ANTI-HALLUCINATION ENFORCEMENT:
  * Combines keyword match rate (50%), structural verification (25%), and metric density (25%).
  * Averaged with the LLM's semantic score to prevent overprediction.
  */
-function calculateProgrammaticAtsScore(improvedResume, keywordMatch, llmScore) {
+export function calculateProgrammaticAtsScore(improvedResume, keywordMatch, llmScore) {
   // 1. Keyword Match Score (50% weight)
   const matched = Array.isArray(keywordMatch?.matched) ? keywordMatch.matched : [];
   const missing = Array.isArray(keywordMatch?.missing) ? keywordMatch.missing : [];

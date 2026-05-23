@@ -332,7 +332,7 @@ export default function AssistantPage() {
   }, [selectedProjectId, projects]);
 
   // Main sending handler
-  const handleSend = async (messageToSend) => {
+  const handleSend = async (messageToSend, displayMessage) => {
     const textMessage = typeof messageToSend === 'string' ? messageToSend : inputValue;
     if (!textMessage || textMessage.trim() === '' || isSending || isLimitReached) return;
 
@@ -341,7 +341,8 @@ export default function AssistantPage() {
     setVoiceState('thinking');
     stopSpeaking();
 
-    const userMsg = { role: 'user', content: textMessage, createdAt: new Date().toISOString() };
+    const uiMessage = displayMessage || textMessage;
+    const userMsg = { role: 'user', content: uiMessage, createdAt: new Date().toISOString() };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
 
@@ -353,6 +354,7 @@ export default function AssistantPage() {
           message: textMessage,
           projectId: selectedProjectId || undefined,
           history: updatedMessages.slice(0, -1),
+          displayMessage: displayMessage || undefined,
         }),
       });
 
@@ -393,6 +395,37 @@ export default function AssistantPage() {
       setRemainingMessages(data.remainingMessages);
       if (data.remainingMessages === 0) {
         setIsLimitReached(true);
+      }
+
+      // Execute direct resume edit actions in real time
+      if (data.actions && data.actions.length > 0 && selectedProjectId) {
+        try {
+          const editRes = await fetch(`/api/projects/${selectedProjectId}/edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ actions: data.actions }),
+          });
+          const editData = await editRes.json();
+          if (editRes.ok && editData.success) {
+            window.dispatchEvent(new CustomEvent('resume-updated', { detail: editData.project }));
+            
+            const confirmationMsg = {
+              role: 'assistant',
+              content: `✨ ParserProof Co-Pilot Action: Successfully updated your resume in real time! Re-optimized details and updated skills. Live ATS Score updated to ${editData.project.atsScore}%.`,
+              createdAt: new Date().toISOString(),
+              isAgentActionNotification: true,
+            };
+            
+            setMessages((prev) => [...prev, confirmationMsg]);
+            
+            if (isVoiceMode) {
+              speakResponse(`${data.response} I have also successfully updated your resume in real time. Live A T S Score is now ${editData.project.atsScore} percent.`);
+              return;
+            }
+          }
+        } catch (editError) {
+          console.error('[Co-Pilot Page] Background edit execution failed:', editError);
+        }
       }
 
       // Read output aloud if voice mode active
@@ -470,7 +503,7 @@ export default function AssistantPage() {
       }
     }
 
-    handleSend(prependedPrompt);
+    handleSend(prependedPrompt, chipText);
   };
 
   // Beautiful math renderer and markdown formatter helper
@@ -782,22 +815,6 @@ export default function AssistantPage() {
                         >
                           {/* Parse markdown and math html blocks cleanly */}
                           <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
-
-                          {/* Grounding context reference block (RAG) */}
-                          {!isUser && msg.ragSources && msg.ragSources.length > 0 && (
-                            <div style={{ marginTop: 'var(--space-3)', paddingTop: 'var(--space-2)', borderTop: '1px dashed var(--color-border)', fontSize: '10px', color: 'var(--color-text-tertiary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <div style={{ fontWeight: '700', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                <CheckCircle size={10} /> Grounded references verified:
-                              </div>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                                {msg.ragSources.map((source, sIdx) => (
-                                  <span key={sIdx} style={{ background: 'var(--color-bg-tertiary)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
-                                    {source.title} ({source.category})
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
                         </div>
                       </div>
                     );
