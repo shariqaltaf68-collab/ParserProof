@@ -6462,3 +6462,49 @@ h6 { font-size: var(--font-size-lg); }
   border-left-color: #818cf8;
 }
 
+/* ==========================================================
+   MOBILE FULL-SCREEN DRAWERS FOR CO-PILOT ASSISTANT
+   ========================================================== */
+@media (max-width: 640px) {
+  .floating-assistant-popover {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    z-index: 99999 !important;
+    animation: popover-slide-up-mobile 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  
+  .popover-card {
+    border-radius: 0 !important;
+    border: none !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .popover-chat-body {
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Make Floating FAB active above but pushed neatly */
+  .floating-assistant-fab {
+    z-index: 100000 !important;
+  }
+}
+
+@keyframes popover-slide-up-mobile {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+

@@ -52,6 +52,7 @@ export default function FloatingAssistant() {
   // Dynamic RAG usage limits
   const [isGuest, setIsGuest] = useState(true);
   const [remainingMessages, setRemainingMessages] = useState(25);
+  const [limit, setLimit] = useState(30);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   // Unified Voice Mode States
@@ -89,6 +90,9 @@ export default function FloatingAssistant() {
         setMessages(data.messages || []);
         setIsGuest(data.isGuest);
         setRemainingMessages(data.remainingMessages);
+        if (data.limit !== undefined) {
+          setLimit(data.limit);
+        }
         if (data.remainingMessages === 0) {
           setIsLimitReached(true);
         }
@@ -400,7 +404,7 @@ export default function FloatingAssistant() {
           ...prev,
           {
             role: 'assistant',
-            content: '⚠️ Daily assistant limit reached. Interactions are capped at 25 per 24 hours. Sign up or log in to unlock full grounded RAG analysis.',
+            content: `⚠️ Daily assistant limit reached. Interactions are capped at ${limit} per 24 hours. Sign up or log in to unlock full grounded RAG analysis.`,
             createdAt: new Date().toISOString(),
           },
         ]);
@@ -634,7 +638,7 @@ export default function FloatingAssistant() {
                       {isSending ? 'Generating context...' : 'Grounded RAG Guard'}
                     </span>
                     <span className={`header-limit-pill ${remainingMessages === 0 ? 'limit-reached' : ''}`}>
-                      {remainingMessages} / 25 remaining today
+                      {remainingMessages} / ${limit} remaining today
                     </span>
                   </div>
                 </div>

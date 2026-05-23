@@ -1064,7 +1064,21 @@ ${(() => {
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
+      // 1. Temporarily append to body to resolve template styles and pre-loaded fonts under active DOM calculations
+      document.body.appendChild(element);
+      
+      // Position off-screen so the user doesn't see it layout, but fully registered in DOM tree
+      element.style.position = 'absolute';
+      element.style.left = '-9999px';
+      element.style.top = '0';
+      element.style.width = '800px';
+      element.style.background = '#ffffff';
+
+      // 2. Perform PDF generation
       await html2pdf().from(element).set(opt).save();
+
+      // 3. Remove element from DOM cleanly
+      document.body.removeChild(element);
     } catch (e) {
       console.error(e);
     } finally {

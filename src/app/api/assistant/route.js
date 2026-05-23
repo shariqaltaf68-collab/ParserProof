@@ -11,7 +11,10 @@ const openai = new OpenAI({
   baseURL: 'https://api.groq.com/openai/v1',
 });
 
-const DAILY_LIMIT = 25;
+const getPlanLimit = (plan) => {
+  if (plan === 'pro') return 50;
+  return 30; // free, starter, and guests get 30
+};
 
 // GET: Retrieve authenticated user's chat history & check remaining limit
 export async function GET(request) {
@@ -25,7 +28,7 @@ export async function GET(request) {
       const guestUsageRecord = await prisma.guestUsage.findUnique({
         where: { ip: cleanIp },
       });
-
+ 
       let currentCount = 0;
       if (guestUsageRecord) {
         const isExpired = Date.now() - new Date(guestUsageRecord.updatedAt).getTime() > 24 * 60 * 60 * 1000;
@@ -33,21 +36,22 @@ export async function GET(request) {
           currentCount = guestUsageRecord.count;
         }
       }
-
+ 
+      const guestLimit = getPlanLimit('free');
       return NextResponse.json({
         messages: [],
         isGuest: true,
-        limit: DAILY_LIMIT,
-        remainingMessages: Math.max(0, DAILY_LIMIT - currentCount),
+        limit: guestLimit,
+        remainingMessages: Math.max(0, guestLimit - currentCount),
       });
     }
-
+ 
     const userId = session.user.id;
     const messages = await prisma.assistantMessage.findMany({
       where: { userId },
       orderBy: { createdAt: 'asc' },
     });
-
+ 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const userCount = await prisma.assistantMessage.count({
       where: {
@@ -58,7 +62,8 @@ export async function GET(request) {
         },
       },
     });
-
+ 
+    const userLimit = getPlanLimit(session.user.plan);
     return NextResponse.json({
       messages: messages.map(m => ({
         role: m.role,
@@ -66,8 +71,8 @@ export async function GET(request) {
         createdAt: m.createdAt,
       })),
       isGuest: false,
-      limit: DAILY_LIMIT,
-      remainingMessages: Math.max(0, DAILY_LIMIT - userCount),
+      limit: userLimit,
+      remainingMessages: Math.max(0, userLimit - userCount),
     });
   } catch (error) {
     console.error('[Assistant API] GET history error:', error);
@@ -135,12 +140,13 @@ export async function POST(request) {
         }
       }
 
-      if (currentGuestCount >= DAILY_LIMIT) {
-        console.warn(`[Assistant API] Guest IP ${guestIp} hit the free messages limit: ${currentGuestCount}/${DAILY_LIMIT}`);
+      const guestLimit = getPlanLimit('free');
+      if (currentGuestCount >= guestLimit) {
+        console.warn(`[Assistant API] Guest IP ${guestIp} hit the free messages limit: ${currentGuestCount}/${guestLimit}`);
         return NextResponse.json({
           error: 'limit_reached',
-          message: 'Free assistant limit reached (25 messages per 24 hours). Log in to continue or wait.',
-          limit: DAILY_LIMIT,
+          message: 'Free assistant limit reached (30 messages per 24 hours). Log in to continue or wait.',
+          limit: guestLimit,
           count: currentGuestCount,
           remainingMessages: 0,
         }, { status: 403 });
@@ -161,12 +167,13 @@ export async function POST(request) {
         },
       });
 
-      if (userCount >= DAILY_LIMIT) {
-        console.warn(`[Assistant API] User ${userId} hit the daily limit: ${userCount}/${DAILY_LIMIT}`);
+      const userLimit = getPlanLimit(session.user.plan);
+      if (userCount >= userLimit) {
+        console.warn(`[Assistant API] User ${userId} (${session.user.plan}) hit the daily limit: ${userCount}/${userLimit}`);
         return NextResponse.json({
           error: 'limit_reached',
-          message: 'Daily AI Assistant limit reached (25 messages per 24 hours).',
-          limit: DAILY_LIMIT,
+          message: `Daily AI Assistant limit reached (${userLimit} messages per 24 hours).`,
+          limit: userLimit,
           count: userCount,
           remainingMessages: 0,
         }, { status: 403 });
@@ -363,7 +370,8 @@ Example JSON output when asked a standard question:
     }
 
     // 7. DB Persistence & Usage Increment
-    let remainingVal = DAILY_LIMIT;
+    const resolvedLimit = isGuest ? getPlanLimit('free') : getPlanLimit(session.user.plan);
+    let remainingVal = resolvedLimit;
 
     if (isGuest) {
       const updatedUsage = await prisma.guestUsage.upsert({
@@ -371,8 +379,8 @@ Example JSON output when asked a standard question:
         update: { count: guestNextCount, updatedAt: new Date() },
         create: { ip: guestIp, count: 1 }
       });
-      remainingVal = Math.max(0, DAILY_LIMIT - guestNextCount);
-      console.log(`[Assistant API] Guest ${guestIp} interaction incremented: ${guestNextCount}/${DAILY_LIMIT}`);
+      remainingVal = Math.max(0, resolvedLimit - guestNextCount);
+      console.log(`[Assistant API] Guest ${guestIp} interaction incremented: ${guestNextCount}/${resolvedLimit}`);
     } else {
       await prisma.$transaction([
         prisma.assistantMessage.create({
@@ -392,7 +400,7 @@ Example JSON output when asked a standard question:
           }
         })
       ]);
-      remainingVal = Math.max(0, DAILY_LIMIT - (userCount + 1));
+      remainingVal = Math.max(0, resolvedLimit - (userCount + 1));
       console.log(`[Assistant API] Messages saved in DB for user: ${userId}`);
     }
 
@@ -403,6 +411,7 @@ Example JSON output when asked a standard question:
       ragSources: ragResult.chunks.map(c => ({ id: c.id, title: c.title, category: c.category })),
       remainingMessages: remainingVal,
       isGuest,
+      limit: resolvedLimit,
     });
 
   } catch (error) {

@@ -44,6 +44,7 @@ export default function AssistantPage() {
   // Daily usage limits
   const [isGuest, setIsGuest] = useState(true);
   const [remainingMessages, setRemainingMessages] = useState(25);
+  const [limit, setLimit] = useState(30);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   // Unified Voice Mode States
@@ -78,6 +79,9 @@ export default function AssistantPage() {
         setMessages(data.messages || []);
         setIsGuest(data.isGuest);
         setRemainingMessages(data.remainingMessages);
+        if (data.limit) {
+          setLimit(data.limit);
+        }
         if (data.remainingMessages === 0) {
           setIsLimitReached(true);
         }
@@ -363,11 +367,14 @@ export default function AssistantPage() {
       if (res.status === 403 && data.error === 'limit_reached') {
         setIsLimitReached(true);
         setRemainingMessages(0);
+        if (data.limit) {
+          setLimit(data.limit);
+        }
         setMessages((prev) => [
           ...prev,
           {
             role: 'assistant',
-            content: '⚠️ Daily assistant limit reached. Interactions are capped at 25 per 24 hours. Sign up or upgrade to continue.',
+            content: `⚠️ Daily assistant limit reached. Interactions are capped at ${data.limit || 30} per 24 hours. Sign up or upgrade to continue.`,
             createdAt: new Date().toISOString(),
           },
         ]);
@@ -393,6 +400,9 @@ export default function AssistantPage() {
       setMessages((prev) => [...prev, assistantMsg]);
       setIsGuest(data.isGuest);
       setRemainingMessages(data.remainingMessages);
+      if (data.limit) {
+        setLimit(data.limit);
+      }
       if (data.remainingMessages === 0) {
         setIsLimitReached(true);
       }
@@ -666,7 +676,7 @@ export default function AssistantPage() {
                   <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: '700', color: 'var(--color-text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     ParserProof AI Co-Pilot
                     <span className={`header-limit-pill ${remainingMessages === 0 ? 'limit-reached' : ''}`} style={{ fontSize: '10px', padding: '2px 8px' }}>
-                      {remainingMessages} / 25 remaining today
+                      {remainingMessages} / {limit} remaining today
                     </span>
                   </h3>
                   <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}>
