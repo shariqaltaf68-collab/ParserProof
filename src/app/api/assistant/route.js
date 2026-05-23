@@ -12,7 +12,10 @@ const openai = new OpenAI({
 });
 
 const getPlanLimit = (plan) => {
-  return 'Unlimited';
+  const normalizedPlan = (plan || 'free').toLowerCase();
+  if (normalizedPlan === 'pro') return 50;
+  if (normalizedPlan === 'starter') return 30;
+  return 30; // free / guest / default
 };
 
 // GET: Retrieve authenticated user's chat history & check remaining limit
@@ -36,11 +39,12 @@ export async function GET(request) {
         }
       }
  
+      const guestLimit = getPlanLimit('free');
       return NextResponse.json({
         messages: [],
         isGuest: true,
-        limit: 'Unlimited',
-        remainingMessages: 'Unlimited',
+        limit: guestLimit,
+        remainingMessages: Math.max(0, guestLimit - currentCount),
       });
     }
  
@@ -60,6 +64,8 @@ export async function GET(request) {
         },
       },
     });
+
+    const userLimit = getPlanLimit(session.user.plan);
  
     return NextResponse.json({
       messages: messages.map(m => ({
@@ -68,8 +74,8 @@ export async function GET(request) {
         createdAt: m.createdAt,
       })),
       isGuest: false,
-      limit: 'Unlimited',
-      remainingMessages: 'Unlimited',
+      limit: userLimit,
+      remainingMessages: Math.max(0, userLimit - userCount),
     });
   } catch (error) {
     console.error('[Assistant API] GET history error:', error);
@@ -138,7 +144,9 @@ export async function POST(request) {
       }
 
       const guestLimit = getPlanLimit('free');
-      // Guest limit check bypassed (Unlimited rate model)
+      if (currentGuestCount >= guestLimit) {
+        return NextResponse.json({ error: 'limit_reached', limit: guestLimit }, { status: 403 });
+      }
     }
 
     // 2. Authenticated User Limit Check
@@ -156,7 +164,9 @@ export async function POST(request) {
       });
 
       const userLimit = getPlanLimit(session.user.plan);
-      // User limit check bypassed (Unlimited rate model)
+      if (userCount >= userLimit) {
+        return NextResponse.json({ error: 'limit_reached', limit: userLimit }, { status: 403 });
+      }
     }
 
     // 3. Project Context Load (Resume-Aware Mode)
@@ -307,11 +317,13 @@ Example JSON output when asked a standard question:
     const modelsToTry = [
       'llama-3.3-70b-versatile',
       'llama-3.1-8b-instant',
-      'qwen/qwen3-32b',
-      'meta-llama/llama-4-scout-17b-16e-instruct'
+      'meta-llama/llama-4-scout-17b-16e-instruct',
+      'groq/compound',
+      'groq/compound-mini'
     ];
 
     let lastError = null;
+    let hadRateLimit = false;
     for (const modelName of modelsToTry) {
       try {
         console.log(`[Assistant API] Attempting completion using model: ${modelName}`);
@@ -327,16 +339,22 @@ Example JSON output when asked a standard question:
       } catch (apiError) {
         lastError = apiError;
         console.warn(`[Assistant API] Model ${modelName} failed (status: ${apiError?.status}): ${apiError?.message}`);
-        // If it's a structural or authorization/authentication error (401/403), throw immediately.
+        
+        if (apiError.status === 429) {
+          hadRateLimit = true;
+        }
+        
         if (apiError.status === 401 || apiError.status === 403) {
           throw apiError;
         }
-        // Try the next model for all other errors (429 rate limit, 400 decommissioned, 500 server error, etc.)
         continue;
       }
     }
 
     if (lastError) {
+      if (hadRateLimit) {
+        lastError.status = 429;
+      }
       throw lastError;
     }
 
@@ -394,14 +412,18 @@ Example JSON output when asked a standard question:
       console.log(`[Assistant API] Messages saved in DB for user: ${userId} (Unlimited)`);
     }
 
+    const remaining = isGuest 
+      ? Math.max(0, getPlanLimit('free') - guestNextCount)
+      : Math.max(0, getPlanLimit(session.user.plan || 'free') - (userCount + 1));
+
     return NextResponse.json({
       response: responseText,
       actions: actions,
       ragConfidence: ragResult.averageConfidence,
       ragSources: ragResult.chunks.map(c => ({ id: c.id, title: c.title, category: c.category })),
-      remainingMessages: 'Unlimited',
+      remainingMessages: remaining,
       isGuest,
-      limit: 'Unlimited',
+      limit: isGuest ? getPlanLimit('free') : getPlanLimit(session.user.plan || 'free'),
     });
 
   } catch (error) {
