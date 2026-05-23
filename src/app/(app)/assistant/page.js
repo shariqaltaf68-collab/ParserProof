@@ -43,8 +43,8 @@ export default function AssistantPage() {
 
   // Daily usage limits
   const [isGuest, setIsGuest] = useState(true);
-  const [remainingMessages, setRemainingMessages] = useState(25);
-  const [limit, setLimit] = useState(30);
+  const [remainingMessages, setRemainingMessages] = useState('Unlimited');
+  const [limit, setLimit] = useState('Unlimited');
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   // Unified Voice Mode States
@@ -676,7 +676,7 @@ export default function AssistantPage() {
                   <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: '700', color: 'var(--color-text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     ParserProof AI Co-Pilot
                     <span className={`header-limit-pill ${remainingMessages === 0 ? 'limit-reached' : ''}`} style={{ fontSize: '10px', padding: '2px 8px' }}>
-                      {remainingMessages} / {limit} remaining today
+                      {limit === 'Unlimited' ? 'Unlimited remaining today' : `${remainingMessages} / ${limit} remaining today`}
                     </span>
                   </h3>
                   <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}>

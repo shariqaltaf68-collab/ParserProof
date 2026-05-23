@@ -12,8 +12,7 @@ const openai = new OpenAI({
 });
 
 const getPlanLimit = (plan) => {
-  if (plan === 'pro') return 50;
-  return 30; // free, starter, and guests get 30
+  return 'Unlimited';
 };
 
 // GET: Retrieve authenticated user's chat history & check remaining limit
@@ -37,12 +36,11 @@ export async function GET(request) {
         }
       }
  
-      const guestLimit = getPlanLimit('free');
       return NextResponse.json({
         messages: [],
         isGuest: true,
-        limit: guestLimit,
-        remainingMessages: Math.max(0, guestLimit - currentCount),
+        limit: 'Unlimited',
+        remainingMessages: 'Unlimited',
       });
     }
  
@@ -63,7 +61,6 @@ export async function GET(request) {
       },
     });
  
-    const userLimit = getPlanLimit(session.user.plan);
     return NextResponse.json({
       messages: messages.map(m => ({
         role: m.role,
@@ -71,8 +68,8 @@ export async function GET(request) {
         createdAt: m.createdAt,
       })),
       isGuest: false,
-      limit: userLimit,
-      remainingMessages: Math.max(0, userLimit - userCount),
+      limit: 'Unlimited',
+      remainingMessages: 'Unlimited',
     });
   } catch (error) {
     console.error('[Assistant API] GET history error:', error);
@@ -141,16 +138,7 @@ export async function POST(request) {
       }
 
       const guestLimit = getPlanLimit('free');
-      if (currentGuestCount >= guestLimit) {
-        console.warn(`[Assistant API] Guest IP ${guestIp} hit the free messages limit: ${currentGuestCount}/${guestLimit}`);
-        return NextResponse.json({
-          error: 'limit_reached',
-          message: 'Free assistant limit reached (30 messages per 24 hours). Log in to continue or wait.',
-          limit: guestLimit,
-          count: currentGuestCount,
-          remainingMessages: 0,
-        }, { status: 403 });
-      }
+      // Guest limit check bypassed (Unlimited rate model)
     }
 
     // 2. Authenticated User Limit Check
@@ -168,16 +156,7 @@ export async function POST(request) {
       });
 
       const userLimit = getPlanLimit(session.user.plan);
-      if (userCount >= userLimit) {
-        console.warn(`[Assistant API] User ${userId} (${session.user.plan}) hit the daily limit: ${userCount}/${userLimit}`);
-        return NextResponse.json({
-          error: 'limit_reached',
-          message: `Daily AI Assistant limit reached (${userLimit} messages per 24 hours).`,
-          limit: userLimit,
-          count: userCount,
-          remainingMessages: 0,
-        }, { status: 403 });
-      }
+      // User limit check bypassed (Unlimited rate model)
     }
 
     // 3. Project Context Load (Resume-Aware Mode)
@@ -252,6 +231,8 @@ STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 5. NO HEADINGS, LISTS, OR TABLES in your response text: Do NOT use raw markdown headings (e.g., #, ##, ###), markdown tables, lists, or bullets. If listing multiple points, combine them into a single continuous sentence separated by commas.
 6. STICK TO DIRECT WORKSPACE DATA: If Candidate Original Resume Text is available, you MUST read it directly.
 7. CRITICAL BREVITY: Limit your verbal response explanation/message to a single, smooth, elegant paragraph under 60 words.
+8. NO RESUME AWARENESS WITHOUT CANDIDATE WORKSPACE CONTEXT: If the candidate workspace context (CANDIDATE WORKSPACE CONTEXT) is empty, missing, or not provided (which happens when they are a guest or have not selected a project), you MUST NOT assume the user has a resume loaded, and you MUST NOT pretend to perform any actions on their resume (e.g., you cannot rewrite, edit, or remove sections, and you cannot find keyword gaps or explain an ATS score). In such cases, you must politely explain to the user that they need to log in and select an active project to analyze or optimize their resume.
+
 
 CRITICAL PERFORMANCE & TOKEN-SAVING DIRECTIVE:
 - Always prefer using targeted, highly precise actions like APPEND_SKILLS, REPLACE_TEXT, and APPEND_TEXT for normal edits.
@@ -370,38 +351,41 @@ Example JSON output when asked a standard question:
     }
 
     // 7. DB Persistence & Usage Increment
-    const resolvedLimit = isGuest ? getPlanLimit('free') : getPlanLimit(session.user.plan);
-    let remainingVal = resolvedLimit;
-
     if (isGuest) {
-      const updatedUsage = await prisma.guestUsage.upsert({
-        where: { ip: guestIp },
-        update: { count: guestNextCount, updatedAt: new Date() },
-        create: { ip: guestIp, count: 1 }
-      });
-      remainingVal = Math.max(0, resolvedLimit - guestNextCount);
-      console.log(`[Assistant API] Guest ${guestIp} interaction incremented: ${guestNextCount}/${resolvedLimit}`);
+      try {
+        await prisma.guestUsage.upsert({
+          where: { ip: guestIp },
+          update: { count: guestNextCount, updatedAt: new Date() },
+          create: { ip: guestIp, count: 1 }
+        });
+      } catch (dbErr) {
+        console.error('[Assistant API] Guest usage upsert failed:', dbErr);
+      }
+      console.log(`[Assistant API] Guest ${guestIp} interaction tracked (Unlimited)`);
     } else {
-      await prisma.$transaction([
-        prisma.assistantMessage.create({
-          data: {
-            userId,
-            role: 'user',
-            content: cleanDisplayMessage || cleanMessage,
-            projectId: projectId || null,
-          }
-        }),
-        prisma.assistantMessage.create({
-          data: {
-            userId,
-            role: 'assistant',
-            content: responseText,
-            projectId: projectId || null,
-          }
-        })
-      ]);
-      remainingVal = Math.max(0, resolvedLimit - (userCount + 1));
-      console.log(`[Assistant API] Messages saved in DB for user: ${userId}`);
+      try {
+        await prisma.$transaction([
+          prisma.assistantMessage.create({
+            data: {
+              userId,
+              role: 'user',
+              content: cleanDisplayMessage || cleanMessage,
+              projectId: projectId || null,
+            }
+          }),
+          prisma.assistantMessage.create({
+            data: {
+              userId,
+              role: 'assistant',
+              content: responseText,
+              projectId: projectId || null,
+            }
+          })
+        ]);
+      } catch (dbErr) {
+        console.error('[Assistant API] Authenticated message transaction failed:', dbErr);
+      }
+      console.log(`[Assistant API] Messages saved in DB for user: ${userId} (Unlimited)`);
     }
 
     return NextResponse.json({
@@ -409,9 +393,9 @@ Example JSON output when asked a standard question:
       actions: actions,
       ragConfidence: ragResult.averageConfidence,
       ragSources: ragResult.chunks.map(c => ({ id: c.id, title: c.title, category: c.category })),
-      remainingMessages: remainingVal,
+      remainingMessages: 'Unlimited',
       isGuest,
-      limit: resolvedLimit,
+      limit: 'Unlimited',
     });
 
   } catch (error) {

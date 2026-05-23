@@ -40,3 +40,5 @@ prisma/migrations/
 .vscode/
 *.swp
 *.swo
+
+.vercel

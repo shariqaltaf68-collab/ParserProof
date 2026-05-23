@@ -51,8 +51,8 @@ export default function FloatingAssistant() {
 
   // Dynamic RAG usage limits
   const [isGuest, setIsGuest] = useState(true);
-  const [remainingMessages, setRemainingMessages] = useState(25);
-  const [limit, setLimit] = useState(30);
+  const [remainingMessages, setRemainingMessages] = useState('Unlimited');
+  const [limit, setLimit] = useState('Unlimited');
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   // Unified Voice Mode States
@@ -638,7 +638,7 @@ export default function FloatingAssistant() {
                       {isSending ? 'Generating context...' : 'Grounded RAG Guard'}
                     </span>
                     <span className={`header-limit-pill ${remainingMessages === 0 ? 'limit-reached' : ''}`}>
-                      {remainingMessages} / ${limit} remaining today
+                      {limit === 'Unlimited' ? 'Unlimited remaining today' : `${remainingMessages} / ${limit} remaining today`}
                     </span>
                   </div>
                 </div>
