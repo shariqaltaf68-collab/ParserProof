@@ -20,6 +20,8 @@ import {
   LogIn,
   UserPlus,
   CheckCircle,
+  Minimize2,
+  Maximize2,
 } from 'lucide-react';
 
 const QUICK_CHIPS = [
@@ -36,6 +38,7 @@ export default function FloatingAssistant() {
   // Widget visibility states
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMinimized, setIsMinimized] = useState(false); // Split View / Minimized Mode for mobile
 
   // Chat conversation states
   const [messages, setMessages] = useState([]);
@@ -167,6 +170,30 @@ export default function FloatingAssistant() {
       window.removeEventListener('open-assistant', handleOpenAssistant);
     };
   }, []);
+
+  // Clear conversation state immediately on session unauthentication (logout protection)
+  useEffect(() => {
+    if (status === 'unauthenticated' || !session) {
+      setMessages([]);
+      setIsLimitReached(false);
+      setSelectedProjectId('');
+      setSelectedProject(null);
+    }
+  }, [session, status]);
+
+  // Handle browser Back-Forward Cache (BFcache) loads to prevent authentication state leaks
+  useEffect(() => {
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        fetchChatHistory();
+        fetchProjects();
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [fetchChatHistory, fetchProjects]);
 
   // Bootup hooks
   useEffect(() => {
@@ -643,7 +670,7 @@ export default function FloatingAssistant() {
 
       {/* CHAT POPOVER WINDOW */}
       {isOpen && (
-        <div className="floating-assistant-popover">
+        <div className={`floating-assistant-popover ${isMinimized ? 'minimized' : ''}`}>
           <div className="popover-card">
             <div className="drawer-handle" />
             
@@ -688,6 +715,26 @@ export default function FloatingAssistant() {
                     )}
                   </button>
                 )}
+                
+                <button
+                  onClick={() => setIsMinimized(prev => !prev)}
+                  className="popover-minimize-btn"
+                  title={isMinimized ? 'Expand Chat' : 'Split View / Minimize'}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '4px',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {isMinimized ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
+                </button>
                 
                 <button onClick={togglePopover} className="popover-close-btn">
                   <X size={16} />
