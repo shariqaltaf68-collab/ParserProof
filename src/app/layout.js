@@ -41,6 +41,7 @@ export const metadata = {
     'ATS compatibility checker',
     'job application keyword gap tool',
     'off-campus placement prep',
+    'all-india recruiter standard',
   ],
   authors: [{ name: 'ParserProof' }],
   creator: 'ParserProof',
@@ -76,14 +77,17 @@ export const metadata = {
   verification: {
     google: 'VDWytLJpLm4cDcGHHuiT9tQlJrfLahoSiT26Qu6zj2c',
   },
+  other: {
+    google: 'notranslate',
+  },
 };
 
 import Providers from './providers';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${lora.variable} ${outfit.variable} ${raleway.variable}`}>
-      <body className={inter.className}>
+    <html lang="en" className={`${inter.variable} ${lora.variable} ${outfit.variable} ${raleway.variable} notranslate`} translate="no">
+      <body className={`${inter.className} notranslate`} translate="no">
         <Providers>{children}</Providers>
       </body>
     </html>
