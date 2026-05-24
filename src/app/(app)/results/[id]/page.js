@@ -562,18 +562,18 @@ ${(() => {
             letter-spacing: 0.01em;
           }
           .cv-section-container {
-            margin-top: 18px;
-            margin-bottom: 8px;
+            margin-top: 22px !important;
+            margin-bottom: 12px !important;
             page-break-inside: avoid;
             page-break-after: avoid;
           }
           .cv-section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1e3a8a;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin: 0 0 3px 0;
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+            color: #1e3a8a !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.08em !important;
+            margin: 0 0 4px 0 !important;
           }
           .cv-section-line {
             height: 1px;
@@ -694,6 +694,7 @@ ${(() => {
             color: #2563eb !important; /* Steel Tech Indigo */
             text-transform: uppercase !important;
             letter-spacing: 0.06em !important;
+            margin: 0 0 4px 0 !important;
           }
           .cv-template-modern .cv-section-line {
             height: 1.5px !important;
@@ -762,7 +763,7 @@ ${(() => {
             color: #0d2c54 !important;
             text-transform: uppercase !important;
             letter-spacing: 0.12em !important;
-            margin-bottom: 4px !important;
+            margin: 0 0 4px 0 !important;
           }
           .cv-template-classic .cv-section-line {
             height: 1px !important;
@@ -845,6 +846,7 @@ ${(() => {
             color: #000000 !important;
             text-transform: uppercase !important;
             letter-spacing: 0.08em !important;
+            margin: 0 0 4px 0 !important;
           }
           .cv-template-minimalist .cv-section-line {
             height: 1px !important;
@@ -926,6 +928,7 @@ ${(() => {
             color: #0f766e !important;
             text-transform: uppercase !important;
             letter-spacing: 0.08em !important;
+            margin: 0 0 4px 0 !important;
           }
           .cv-template-creative .cv-section-line {
             height: 2px !important;
@@ -996,7 +999,7 @@ ${(() => {
             color: #881337 !important;
             text-transform: uppercase !important;
             letter-spacing: 0.1em !important;
-            margin-bottom: 4px !important;
+            margin: 0 0 4px 0 !important;
           }
           .cv-template-executive .cv-section-line {
             height: 1.5px !important;
