@@ -6548,12 +6548,7 @@ h6 { font-size: var(--font-size-lg); }
   .skiptranslate,
   iframe,
   .translation-button,
-  [class*="translate"],
-  [id*="translate"],
-  [class*="widget"],
-  [id*="widget"],
-  [class*="chat"],
-  [id*="chat"] {
+  .translate-icon {
     display: none !important;
   }
 
