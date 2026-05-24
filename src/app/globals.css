@@ -6524,7 +6524,7 @@ h6 { font-size: var(--font-size-lg); }
 }
 
 @media print {
-  /* Hide the rest of the Next.js shell and workspace UI elements */
+  /* Hide the rest of the Next.js shell, workspace UI elements, and any no-print marked content */
   .sidebar,
   .mobile-nav-overlay,
   .topbar,
@@ -6540,7 +6540,20 @@ h6 { font-size: var(--font-size-lg); }
   .locked-tab-card,
   .modal-overlay,
   .modal-content,
-  .toast-container {
+  .toast-container,
+  .no-print,
+  #goog-gt-tt,
+  .goog-te-banner-frame,
+  .goog-te-balloon-frame,
+  .skiptranslate,
+  iframe,
+  .translation-button,
+  [class*="translate"],
+  [id*="translate"],
+  [class*="widget"],
+  [id*="widget"],
+  [class*="chat"],
+  [id*="chat"] {
     display: none !important;
   }
 

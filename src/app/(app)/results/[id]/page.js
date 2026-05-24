@@ -944,7 +944,7 @@ ${(() => {
       </div>
 
       {/* Collapsible Tech Verification Logs (Anti-Hype & Decluttering upgrade) */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-6)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-4)', paddingBottom: 'var(--space-2)' }}>
+      <div className="no-print" style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-6)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-4)', paddingBottom: 'var(--space-2)' }}>
         <button 
           onClick={() => setShowTechAudit(!showTechAudit)}
           className="btn btn-ghost btn-sm"
@@ -956,7 +956,7 @@ ${(() => {
       </div>
 
       {showTechAudit && (
-        <div className="animate-slide-in" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%', marginTop: 'var(--space-4)', paddingBottom: 'var(--space-6)' }}>
+        <div className="animate-slide-in no-print" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%', marginTop: 'var(--space-4)', paddingBottom: 'var(--space-6)' }}>
           
           {/* Blunt Reality Assessment Card */}
           <div className={`ats-reality-check-card ${cardClass}`} style={{ marginBottom: 0 }}>
