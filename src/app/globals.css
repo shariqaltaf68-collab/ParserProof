@@ -6508,3 +6508,75 @@ h6 { font-size: var(--font-size-lg); }
   }
 }
 
+@media print {
+  /* Hide the rest of the Next.js shell and workspace UI elements */
+  .sidebar,
+  .mobile-nav-overlay,
+  .topbar,
+  .results-header,
+  .results-summary,
+  .results-tabs,
+  .result-panel-header,
+  .locked-tab-overlay,
+  .card,
+  #mobile-menu-toggle,
+  footer,
+  .floating-assistant-container,
+  .locked-tab-card,
+  .modal-overlay,
+  .modal-content,
+  .toast-container {
+    display: none !important;
+  }
+
+  /* Reset layout constraints for printing */
+  html, body, .app-layout, .main-content, .page-content, .results-page, .results-content, .result-panel, .cv-preview-body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    height: auto !important;
+  }
+
+  /* Show only the active tab's printable panel */
+  .result-panel, .result-panel-body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Force background colors and brand colors to print accurately */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Premium Recruiter CV Container Styling for Print */
+  .cv-content-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Set A4 page size with perfect resume margins */
+  @page {
+    size: A4;
+    margin: 15mm 20mm 15mm 20mm;
+  }
+}
+

@@ -1083,18 +1083,29 @@ ${(() => {
       container.style.overflow = 'hidden';
       container.style.zIndex = '-9999';
       
-      // Clean background style on the target element itself
-      element.style.background = '#ffffff';
-      element.style.width = '800px';
+      // 2. Trigger high-fidelity browser vector print
+      window.print();
       
-      container.appendChild(element);
-      document.body.appendChild(container);
-      
-      // 2. Perform PDF generation directly on the clean child element
-      await html2pdf().from(element).set(opt).save();
+      // 3. Fallback: also trigger automated html2pdf file download
+      setTimeout(async () => {
+        try {
+          const container = document.createElement('div');
+          container.style.position = 'absolute';
+          container.style.left = '0';
+          container.style.top = '0';
+          container.style.width = '800px';
+          container.style.height = '0';
+          container.style.overflow = 'hidden';
+          container.style.zIndex = '-9999';
+          element.style.background = '#ffffff';
+          element.style.width = '800px';
+          container.appendChild(element);
+          document.body.appendChild(container);
+          await html2pdf().from(element).set(opt).save();
+          document.body.removeChild(container);
+        } catch {}
+      }, 500);
 
-      // 3. Remove container wrapper cleanly from DOM
-      document.body.removeChild(container);
     } catch (e) {
       console.error(e);
     } finally {
