@@ -54,13 +54,14 @@ export async function GET(request) {
       orderBy: { createdAt: 'asc' },
     });
  
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
     const userCount = await prisma.assistantMessage.count({
       where: {
         userId,
         role: 'user',
         createdAt: {
-          gte: oneDayAgo,
+          gte: startOfToday,
         },
       },
     });
@@ -133,7 +134,11 @@ export async function POST(request) {
       });
 
       if (guestUsageRecord) {
-        const isExpired = Date.now() - new Date(guestUsageRecord.updatedAt).getTime() > 24 * 60 * 60 * 1000;
+        const recordDate = new Date(guestUsageRecord.updatedAt);
+        const todayDate = new Date();
+        const isExpired = recordDate.getUTCFullYear() !== todayDate.getUTCFullYear() ||
+                          recordDate.getUTCMonth() !== todayDate.getUTCMonth() ||
+                          recordDate.getUTCDate() !== todayDate.getUTCDate();
         if (isExpired) {
           currentGuestCount = 0;
           guestNextCount = 1;
@@ -152,13 +157,14 @@ export async function POST(request) {
     // 2. Authenticated User Limit Check
     let userCount = 0;
     if (!isGuest) {
-      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const startOfToday = new Date();
+      startOfToday.setUTCHours(0, 0, 0, 0);
       userCount = await prisma.assistantMessage.count({
         where: {
           userId,
           role: 'user',
           createdAt: {
-            gte: oneDayAgo,
+            gte: startOfToday,
           },
         },
       });

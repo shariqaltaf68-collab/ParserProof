@@ -923,7 +923,7 @@ export default function FloatingAssistant() {
                   <AlertTriangle size={24} style={{ color: 'var(--color-danger)', marginBottom: '8px' }} />
                   <h6>Limit Reached</h6>
                   <p>
-                    You have finished your **25 daily interactions**. {isGuest ? 'Sign up for a free account to unlock higher capacities' : 'Please come back tomorrow or upgrade for unlimited career assistance'}.
+                    You have finished your **{limit} daily interactions**. {isGuest ? 'Sign up for a free account to unlock higher capacities' : 'Please come back tomorrow or upgrade for unlimited career assistance'}.
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', marginTop: '4px' }}>
                     {isGuest && (

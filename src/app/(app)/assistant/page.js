@@ -989,7 +989,7 @@ export default function AssistantPage() {
                     Daily Interaction Limit Reached
                   </h3>
                   <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: 'var(--space-6)' }}>
-                    You have finished your <strong>25 daily interactions</strong>. {isGuest ? 'Sign up for a free account to unlock higher capacities, live resume tailoring, and interview simulations.' : 'Please come back tomorrow or upgrade your plan to unlock higher limits.'}
+                    You have finished your <strong>{limit} daily interactions</strong>. {isGuest ? 'Sign up for a free account to unlock higher capacities, live resume tailoring, and interview simulations.' : 'Please come back tomorrow or upgrade your plan to unlock higher limits.'}
                   </p>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>

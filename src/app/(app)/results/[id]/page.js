@@ -1069,10 +1069,11 @@ ${(() => {
       // 1. Temporarily append to body to resolve template styles and pre-loaded fonts under active DOM calculations
       document.body.appendChild(element);
       
-      // Position off-screen so the user doesn't see it layout, but fully registered in DOM tree
-      element.style.position = 'absolute';
-      element.style.left = '-9999px';
+      // Position hidden beneath layout within the viewport so html2canvas calculates offsets correctly
+      element.style.position = 'fixed';
+      element.style.left = '0';
       element.style.top = '0';
+      element.style.zIndex = '-9999';
       element.style.width = '800px';
       element.style.background = '#ffffff';
 
