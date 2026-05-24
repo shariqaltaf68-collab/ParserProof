@@ -2873,7 +2873,9 @@ h6 { font-size: var(--font-size-lg); }
   color: #1e3a8a !important; /* Elegant sapphire blue */
   text-transform: uppercase !important;
   letter-spacing: 0.08em !important;
-  margin: 0 0 4px 0 !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-bottom: 2px !important;
 }
 
 .cv-preview-body .cv-section-line {
@@ -3011,6 +3013,9 @@ h6 { font-size: var(--font-size-lg); }
   color: #2563eb !important; /* Tech Indigo */
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-bottom: 2px !important;
 }
 .cv-preview-body .cv-template-modern .cv-section-line {
   height: 1.5px !important;
@@ -3080,7 +3085,9 @@ h6 { font-size: var(--font-size-lg); }
   color: #0d2c54 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.12em !important;
-  margin-bottom: 4px !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-bottom: 2px !important;
 }
 .cv-preview-body .cv-template-classic .cv-section-line {
   height: 1px !important;
@@ -3167,6 +3174,9 @@ h6 { font-size: var(--font-size-lg); }
   color: #000000 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.08em !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-bottom: 2px !important;
 }
 .cv-preview-body .cv-template-minimalist .cv-section-line {
   height: 1px !important;
@@ -3251,6 +3261,9 @@ h6 { font-size: var(--font-size-lg); }
   color: #0f766e !important;
   text-transform: uppercase !important;
   letter-spacing: 0.08em !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-bottom: 2px !important;
 }
 .cv-preview-body .cv-template-creative .cv-section-line {
   height: 2px !important;
@@ -3321,7 +3334,9 @@ h6 { font-size: var(--font-size-lg); }
   color: #881337 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
-  margin-bottom: 4px !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-bottom: 2px !important;
 }
 .cv-preview-body .cv-template-executive .cv-section-line {
   height: 1.5px !important;
