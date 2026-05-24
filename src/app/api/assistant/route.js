@@ -51,7 +51,10 @@ export async function GET(request) {
     const userId = session.user.id;
     const messages = await prisma.assistantMessage.findMany({
       where: { userId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [
+        { createdAt: 'asc' },
+        { id: 'asc' },
+      ],
     });
  
     const startOfToday = new Date();
@@ -397,26 +400,28 @@ Example JSON output when asked a standard question:
       console.log(`[Assistant API] Guest ${guestIp} interaction tracked (Unlimited)`);
     } else {
       try {
-        await prisma.$transaction([
-          prisma.assistantMessage.create({
-            data: {
-              userId,
-              role: 'user',
-              content: cleanDisplayMessage || cleanMessage,
-              projectId: projectId || null,
-            }
-          }),
-          prisma.assistantMessage.create({
-            data: {
-              userId,
-              role: 'assistant',
-              content: responseText,
-              projectId: projectId || null,
-            }
-          })
-        ]);
+        await prisma.assistantMessage.create({
+          data: {
+            userId,
+            role: 'user',
+            content: cleanDisplayMessage || cleanMessage,
+            projectId: projectId || null,
+          }
+        });
+
+        // Small 10ms delay to guarantee distinct database timestamps
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
+        await prisma.assistantMessage.create({
+          data: {
+            userId,
+            role: 'assistant',
+            content: responseText,
+            projectId: projectId || null,
+          }
+        });
       } catch (dbErr) {
-        console.error('[Assistant API] Authenticated message transaction failed:', dbErr);
+        console.error('[Assistant API] Authenticated message persistence failed:', dbErr);
       }
       console.log(`[Assistant API] Messages saved in DB for user: ${userId} (Unlimited)`);
     }
