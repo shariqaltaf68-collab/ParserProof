@@ -731,7 +731,8 @@ ${(() => {
               </div>
               <div className="result-panel-body cv-preview-body">
                 <div 
-                  className={`cv-content-wrapper cv-template-${pdfTemplate}`}
+                  className={`cv-content-wrapper notranslate cv-template-${pdfTemplate}`}
+                  translate="no"
                   dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(project.improvedResume) }}
                 />
               </div>
@@ -779,7 +780,8 @@ ${(() => {
               </div>
               <div className="result-panel-body cv-preview-body">
                 <div 
-                  className={`cv-content-wrapper cv-template-${pdfTemplate}`}
+                  className={`cv-content-wrapper notranslate cv-template-${pdfTemplate}`}
+                  translate="no"
                   dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(project.coverLetter) }}
                 />
               </div>
