@@ -493,8 +493,6 @@ ${(() => {
 
       element.innerHTML = `
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
-          
           .pdf-export-container {
             font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #1f2937;
@@ -1070,7 +1068,7 @@ ${(() => {
       document.body.appendChild(element);
       
       // Position hidden beneath layout within the viewport so html2canvas calculates offsets correctly
-      element.style.position = 'fixed';
+      element.style.position = 'absolute';
       element.style.left = '0';
       element.style.top = '0';
       element.style.zIndex = '-9999';
