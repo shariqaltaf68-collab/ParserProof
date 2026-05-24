@@ -18,6 +18,7 @@ import {
   Mail,
   Shield,
   FileText,
+  Loader2,
 } from 'lucide-react';
 import { getInitials } from '@/lib/utils';
 
@@ -65,11 +66,12 @@ function getPageTitle(pathname) {
 
 function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
-  const userName = session?.user?.name || 'Guest';
-  const userPlan = session?.user?.plan || 'Guest';
-  const initials = session?.user?.name ? getInitials(session.user.name) : 'G';
+  const isLoading = status === 'loading';
+  const userName = isLoading ? 'Syncing...' : (session?.user?.name || 'Guest');
+  const userPlan = isLoading ? 'Loading...' : (session?.user?.plan || 'Guest');
+  const initials = isLoading ? '...' : (session?.user?.name ? getInitials(session.user.name) : 'G');
 
   const handleLogout = useCallback(() => {
     signOut({ callbackUrl: '/login' });
@@ -144,38 +146,47 @@ function Sidebar({ isOpen, onClose }) {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <div className="sidebar-avatar">{initials}</div>
-            <div className="sidebar-user-info">
-              <div className="sidebar-user-name">{userName}</div>
-              <div className="sidebar-user-plan">{userPlan} {userPlan === 'Guest' ? 'Session' : 'Plan'}</div>
+          {isLoading ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px var(--space-4)', gap: 'var(--space-2)', color: 'var(--color-text-tertiary)', fontSize: '11px' }}>
+              <Loader2 className="spin" size={14} style={{ animation: 'spin 1.2s linear infinite' }} />
+              <span>Verifying session...</span>
             </div>
-          </div>
-          {session ? (
-            <button
-              id="logout-button"
-              className="sidebar-nav-item"
-              onClick={handleLogout}
-              style={{ width: '100%', marginTop: '4px' }}
-            >
-              <span className="sidebar-nav-item-icon">
-                <LogOut size={18} />
-              </span>
-              Log out
-            </button>
           ) : (
-            <Link
-              id="login-button"
-              className="sidebar-nav-item"
-              href="/login"
-              style={{ width: '100%', marginTop: '4px', textDecoration: 'none' }}
-              onClick={onClose}
-            >
-              <span className="sidebar-nav-item-icon">
-                <LogIn size={18} />
-              </span>
-              Log in / Sign up
-            </Link>
+            <>
+              <div className="sidebar-user">
+                <div className="sidebar-avatar">{initials}</div>
+                <div className="sidebar-user-info">
+                  <div className="sidebar-user-name">{userName}</div>
+                  <div className="sidebar-user-plan">{userPlan} {userPlan === 'Guest' ? 'Session' : 'Plan'}</div>
+                </div>
+              </div>
+              {session ? (
+                <button
+                  id="logout-button"
+                  className="sidebar-nav-item"
+                  onClick={handleLogout}
+                  style={{ width: '100%', marginTop: '4px' }}
+                >
+                  <span className="sidebar-nav-item-icon">
+                    <LogOut size={18} />
+                  </span>
+                  Log out
+                </button>
+              ) : (
+                <Link
+                  id="login-button"
+                  className="sidebar-nav-item"
+                  href="/login"
+                  style={{ width: '100%', marginTop: '4px', textDecoration: 'none' }}
+                  onClick={onClose}
+                >
+                  <span className="sidebar-nav-item-icon">
+                    <LogIn size={18} />
+                  </span>
+                  Log in / Sign up
+                </Link>
+              )}
+            </>
           )}
         </div>
       </aside>
