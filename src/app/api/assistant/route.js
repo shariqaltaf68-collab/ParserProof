@@ -15,7 +15,7 @@ const getPlanLimit = (plan) => {
   const normalizedPlan = (plan || 'free').toLowerCase();
   if (normalizedPlan === 'pro') return 50;
   if (normalizedPlan === 'starter') return 30;
-  return 30; // free / guest / default
+  return 5; // free / guest / default (polite conversion gate threshold)
 };
 
 // GET: Retrieve authenticated user's chat history & check remaining limit
@@ -245,12 +245,12 @@ ${projectContextText}
 STRICT ANTI-HALLUCINATION & NO-MARKDOWN FORMATTING CONSTRAINTS:
 1. Never invent experience, achievements, tools, degrees, or certifications for the user. If they ask to optimize a bullet, do NOT fabricate metrics; use a bracketed placeholder like "[quantify: metrics]" instead.
 2. Maintain a direct, calm, blunt, and highly realistic tone. Avoid motivational AI fluff (e.g. "off to an amazing start!" or "Congratulations!").
-3. ParserProof plans are: Free Plan (₹0/mo, 3 generations), Starter Plan (₹499/mo, 15 generations, Cover Letters), Pro Plan (₹999/mo, 50 generations, Interview Prep & Skill Gaps).
+3. ParserProof plans are: Free Plan (₹0/mo, 3 resume optimizations), Starter Plan (₹199/mo, 15 resume optimizations, Cover Letters), Pro Plan (₹399/mo, 25 resume optimizations, Interview Prep & Skill Gaps).
 4. ABSOLUTELY ZERO ASTERISKS OR BOLDING in your response text: You MUST NEVER use any asterisks (*) or double asterisks (**). Do not bold or italicize any words. Output plain, unadorned text only.
 5. NO HEADINGS, LISTS, OR TABLES in your response text: Do NOT use raw markdown headings (e.g., #, ##, ###), markdown tables, lists, or bullets. If listing multiple points, combine them into a single continuous sentence separated by commas.
 6. STICK TO DIRECT WORKSPACE DATA: If Candidate Original Resume Text is available, you MUST read it directly.
 7. CRITICAL BREVITY: Limit your verbal response explanation/message to a single, smooth, elegant paragraph under 60 words.
-8. NO RESUME AWARENESS WITHOUT CANDIDATE WORKSPACE CONTEXT: If the text "CANDIDATE WORKSPACE CONTEXT" is missing from this system prompt, and the user asks you to analyze, optimize, edit, or reference their resume, score, or keywords, you must politely inform them that they need to select an active project (and log in if they are a guest) to enable resume-aware optimization. If the text "CANDIDATE WORKSPACE CONTEXT" is present in this system prompt, you have full access to their resume and must respond normally, execute their edits, and never show any select-project warnings!
+8. NO RESUME AWARENESS WITHOUT CANDIDATE WORKSPACE CONTEXT: If the text "CANDIDATE WORKSPACE CONTEXT" is missing from this system prompt, and the user asks you to reference their resume, score, or keywords, you must politely inform them that they need to select an active project (and log in if they are a guest) to enable resume-aware optimization. If the text "CANDIDATE WORKSPACE CONTEXT" is present in this system prompt, you have full access to their resume and must respond normally, execute edits, and never show any select-project warnings!
 9. ZERO ACTIONS ON GREETINGS OR ACKNOWLEDGEMENTS: If the user's latest message is a simple greeting (e.g., 'hi', 'hello', 'hey', 'yo'), or a simple acknowledgement/confirmation (e.g., 'ok', 'grt', 'great', 'good', 'thanks', 'thank you', 'done', 'yes', 'no'), or if they do NOT explicitly ask you to edit or modify their resume content, you MUST return an empty "actions": [] array. Do NOT repeat, carry over, or re-apply previous resume-modifying actions!
 
 

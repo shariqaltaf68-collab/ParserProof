@@ -6478,49 +6478,208 @@ h6 { font-size: var(--font-size-lg); }
 }
 
 /* ==========================================================
-   MOBILE FULL-SCREEN DRAWERS FOR CO-PILOT ASSISTANT
+   MOBILE BOTTOM SHEET & DASHBOARD REFLOW
    ========================================================== */
-@media (max-width: 640px) {
+/* Custom dashboard & mobile grid layout */
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--space-3) !important;
+    margin-bottom: var(--space-5) !important;
+  }
+  
+  /* Make optimizations span both columns for perfect visual balance */
+  .dashboard-stats > div:last-child {
+    grid-column: span 2 !important;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-3) !important;
+  }
+
+  .quick-actions .card {
+    padding: var(--space-3) var(--space-4) !important;
+  }
+}
+
+/* Hide scrollbar cleanly for results tabs swiping */
+.results-tabs {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+.results-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* FAB floating text-pill trigger for mobile */
+.floating-assistant-fab .fab-text {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .floating-assistant-fab {
+    width: auto !important;
+    height: 48px !important;
+    border-radius: 30px !important;
+    padding: 0 var(--space-4) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--space-2) !important;
+    bottom: 16px !important;
+    right: 16px !important;
+    z-index: 9999 !important;
+  }
+  
+  .floating-assistant-fab .fab-text {
+    display: inline !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Bottom Sheet Drawer & Handle styles for Mobile */
+@media (max-width: 768px) {
+  /* Translucent dimmed background overlay when open */
+  .floating-assistant-container::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9998;
+    opacity: 1;
+    animation: fade-in-overlay 0.3s ease;
+  }
+  
+  /* If popover is closed (handled by React rendering container, but safety checks) */
+  .floating-assistant-container:not(:has(.floating-assistant-popover))::before {
+    display: none;
+  }
+
   .floating-assistant-popover {
     position: fixed !important;
-    top: 0 !important;
     left: 0 !important;
-    bottom: 0 !important;
     right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    border-radius: 0 !important;
-    z-index: 99999 !important;
-    animation: popover-slide-up-mobile 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    height: 82vh !important;
+    max-height: 85vh !important;
+    z-index: 9999 !important;
+    animation: drawer-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
   
   .popover-card {
-    border-radius: 0 !important;
-    border: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
     height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.15) !important;
+  }
+  
+  .dark .popover-card {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Rounded dragging handle at the top of the sheet drawer */
+  .drawer-handle {
+    width: 36px !important;
+    height: 5px !important;
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-radius: 3px !important;
+    margin: 10px auto 4px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+  
+  .dark .drawer-handle {
+    background: rgba(255, 255, 255, 0.2) !important;
   }
 
   .popover-chat-body {
     -webkit-overflow-scrolling: touch !important;
+    padding: var(--space-4) !important;
   }
-  
-  /* Make Floating FAB active above but pushed neatly */
-  .floating-assistant-fab {
-    z-index: 100000 !important;
+
+  .popover-header {
+    border-bottom: 1px solid var(--color-border) !important;
+    padding: var(--space-3) var(--space-4) !important;
   }
 }
 
-@keyframes popover-slide-up-mobile {
+@keyframes fade-in-overlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawer-slide-up {
   from {
     transform: translateY(100%);
   }
   to {
     transform: translateY(0);
   }
+}
+
+/* Elegant Inline Limit Gate Style inside Message Feed */
+.inline-limit-gate {
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin: var(--space-4) 0;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.limit-gate-icon {
+  color: var(--color-warning);
+  margin-bottom: var(--space-1);
+}
+
+.limit-gate-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.limit-gate-text {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 280px;
+}
+
+.limit-gate-actions {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+.limit-gate-btn {
+  font-size: 11px !important;
+  padding: 6px 16px !important;
+  height: auto !important;
+  border-radius: var(--radius-md) !important;
 }
 
 @media print {

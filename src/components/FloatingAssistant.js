@@ -156,6 +156,18 @@ export default function FloatingAssistant() {
     }
   }, [pathname, projects, selectedProjectId, fetchProjects]);
 
+  // Global dashboard event listener to open assistant drawer
+  useEffect(() => {
+    const handleOpenAssistant = () => {
+      setIsOpen(true);
+      setUnreadCount(0);
+    };
+    window.addEventListener('open-assistant', handleOpenAssistant);
+    return () => {
+      window.removeEventListener('open-assistant', handleOpenAssistant);
+    };
+  }, []);
+
   // Bootup hooks
   useEffect(() => {
     fetchChatHistory();
@@ -616,13 +628,14 @@ export default function FloatingAssistant() {
       <button
         onClick={togglePopover}
         className={`floating-assistant-fab ${isOpen ? 'active' : ''}`}
-        title="Open ParserProof Co-Pilot"
+        title="Open ParserProof Assistant"
       >
         {isOpen ? (
           <X size={22} />
         ) : (
           <>
             <Sparkles size={22} className="fab-sparkles-icon" />
+            <span className="fab-text">Ask Assistant</span>
             {unreadCount > 0 && <span className="fab-unread-badge">{unreadCount}</span>}
           </>
         )}
@@ -632,6 +645,7 @@ export default function FloatingAssistant() {
       {isOpen && (
         <div className="floating-assistant-popover">
           <div className="popover-card">
+            <div className="drawer-handle" />
             
             {/* Popover Header */}
             <div className="popover-header">
@@ -640,7 +654,7 @@ export default function FloatingAssistant() {
                   <Sparkles size={16} />
                 </div>
                 <div>
-                  <h4 className="popover-title">ParserProof Co-Pilot</h4>
+                  <h4 className="popover-title">ParserProof Assistant</h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
                     <span className={`status-orb ${isSending ? 'thinking' : 'online'}`} />
                     <span className="popover-subtitle">
@@ -799,6 +813,31 @@ export default function FloatingAssistant() {
                       </div>
                     );
                   })}
+                  {isLimitReached && (
+                    <div className="inline-limit-gate animate-slide-in">
+                      <AlertTriangle size={18} className="limit-gate-icon" />
+                      <h4 className="limit-gate-title">Daily trial capacity reached</h4>
+                      <p className="limit-gate-text">
+                        You have used your 5 free guest responses. {isGuest ? 'Create a free account to preserve this conversation history and unlock higher daily caps.' : 'Please come back tomorrow or upgrade for unlimited career coaching.'}
+                      </p>
+                      <div className="limit-gate-actions">
+                        {isGuest ? (
+                          <>
+                            <Link href="/signup" className="btn btn-primary btn-sm limit-gate-btn" style={{ textDecoration: 'none' }}>
+                              Sign Up Free
+                            </Link>
+                            <Link href="/login" className="btn btn-secondary btn-sm limit-gate-btn" style={{ textDecoration: 'none' }}>
+                              Log In
+                            </Link>
+                          </>
+                        ) : (
+                          <Link href="/billing" className="btn btn-primary btn-sm limit-gate-btn" style={{ textDecoration: 'none' }}>
+                            Upgrade Plan
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               )}
@@ -894,9 +933,11 @@ export default function FloatingAssistant() {
                   placeholder={
                     isSending 
                       ? 'Thinking...' 
-                      : isVoiceMode 
-                        ? 'Voice Mode active... Speak now' 
-                        : 'Ask your optimization question...'
+                      : isLimitReached
+                        ? 'Unlock more queries by signing up...'
+                        : isVoiceMode 
+                          ? 'Voice Mode active... Speak now' 
+                          : 'Ask your optimization question...'
                   }
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
@@ -916,35 +957,6 @@ export default function FloatingAssistant() {
               </div>
             </div>
 
-            {/* GUEST LIMIT OVERLAY SCREEN */}
-            {isLimitReached && (
-              <div className="popover-lock-overlay">
-                <div className="popover-lock-card">
-                  <AlertTriangle size={24} style={{ color: 'var(--color-danger)', marginBottom: '8px' }} />
-                  <h6>Limit Reached</h6>
-                  <p>
-                    You have finished your **{limit} daily interactions**. {isGuest ? 'Sign up for a free account to unlock higher capacities' : 'Please come back tomorrow or upgrade for unlimited career assistance'}.
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', marginTop: '4px' }}>
-                    {isGuest && (
-                      <>
-                        <Link href="/signup" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
-                          <UserPlus size={12} style={{ marginRight: '4px' }} /> Sign Up Free
-                        </Link>
-                        <Link href="/login" className="btn btn-secondary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
-                          <LogIn size={12} style={{ marginRight: '4px' }} /> Log In
-                        </Link>
-                      </>
-                    )}
-                    {!isGuest && (
-                      <Link href="/billing" className="btn btn-primary" style={{ width: '100%', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', padding: '6px 12px', height: 'auto' }}>
-                        Upgrade Plan
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
 
           </div>
         </div>

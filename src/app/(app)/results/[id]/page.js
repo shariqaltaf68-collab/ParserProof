@@ -512,23 +512,23 @@ ${(() => {
   
   // Determine grounding status
   let ragStatus = 'moderate';
-  let ragStatusText = 'Moderate Grounding';
+  let ragStatusText = 'Aligned Context';
   let ragCardClass = 'rag-moderate';
 
   if (ragConfidence !== null) {
     if (ragConfidence >= 75) {
       ragStatus = 'high';
-      ragStatusText = 'Verified Grounded';
+      ragStatusText = 'Verified Alignment';
       ragCardClass = 'rag-high';
     } else if (ragConfidence < 35) {
       ragStatus = 'weak';
-      ragStatusText = 'Weak Context Match';
+      ragStatusText = 'Low Alignment Check';
       ragCardClass = 'rag-weak';
     }
   } else {
     // If telemetry is missing (older project), default to high grounded status
     ragStatus = 'high';
-    ragStatusText = 'Standard Grounding Active';
+    ragStatusText = 'Standard Alignment Active';
     ragCardClass = 'rag-high';
   }
 
@@ -743,11 +743,11 @@ ${(() => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--color-border)', paddingBottom: '10px' }}>
                 <Sparkles size={18} style={{ color: 'var(--color-accent)' }} />
                 <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
-                  Inline STAR &amp; Google XYZ Sandbox Workbench
+                  STAR Method Optimizer
                 </h3>
               </div>
               <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', margin: 0 }}>
-                Select an experience bullet point below to optimize with the Google XYZ formula, tweak in real time, and dynamically update your live ATS score.
+                Select an experience bullet point below to optimize with the Google STAR/XYZ formula, tweak details, and dynamically update your live ATS score.
               </p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
@@ -953,7 +953,7 @@ ${(() => {
           style={{ fontSize: '11px', color: 'var(--color-text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', background: 'transparent', border: 'none', transition: 'all 0.2s' }}
         >
           <Shield size={12} style={{ color: 'var(--color-accent)' }} />
-          {showTechAudit ? 'Hide' : 'Show'} Advanced Grounding Audit &amp; Technical Parser Verification Logs
+          {showTechAudit ? 'Hide' : 'Show'} Factual Alignment Audit &amp; Parser Verification Details
         </button>
       </div>
 
@@ -1019,8 +1019,8 @@ ${(() => {
                   <Shield size={20} />
                 </div>
                 <div>
-                  <h2 className="rag-audit-title">ParserProof Grounding Audit</h2>
-                  <div className="rag-audit-subtitle">Factual Verification &amp; Anti-Hallucination Log</div>
+                  <h2 className="rag-audit-title">Accuracy &amp; Grounding Audit</h2>
+                  <div className="rag-audit-subtitle">Factual Alignment Logs &amp; Sources</div>
                 </div>
               </div>
               <div className={`rag-confidence-badge-pill rag-confidence-${ragStatus}`}>

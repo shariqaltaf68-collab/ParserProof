@@ -319,6 +319,55 @@ export default function DashboardPage() {
             </div>
           </div>
         </Link>
+        <div
+          id="quick-action-assistant"
+          className="card card-interactive"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-assistant'))}
+          style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-4)',
+            }}
+          >
+            <div
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: 'var(--radius-md)',
+                background: 'rgba(168, 85, 247, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#a855f7',
+                flexShrink: 0,
+              }}
+            >
+              <Zap size={22} />
+            </div>
+            <div>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: 'var(--font-size-base)',
+                  marginBottom: '2px',
+                }}
+              >
+                Career Assistant
+              </div>
+              <div
+                style={{
+                  fontSize: 'var(--font-size-sm)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                Ask about ATS scores, get experience rewrites, or prep interview questions
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <section>
