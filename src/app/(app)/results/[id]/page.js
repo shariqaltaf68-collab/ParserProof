@@ -1065,21 +1065,30 @@ ${(() => {
       };
 
       // 1. Temporarily append to body to resolve template styles and pre-loaded fonts under active DOM calculations
-      document.body.appendChild(element);
+      // 1. Create a parent container positioned at absolute left 0, height 0, overflow hidden
+      // This allows styles to fully resolve in the DOM tree, but keeps it completely hidden from the user,
+      // and guarantees that html2canvas is passed an element with clean, normal relative styles (not absolute).
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '0';
+      container.style.top = '0';
+      container.style.width = '800px';
+      container.style.height = '0';
+      container.style.overflow = 'hidden';
+      container.style.zIndex = '-9999';
       
-      // Position hidden beneath layout within the viewport so html2canvas calculates offsets correctly
-      element.style.position = 'absolute';
-      element.style.left = '0';
-      element.style.top = '0';
-      element.style.zIndex = '-9999';
-      element.style.width = '800px';
+      // Clean background style on the target element itself
       element.style.background = '#ffffff';
-
-      // 2. Perform PDF generation
+      element.style.width = '800px';
+      
+      container.appendChild(element);
+      document.body.appendChild(container);
+      
+      // 2. Perform PDF generation directly on the clean child element
       await html2pdf().from(element).set(opt).save();
 
-      // 3. Remove element from DOM cleanly
-      document.body.removeChild(element);
+      // 3. Remove container wrapper cleanly from DOM
+      document.body.removeChild(container);
     } catch (e) {
       console.error(e);
     } finally {
