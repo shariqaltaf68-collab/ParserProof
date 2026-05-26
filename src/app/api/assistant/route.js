@@ -45,6 +45,10 @@ export async function GET(request) {
         isGuest: true,
         limit: guestLimit,
         remainingMessages: Math.max(0, guestLimit - currentCount),
+      }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        }
       });
     }
  
@@ -90,6 +94,10 @@ export async function GET(request) {
       isGuest: false,
       limit: userLimit,
       remainingMessages: Math.max(0, userLimit - userCount),
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      }
     });
   } catch (error) {
     console.error('[Assistant API] GET history error:', error);

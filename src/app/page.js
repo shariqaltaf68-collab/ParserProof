@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 import {
   Target,
   Search,
@@ -187,6 +188,7 @@ const faqItems = [
 ];
 
 export default function LandingPage() {
+  const { data: session, status } = useSession();
   const [openFaq, setOpenFaq] = useState(null);
 
   const toggleFaq = (index) => {
@@ -276,12 +278,29 @@ export default function LandingPage() {
           </ul>
 
           <div className="landing-nav-actions">
-            <Link href="/login" className="btn btn-ghost">
-              Log In
-            </Link>
-            <Link href="/signup" className="btn btn-primary">
-              Get Started
-            </Link>
+            {status === 'authenticated' ? (
+              <>
+                <Link href="/dashboard" className="btn btn-ghost">
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="btn btn-secondary"
+                  style={{ cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontSize: 'inherit' }}
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="btn btn-ghost">
+                  Log In
+                </Link>
+                <Link href="/signup" className="btn btn-primary">
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>

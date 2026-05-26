@@ -88,8 +88,8 @@ export default function FloatingAssistant() {
     setIsHistoryLoading(true);
     try {
       const url = selectedProjectId 
-        ? `/api/assistant?projectId=${selectedProjectId}`
-        : '/api/assistant';
+        ? `/api/assistant?projectId=${selectedProjectId}&_t=${Date.now()}`
+        : `/api/assistant?_t=${Date.now()}`;
       const res = await fetch(url);
       const data = await res.json();
       if (res.ok) {
