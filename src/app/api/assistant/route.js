@@ -211,6 +211,19 @@ export async function POST(request) {
       });
 
       if (selectedProject) {
+        let keywordMatchText = 'N/A';
+        if (selectedProject.keywordMatch) {
+          try {
+            const parsed = JSON.parse(selectedProject.keywordMatch);
+            keywordMatchText = `
+- Matched Keywords: ${Array.isArray(parsed.matched) ? parsed.matched.join(', ') : 'None'}
+- Missing Keywords: ${Array.isArray(parsed.missing) ? parsed.missing.join(', ') : 'None'}
+            `.trim();
+          } catch (e) {
+            console.error('Error parsing keywordMatch in assistant route:', e);
+          }
+        }
+
         projectContextText = `
 Candidate Target Job Title: ${selectedProject.jobTitle || 'N/A'}
 Candidate Target Company: ${selectedProject.company || 'N/A'}
@@ -221,6 +234,8 @@ ${selectedProject.resumeText || ''}
 Current Improved Resume (Optimized Markdown):
 ${selectedProject.improvedResume || ''}
 Programmatic ATS Score: ${selectedProject.atsScore || 'N/A'}%
+Keyword Match Status:
+${keywordMatchText}
         `.trim();
       }
     }

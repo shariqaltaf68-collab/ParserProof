@@ -423,11 +423,19 @@ export async function POST(request, { params }) {
     );
     const originalLlmScore = Math.min(100, Math.max(0, (2 * (project.atsScore || 75)) - originalProgScore));
 
+    const freshProgScore = getProgrammaticAtsScore(
+      updatedImprovedResume || updatedResumeText,
+      keywordMatch
+    );
+
+    // Dynamically scale the LLM score based on programmatic improvements
+    const freshLlmScore = Math.min(100, Math.max(0, originalLlmScore + (freshProgScore - originalProgScore)));
+
     // 4. Recalculate programmatic ATS score using the isolated original LLM score
     const freshAtsScore = calculateProgrammaticAtsScore(
       updatedImprovedResume || updatedResumeText,
       keywordMatch,
-      originalLlmScore
+      freshLlmScore
     );
 
     // 3. Save the updated project to the database
