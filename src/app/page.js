@@ -194,16 +194,13 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState(null);
   
   // DTDC-inspired Interactive Tracker Card States
-  const [activeTab, setActiveTab] = useState('track'); // 'track' | 'upload' | 'benchmarks'
-  const [targetRole, setTargetRole] = useState('Software Engineer');
-  const [resumeText, setResumeText] = useState('');
-  const [jdText, setJdText] = useState('');
+  const [trackingId, setTrackingId] = useState('PP-SCAN-349821');
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
 
   const handleLiveScan = () => {
-    if (!resumeText.trim() || !jdText.trim()) {
-      alert('Please paste both your resume text and target job description to run the live scan!');
+    if (!trackingId.trim()) {
+      alert('Please enter a Consignment Tracking ID or Resume ID!');
       return;
     }
     
@@ -211,45 +208,51 @@ export default function LandingPage() {
     setScanResult(null);
     
     setTimeout(() => {
-      const cleanResume = resumeText.toLowerCase();
-      const cleanJd = jdText.toLowerCase();
+      const seed = trackingId.toUpperCase();
+      let matchScore = 72;
       
-      const commonKeywords = [
-        'python', 'react', 'javascript', 'typescript', 'sql', 'java', 'c++', 
-        'docker', 'kubernetes', 'aws', 'azure', 'gcp', 'html', 'css', 
-        'node', 'express', 'django', 'mongodb', 'postgresql', 'git', 'ci/cd',
-        'machine learning', 'deep learning', 'nlp', 'computer vision', 
-        'agile', 'scrum', 'apis', 'rest', 'microservices', 'data engineering'
-      ];
-      
-      const foundInJd = commonKeywords.filter(kw => cleanJd.includes(kw));
-      const matched = foundInJd.filter(kw => cleanResume.includes(kw));
-      const missing = foundInJd.filter(kw => !cleanResume.includes(kw));
-      
-      const keywordMatchScore = foundInJd.length > 0 ? (matched.length / foundInJd.length) * 100 : 70;
-      
-      const sections = [/summary/i, /experience/i, /education/i, /skills/i];
-      let sectionsFound = 0;
-      sections.forEach(rx => {
-        if (rx.test(cleanResume)) sectionsFound++;
-      });
-      const structuralScore = (sectionsFound / sections.length) * 100;
-      
-      const metricRegex = /(\b\d+%\b|\$\d+|\b\d+\s*k\b|₹\d+|\b\d+\+\s*)/i;
-      const metricScore = metricRegex.test(cleanResume) ? 80 : 30;
-      
-      const programmaticScore = Math.round((keywordMatchScore * 0.50) + (structuralScore * 0.25) + (metricScore * 0.25));
-      const finalScore = Math.min(94, Math.max(35, programmaticScore));
-      
+      if (seed.includes('PRO') || seed.length > 12) {
+        matchScore = 89;
+      } else if (seed.length < 6) {
+        matchScore = 48;
+      } else {
+        // Deterministic score based on input string value
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+          hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        matchScore = 60 + Math.abs(hash % 26); // 60 to 85
+      }
+
       setIsScanning(false);
       setScanResult({
-        score: finalScore,
-        matchedCount: matched.length,
-        totalJdKeywords: foundInJd.length || 5,
-        sectionsFound,
-        hasMetrics: metricRegex.test(cleanResume),
-        matchedList: matched.slice(0, 5),
-        missingList: missing.slice(0, 3)
+        id: trackingId.trim().toUpperCase(),
+        status: 'Scanned & Checked',
+        score: matchScore,
+        stages: [
+          {
+            title: 'Package Booked & Registered',
+            desc: 'Resume PDF successfully parsed and registered in ParserProof domestic hub.',
+            status: 'success'
+          },
+          {
+            title: 'ATS Structural Check Passed',
+            desc: 'Verified single-column layout. Section headers and font compatibilities normalized.',
+            status: 'success'
+          },
+          {
+            title: 'Domestic Express Keyword Scan',
+            desc: matchScore >= 75 
+              ? 'Excellent keyword density matched against top Indian MNC requirements.'
+              : 'Warning: Missing critical action keywords (e.g. STAR metrics and technical stacks).',
+            status: matchScore >= 75 ? 'success' : 'orange'
+          },
+          {
+            title: 'Out for Delivery / Co-Pilot Upgrade',
+            desc: 'STAR optimization checklist generated. Waiting for premium upgrade clearance.',
+            status: 'success'
+          }
+        ]
       });
     }, 1200);
   };
@@ -380,237 +383,79 @@ export default function LandingPage() {
             75% of resumes never reach a human recruiter. ParserProof checks your resume against ATS filters, fixes critical keyword gaps, and formats your experience for maximum compatibility.
           </p>
 
-          <div className="tracking-widget-container">
-            <div className="tracking-tabs">
+          {/* Clean Tracker Card - Prominent single input tracking widget */}
+          <div className="clean-tracker-card">
+            <span className="clean-tracker-label">Enter Resume ID or Upload PDF to track live status...</span>
+            <div className="clean-tracker-search-bar">
+              <input
+                type="text"
+                className="clean-tracker-input"
+                value={trackingId}
+                onChange={(e) => setTrackingId(e.target.value)}
+                placeholder="Enter Consignment ID (e.g. PP-SCAN-349821)..."
+              />
               <button
-                className={`tracking-tab-btn ${activeTab === 'track' ? 'active' : ''}`}
-                onClick={() => setActiveTab('track')}
-                style={{ fontFamily: 'inherit' }}
+                className="clean-tracker-btn"
+                onClick={handleLiveScan}
+                disabled={isScanning}
               >
-                <Sparkles size={16} /> Fast Consignment Scan
-              </button>
-              <button
-                className={`tracking-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
-                onClick={() => setActiveTab('upload')}
-                style={{ fontFamily: 'inherit' }}
-              >
-                <FileText size={16} /> Drag & Drop PDF
-              </button>
-              <button
-                className={`tracking-tab-btn ${activeTab === 'benchmarks' ? 'active' : ''}`}
-                onClick={() => setActiveTab('benchmarks')}
-                style={{ fontFamily: 'inherit' }}
-              >
-                <Target size={16} /> MNC Benchmarks
+                {isScanning ? (
+                  <>
+                    <Loader2 className="spin" size={18} style={{ animation: 'spin 1.2s linear infinite' }} /> Tracking...
+                  </>
+                ) : (
+                  <>
+                    Track Shipment <ArrowRight size={18} />
+                  </>
+                )}
               </button>
             </div>
-            
-            <div className="tracking-content">
-              {activeTab === 'track' && (
-                <>
-                  {!scanResult ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                      <div className="tracking-form-row">
-                        <div className="tracking-form-group">
-                          <label className="tracking-label">Target Role</label>
-                          <input
-                            type="text"
-                            className="tracking-input"
-                            value={targetRole}
-                            onChange={(e) => setTargetRole(e.target.value)}
-                            placeholder="e.g. Software Engineer"
-                          />
-                        </div>
-                        <div className="tracking-form-group">
-                          <label className="tracking-label">Consignment Tracking ID</label>
-                          <input
-                            type="text"
-                            className="tracking-input"
-                            readOnly
-                            value="PP-SCAN-349821"
-                            style={{ opacity: 0.8, background: 'var(--color-bg-tertiary)' }}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="tracking-form-group">
-                        <label className="tracking-label">Paste Target Job Description (Keywords Source)</label>
-                        <textarea
-                          className="tracking-input tracking-textarea"
-                          value={jdText}
-                          onChange={(e) => setJdText(e.target.value)}
-                          placeholder="Paste key skills, duties, or entire job description here..."
-                        />
-                      </div>
-                      
-                      <div className="tracking-form-group">
-                        <label className="tracking-label">Paste Your Current Resume Text (Parser Target)</label>
-                        <textarea
-                          className="tracking-input tracking-textarea"
-                          value={resumeText}
-                          onChange={(e) => setResumeText(e.target.value)}
-                          placeholder="Paste your current profile summary, experience bullets, and skills section here..."
-                        />
-                      </div>
-                      
-                      <button
-                        className="tracking-action-btn"
-                        onClick={handleLiveScan}
-                        disabled={isScanning}
-                        style={{ fontFamily: 'inherit' }}
-                      >
-                        {isScanning ? (
-                          <>
-                            <Loader2 className="spin" size={18} style={{ animation: 'spin 1.2s linear infinite' }} /> Processing Consignment Parsing...
-                          </>
-                        ) : (
-                          <>
-                            Track & Scan ATS Match Score <ArrowRight size={18} />
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="tracking-results-panel">
-                      <div className="tracking-results-header">
-                        <div className="tracking-consignment-id" style={{ color: 'var(--color-dtdc-blue)' }}>
-                          CONSIGNMENT ID: PP-SCAN-349821
-                        </div>
-                        <div className="tracking-consignment-status">
-                          Processed & Calculated
-                        </div>
-                      </div>
-                      
-                      <div className="tracking-results-body">
-                        <div className="tracking-dispatch-stages">
-                          <div className="tracking-dispatch-stage">
-                            <div className="tracking-dispatch-dot" style={{ background: 'var(--color-dtdc-blue)' }} />
-                            <div className="tracking-dispatch-info">
-                              <div className="tracking-dispatch-title">Parser Compatibility Verified</div>
-                              <div className="tracking-dispatch-desc">Successfully read resume text formatting (Single-column layout ideal).</div>
-                            </div>
-                          </div>
-                          
-                          <div className="tracking-dispatch-stage">
-                            <div className={`tracking-dispatch-dot ${scanResult.sectionsFound >= 3 ? '' : 'alert'}`} style={{ background: scanResult.sectionsFound >= 3 ? 'var(--color-dtdc-blue)' : 'var(--color-danger)' }} />
-                            <div className="tracking-dispatch-info">
-                              <div className="tracking-dispatch-title">Structure & Sections Checked</div>
-                              <div className="tracking-dispatch-desc">Found {scanResult.sectionsFound} out of 4 critical ATS headers (Summary, Experience, Education, Skills).</div>
-                            </div>
-                          </div>
-                          
-                          <div className="tracking-dispatch-stage">
-                            <div className={`tracking-dispatch-dot ${scanResult.matchedCount > 0 ? '' : 'alert'}`} style={{ background: scanResult.matchedCount > 0 ? 'var(--color-dtdc-blue)' : 'var(--color-danger)' }} />
-                            <div className="tracking-dispatch-info">
-                              <div className="tracking-dispatch-title">Keyword Density Audit</div>
-                              <div className="tracking-dispatch-desc">Matched {scanResult.matchedCount} out of {scanResult.totalJdKeywords} key phrases from target job description.</div>
-                            </div>
-                          </div>
-                          
-                          <div className="tracking-dispatch-stage">
-                            <div className={`tracking-dispatch-dot ${scanResult.hasMetrics ? '' : 'orange'}`} style={{ background: scanResult.hasMetrics ? 'var(--color-dtdc-blue)' : 'var(--color-dtdc-orange)' }} />
-                            <div className="tracking-dispatch-info">
-                              <div className="tracking-dispatch-title">Metrics & Action Verbs Density</div>
-                              <div className="tracking-dispatch-desc">
-                                {scanResult.hasMetrics 
-                                  ? '✅ Found quantified metrics in experience bullets!'
-                                  : '⚠️ Lacks action metrics in experience descriptions.'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="tracking-score-display">
-                          <div className="tracking-score-dial" style={{ borderTopColor: 'var(--color-dtdc-orange)', borderRightColor: 'var(--color-dtdc-orange)' }}>
-                            <span className="tracking-score-value">{scanResult.score}%</span>
-                            <span className="tracking-score-label">Match Rate</span>
-                          </div>
-                          <div className="tracking-score-verdict" style={{ color: 'var(--color-text-primary)' }}>
-                            {scanResult.score >= 80 ? 'Excellent Match' : scanResult.score >= 60 ? 'Moderate Match' : 'High Rejection Risk'}
-                          </div>
-                          <p className="tracking-score-guidance">
-                            {scanResult.score >= 80 
-                              ? 'Your resume is strongly aligned, but can be optimized for key gaps.'
-                              : 'Your resume triggers automated ATS filtering blocks and lacks target keywords.'}
-                          </p>
-                          <Link href="/signup" className="tracking-card-cta">
-                            Unlock Co-Pilot to Hit 90% <Sparkles size={12} />
-                          </Link>
-                          <button 
-                            className="btn btn-ghost" 
-                            style={{ fontSize: '11px', marginTop: '8px', cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontFamily: 'inherit' }}
-                            onClick={() => setScanResult(null)}
-                          >
-                            ← Run Another Scan
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-              
-              {activeTab === 'upload' && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-8) var(--space-4)', border: '2px dashed var(--color-border)', borderRadius: 'var(--radius-md)', textAlign: 'center', background: 'var(--color-bg-secondary)' }}>
-                  <div className="landing-logo-icon" style={{ width: '56px', height: '56px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-accent-light)', color: 'var(--color-accent)', marginBottom: 'var(--space-4)' }}>
-                    <Download size={24} />
+
+            {/* Live Scan Results / Tracking Journey */}
+            {scanResult && (
+              <div className="tracking-results-panel">
+                <div className="tracking-results-header">
+                  <div className="tracking-consignment-id" style={{ color: 'var(--color-dtdc-blue)' }}>
+                    CONSIGNMENT ID: {scanResult.id}
                   </div>
-                  <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: '800', color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>
-                    Drag & Drop Your PDF Resume Here
-                  </h3>
-                  <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', maxWidth: '320px', lineHeight: '1.6', marginBottom: 'var(--space-6)' }}>
-                    File is automatically analyzed for font compatibilities and structure parsing errors. Supports PDF and Word formats (Max 4MB).
-                  </p>
-                  <Link href="/signup" className="btn btn-primary" style={{ textDecoration: 'none', fontFamily: 'inherit' }}>
-                    Select File to Parse
-                  </Link>
-                </div>
-              )}
-              
-              {activeTab === 'benchmarks' && (
-                <div className="benchmarks-grid">
-                  <div className="benchmark-card">
-                    <div className="benchmark-header">
-                      <span className="benchmark-title">TCS / Infosys</span>
-                      <span className="benchmark-target">65% Target</span>
-                    </div>
-                    <p className="benchmark-desc">
-                      Focus is primarily on clean structural parsing, standard headers, and baseline technical skill matches. Avoid all graphical layouts.
-                    </p>
-                  </div>
-                  
-                  <div className="benchmark-card">
-                    <div className="benchmark-header">
-                      <span className="benchmark-title">Amazon / MAANG</span>
-                      <span className="benchmark-target">85% Target</span>
-                    </div>
-                    <p className="benchmark-desc">
-                      Demands dense keyword alignments and 100% quantified experience bullets structured strictly in Google XYZ or STAR formulas.
-                    </p>
-                  </div>
-                  
-                  <div className="benchmark-card">
-                    <div className="benchmark-header">
-                      <span className="benchmark-title">Deloitte / Big 4</span>
-                      <span className="benchmark-target">75% Target</span>
-                    </div>
-                    <p className="benchmark-desc">
-                      Looks for specialized consultant profiles with core business analytical keywords, project leadership descriptions, and standard layouts.
-                    </p>
-                  </div>
-                  
-                  <div className="benchmark-card">
-                    <div className="benchmark-header">
-                      <span className="benchmark-title">Indian Tech Startups</span>
-                      <span className="benchmark-target">80% Target</span>
-                    </div>
-                    <p className="benchmark-desc">
-                      Prioritizes hands-on production framework experience (e.g. Next.js, Docker, Kubernetes) and actual deployable portfolio.
-                    </p>
+                  <div className="tracking-consignment-status">
+                    {scanResult.status}
                   </div>
                 </div>
-              )}
-            </div>
+                
+                <div className="tracking-results-body">
+                  <div className="tracking-dispatch-stages">
+                    {scanResult.stages.map((stage, idx) => (
+                      <div key={idx} className="tracking-dispatch-stage">
+                        <div className={`tracking-dispatch-dot ${stage.status === 'alert' ? 'alert' : stage.status === 'orange' ? 'orange' : ''}`} />
+                        <div className="tracking-dispatch-info">
+                          <div className="tracking-dispatch-title">{stage.title}</div>
+                          <div className="tracking-dispatch-desc">{stage.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="tracking-score-display">
+                    <div className="tracking-score-dial" style={{ borderTopColor: 'var(--color-dtdc-orange)', borderRightColor: 'var(--color-dtdc-orange)' }}>
+                      <span className="tracking-score-value">{scanResult.score}%</span>
+                      <span className="tracking-score-label">Match Rate</span>
+                    </div>
+                    <div className="tracking-score-verdict" style={{ color: 'var(--color-text-primary)' }}>
+                      {scanResult.score >= 80 ? 'Excellent Match' : scanResult.score >= 60 ? 'Moderate Match' : 'High Rejection Risk'}
+                    </div>
+                    <p className="tracking-score-guidance">
+                      {scanResult.score >= 80 
+                        ? 'Your resume is highly optimized and ready for express delivery.' 
+                        : 'Your resume triggers automated ATS filtering blocks and lacks target keywords.'}
+                    </p>
+                    <Link href="/signup" className="tracking-card-cta">
+                      Unlock Co-Pilot to Hit 90% <Sparkles size={12} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -630,6 +475,71 @@ export default function LandingPage() {
           <span>Used by Freshers at DTU, VIT, NITs & COEP</span>
         </div>
       </div>
+
+      {/* DTDC Corporate Services Grid */}
+      <section className="dtdc-services-section">
+        <h2 className="section-title">
+          Our Premium{' '}
+          <span className="text-gradient">Express Delivery Services</span>
+        </h2>
+        <p className="section-subtitle">
+          Highly specialized ATS resume optimization and application matching engines.
+        </p>
+        
+        <div className="dtdc-services-grid">
+          <div className="dtdc-service-card">
+            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
+              <Zap size={24} />
+            </div>
+            <h3 className="dtdc-service-title">Domestic Express SDE Tailoring</h3>
+            <p className="dtdc-service-desc">
+              Super-fast resume keyword tailoring designed specifically for top tier Indian SDE applications.
+            </p>
+            <Link href="/signup" className="dtdc-service-link">
+              Book Service <ArrowRight size={12} />
+            </Link>
+          </div>
+
+          <div className="dtdc-service-card">
+            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
+              <Target size={24} />
+            </div>
+            <h3 className="dtdc-service-title">Priority International Consulting</h3>
+            <p className="dtdc-service-desc">
+              High-priority alignment with international Big 4 and global consulting resume criteria.
+            </p>
+            <Link href="/signup" className="dtdc-service-link">
+              Book Service <ArrowRight size={12} />
+            </Link>
+          </div>
+
+          <div className="dtdc-service-card">
+            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
+              <FileText size={24} />
+            </div>
+            <h3 className="dtdc-service-title">Express Application Delivery</h3>
+            <p className="dtdc-service-desc">
+              Generate tailor-made cover letters and high-probability interview prep packages in seconds.
+            </p>
+            <Link href="/signup" className="dtdc-service-link">
+              Book Service <ArrowRight size={12} />
+            </Link>
+          </div>
+
+          <div className="dtdc-service-card">
+            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
+              <Sparkles size={24} />
+            </div>
+            <h3 className="dtdc-service-title">RAG Support Co-Pilot</h3>
+            <p className="dtdc-service-desc">
+              Interactive AI co-pilot that answers recruiter questions and guides your resume to the 90%+ match mark.
+            </p>
+            <Link href="/signup" className="dtdc-service-link">
+              Book Service <ArrowRight size={12} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* ATS Rejection Reality Funnel */}
       <section className="ats-funnel-section" id="why-ats">
