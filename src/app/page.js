@@ -18,8 +18,6 @@ import {
   AlertTriangle,
   ShieldCheck,
   FileSpreadsheet,
-  Sparkles,
-  Loader2,
 } from 'lucide-react';
 
 const benefits = [
@@ -192,70 +190,6 @@ const faqItems = [
 export default function LandingPage() {
   const { data: session, status } = useSession();
   const [openFaq, setOpenFaq] = useState(null);
-  
-  // DTDC-inspired Interactive Tracker Card States
-  const [trackingId, setTrackingId] = useState('PP-SCAN-349821');
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState(null);
-
-  const handleLiveScan = () => {
-    if (!trackingId.trim()) {
-      alert('Please enter a Consignment Tracking ID or Resume ID!');
-      return;
-    }
-    
-    setIsScanning(true);
-    setScanResult(null);
-    
-    setTimeout(() => {
-      const seed = trackingId.toUpperCase();
-      let matchScore = 72;
-      
-      if (seed.includes('PRO') || seed.length > 12) {
-        matchScore = 89;
-      } else if (seed.length < 6) {
-        matchScore = 48;
-      } else {
-        // Deterministic score based on input string value
-        let hash = 0;
-        for (let i = 0; i < seed.length; i++) {
-          hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        matchScore = 60 + Math.abs(hash % 26); // 60 to 85
-      }
-
-      setIsScanning(false);
-      setScanResult({
-        id: trackingId.trim().toUpperCase(),
-        status: 'Scanned & Checked',
-        score: matchScore,
-        stages: [
-          {
-            title: 'Package Booked & Registered',
-            desc: 'Resume PDF successfully parsed and registered in ParserProof domestic hub.',
-            status: 'success'
-          },
-          {
-            title: 'ATS Structural Check Passed',
-            desc: 'Verified single-column layout. Section headers and font compatibilities normalized.',
-            status: 'success'
-          },
-          {
-            title: 'Domestic Express Keyword Scan',
-            desc: matchScore >= 75 
-              ? 'Excellent keyword density matched against top Indian MNC requirements.'
-              : 'Warning: Missing critical action keywords (e.g. STAR metrics and technical stacks).',
-            status: matchScore >= 75 ? 'success' : 'orange'
-          },
-          {
-            title: 'Out for Delivery / Co-Pilot Upgrade',
-            desc: 'STAR optimization checklist generated. Waiting for premium upgrade clearance.',
-            status: 'success'
-          }
-        ]
-      });
-    }, 1200);
-  };
 
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -383,79 +317,31 @@ export default function LandingPage() {
             75% of resumes never reach a human recruiter. ParserProof checks your resume against ATS filters, fixes critical keyword gaps, and formats your experience for maximum compatibility.
           </p>
 
-          {/* Clean Tracker Card - Prominent single input tracking widget */}
-          <div className="clean-tracker-card">
-            <span className="clean-tracker-label">Enter Resume ID or Upload PDF to track live status...</span>
-            <div className="clean-tracker-search-bar">
-              <input
-                type="text"
-                className="clean-tracker-input"
-                value={trackingId}
-                onChange={(e) => setTrackingId(e.target.value)}
-                placeholder="Enter Consignment ID (e.g. PP-SCAN-349821)..."
-              />
-              <button
-                className="clean-tracker-btn"
-                onClick={handleLiveScan}
-                disabled={isScanning}
-              >
-                {isScanning ? (
-                  <>
-                    <Loader2 className="spin" size={18} style={{ animation: 'spin 1.2s linear infinite' }} /> Tracking...
-                  </>
-                ) : (
-                  <>
-                    Track Shipment <ArrowRight size={18} />
-                  </>
-                )}
-              </button>
-            </div>
+          <div className="hero-actions">
+            <Link href="/signup" className="btn btn-primary btn-lg">
+              Check My ATS Score Free <ArrowRight size={18} />
+            </Link>
+            <button
+              className="btn btn-secondary btn-lg"
+              onClick={() => scrollTo('why-ats')}
+            >
+              Understand Why Resumes Fail
+            </button>
+          </div>
 
-            {/* Live Scan Results / Tracking Journey */}
-            {scanResult && (
-              <div className="tracking-results-panel">
-                <div className="tracking-results-header">
-                  <div className="tracking-consignment-id" style={{ color: 'var(--color-dtdc-blue)' }}>
-                    CONSIGNMENT ID: {scanResult.id}
-                  </div>
-                  <div className="tracking-consignment-status">
-                    {scanResult.status}
-                  </div>
-                </div>
-                
-                <div className="tracking-results-body">
-                  <div className="tracking-dispatch-stages">
-                    {scanResult.stages.map((stage, idx) => (
-                      <div key={idx} className="tracking-dispatch-stage">
-                        <div className={`tracking-dispatch-dot ${stage.status === 'alert' ? 'alert' : stage.status === 'orange' ? 'orange' : ''}`} />
-                        <div className="tracking-dispatch-info">
-                          <div className="tracking-dispatch-title">{stage.title}</div>
-                          <div className="tracking-dispatch-desc">{stage.desc}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="tracking-score-display">
-                    <div className="tracking-score-dial" style={{ borderTopColor: 'var(--color-dtdc-orange)', borderRightColor: 'var(--color-dtdc-orange)' }}>
-                      <span className="tracking-score-value">{scanResult.score}%</span>
-                      <span className="tracking-score-label">Match Rate</span>
-                    </div>
-                    <div className="tracking-score-verdict" style={{ color: 'var(--color-text-primary)' }}>
-                      {scanResult.score >= 80 ? 'Excellent Match' : scanResult.score >= 60 ? 'Moderate Match' : 'High Rejection Risk'}
-                    </div>
-                    <p className="tracking-score-guidance">
-                      {scanResult.score >= 80 
-                        ? 'Your resume is highly optimized and ready for express delivery.' 
-                        : 'Your resume triggers automated ATS filtering blocks and lacks target keywords.'}
-                    </p>
-                    <Link href="/signup" className="tracking-card-cta">
-                      Unlock Co-Pilot to Hit 90% <Sparkles size={12} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <div className="hero-stat-value">800+</div>
+              <div className="hero-stat-label">Indian Freshers Placed</div>
+            </div>
+            <div className="hero-stat">
+              <div className="hero-stat-value">+34</div>
+              <div className="hero-stat-label">Avg. ATS Match Score Boost</div>
+            </div>
+            <div className="hero-stat">
+              <div className="hero-stat-value">&lt; 3 min</div>
+              <div className="hero-stat-label">Average Tailoring Speed</div>
+            </div>
           </div>
         </div>
       </section>
@@ -475,71 +361,6 @@ export default function LandingPage() {
           <span>Used by Freshers at DTU, VIT, NITs & COEP</span>
         </div>
       </div>
-
-      {/* DTDC Corporate Services Grid */}
-      <section className="dtdc-services-section">
-        <h2 className="section-title">
-          Our Premium{' '}
-          <span className="text-gradient">Express Delivery Services</span>
-        </h2>
-        <p className="section-subtitle">
-          Highly specialized ATS resume optimization and application matching engines.
-        </p>
-        
-        <div className="dtdc-services-grid">
-          <div className="dtdc-service-card">
-            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
-              <Zap size={24} />
-            </div>
-            <h3 className="dtdc-service-title">Domestic Express SDE Tailoring</h3>
-            <p className="dtdc-service-desc">
-              Super-fast resume keyword tailoring designed specifically for top tier Indian SDE applications.
-            </p>
-            <Link href="/signup" className="dtdc-service-link">
-              Book Service <ArrowRight size={12} />
-            </Link>
-          </div>
-
-          <div className="dtdc-service-card">
-            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
-              <Target size={24} />
-            </div>
-            <h3 className="dtdc-service-title">Priority International Consulting</h3>
-            <p className="dtdc-service-desc">
-              High-priority alignment with international Big 4 and global consulting resume criteria.
-            </p>
-            <Link href="/signup" className="dtdc-service-link">
-              Book Service <ArrowRight size={12} />
-            </Link>
-          </div>
-
-          <div className="dtdc-service-card">
-            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
-              <FileText size={24} />
-            </div>
-            <h3 className="dtdc-service-title">Express Application Delivery</h3>
-            <p className="dtdc-service-desc">
-              Generate tailor-made cover letters and high-probability interview prep packages in seconds.
-            </p>
-            <Link href="/signup" className="dtdc-service-link">
-              Book Service <ArrowRight size={12} />
-            </Link>
-          </div>
-
-          <div className="dtdc-service-card">
-            <div className="dtdc-service-icon" style={{ background: 'rgba(13, 47, 129, 0.06)', color: '#0d2f81' }}>
-              <Sparkles size={24} />
-            </div>
-            <h3 className="dtdc-service-title">RAG Support Co-Pilot</h3>
-            <p className="dtdc-service-desc">
-              Interactive AI co-pilot that answers recruiter questions and guides your resume to the 90%+ match mark.
-            </p>
-            <Link href="/signup" className="dtdc-service-link">
-              Book Service <ArrowRight size={12} />
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* ATS Rejection Reality Funnel */}
       <section className="ats-funnel-section" id="why-ats">
