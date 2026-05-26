@@ -90,9 +90,25 @@ model Project {
   deletedAt       DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions ResumeVersion[]
 
   @@index([userId])
   @@index([status])
+  @@index([createdAt])
+}
+
+model ResumeVersion {
+  id              String   @id @default(cuid())
+  projectId       String
+  resumeText      String
+  improvedResume  String
+  atsScore        Int
+  keywordMatch    String
+  createdAt       DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
   @@index([createdAt])
 }
 

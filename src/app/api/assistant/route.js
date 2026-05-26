@@ -49,8 +49,18 @@ export async function GET(request) {
     }
  
     const userId = session.user.id;
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('projectId');
+
+    const whereClause = { userId };
+    if (projectId) {
+      whereClause.projectId = projectId;
+    } else {
+      whereClause.projectId = null;
+    }
+
     const messages = await prisma.assistantMessage.findMany({
-      where: { userId },
+      where: whereClause,
       orderBy: [
         { createdAt: 'asc' },
         { id: 'asc' },
@@ -95,8 +105,18 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('projectId');
+
+    const whereClause = { userId: session.user.id };
+    if (projectId) {
+      whereClause.projectId = projectId;
+    } else {
+      whereClause.projectId = null;
+    }
+
     await prisma.assistantMessage.deleteMany({
-      where: { userId: session.user.id },
+      where: whereClause,
     });
 
     return NextResponse.json({ success: true, message: 'Conversation history cleared successfully.' });

@@ -87,7 +87,10 @@ export default function FloatingAssistant() {
     if (status === 'loading') return;
     setIsHistoryLoading(true);
     try {
-      const res = await fetch('/api/assistant');
+      const url = selectedProjectId 
+        ? `/api/assistant?projectId=${selectedProjectId}`
+        : '/api/assistant';
+      const res = await fetch(url);
       const data = await res.json();
       if (res.ok) {
         setMessages(data.messages || []);
@@ -105,7 +108,7 @@ export default function FloatingAssistant() {
     } finally {
       setIsHistoryLoading(false);
     }
-  }, [status]);
+  }, [status, selectedProjectId]);
 
   // Load user's projects for Resume-Aware Selector
   const fetchProjects = useCallback(async () => {
@@ -180,6 +183,11 @@ export default function FloatingAssistant() {
       setSelectedProject(null);
     }
   }, [session, status]);
+
+  // Re-fetch chat history when selected project changes (forces isolation)
+  useEffect(() => {
+    fetchChatHistory();
+  }, [selectedProjectId, fetchChatHistory]);
 
   // Handle browser Back-Forward Cache (BFcache) loads to prevent authentication state leaks
   useEffect(() => {
@@ -552,7 +560,10 @@ export default function FloatingAssistant() {
     }
 
     try {
-      const res = await fetch('/api/assistant', { method: 'DELETE' });
+      const url = selectedProjectId 
+        ? `/api/assistant?projectId=${selectedProjectId}`
+        : '/api/assistant';
+      const res = await fetch(url, { method: 'DELETE' });
       if (res.ok) {
         setMessages([]);
         if (synthRef.current) synthRef.current.cancel();

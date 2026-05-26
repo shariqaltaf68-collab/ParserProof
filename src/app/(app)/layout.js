@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { SessionProvider, useSession, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import {
   Sparkles,
   LayoutDashboard,
@@ -236,8 +236,6 @@ function AppShell({ children }) {
 
 export default function AppLayout({ children }) {
   return (
-    <SessionProvider>
-      <AppShell>{children}</AppShell>
-    </SessionProvider>
+    <AppShell>{children}</AppShell>
   );
 }

@@ -22,6 +22,8 @@ import {
   Lock,
   Crown,
   Shield,
+  History,
+  RefreshCw,
 } from 'lucide-react';
 
 import XRayScanner from '@/components/XRayScanner';
@@ -30,6 +32,7 @@ import BattlegroundPanel from '@/components/BattlegroundPanel';
 
 const TABS = [
   { key: 'resume', label: 'Improved Resume', icon: FileText, requiredPlan: 'free' },
+  { key: 'versions', label: 'Version History', icon: History, requiredPlan: 'free' },
   { key: 'roadmap', label: 'Skill & JD Roadmap', icon: Search, requiredPlan: 'free' },
   { key: 'outreach', label: 'Career Outreach', icon: Target, requiredPlan: 'free' },
   { key: 'cover', label: 'Cover Letter', icon: Sparkles, requiredPlan: 'starter' },
@@ -394,6 +397,59 @@ export default function ResultsPage() {
       alert(`⚠️ Edit error: ${e.message}`);
     }
   }, [project]);
+
+  const [versions, setVersions] = useState([]);
+  const [versionsLoading, setVersionsLoading] = useState(false);
+  const [restoringVersionId, setRestoringVersionId] = useState(null);
+
+  const fetchVersions = useCallback(async () => {
+    setVersionsLoading(true);
+    try {
+      const res = await fetch(`/api/projects/${params.id}/versions`);
+      if (res.ok) {
+        const data = await res.json();
+        setVersions(data.versions || []);
+      }
+    } catch (err) {
+      console.error('Failed to load version history:', err);
+    } finally {
+      setVersionsLoading(false);
+    }
+  }, [params.id]);
+
+  useEffect(() => {
+    if (activeTab === 'versions') {
+      fetchVersions();
+    }
+  }, [activeTab, fetchVersions]);
+
+  const handleRestoreVersion = useCallback(async (versionId) => {
+    if (!confirm('Are you sure you want to restore your resume to this version? This will save your current resume state as a new version first so you do not lose any edits!')) {
+      return;
+    }
+    setRestoringVersionId(versionId);
+    try {
+      const res = await fetch(`/api/projects/${params.id}/versions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ versionId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setProject(data.project);
+        window.dispatchEvent(new CustomEvent('resume-updated', { detail: data.project }));
+        alert('✨ Resume successfully restored to selected version!');
+        fetchVersions();
+      } else {
+        alert(data.error || 'Failed to restore selected version.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to restore selected version.');
+    } finally {
+      setRestoringVersionId(null);
+    }
+  }, [params.id, fetchVersions]);
 
   const handleDownload = useCallback(async () => {
     if (!project) return;
@@ -765,6 +821,146 @@ ${(() => {
                     />
                   ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'versions' && (
+          <div className="result-panel">
+            <div className="result-panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: 0 }}>Resume Version History</h2>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={fetchVersions} 
+                disabled={versionsLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', height: 'auto', padding: '6px 12px' }}
+              >
+                <RefreshCw size={14} className={versionsLoading ? 'animate-spin' : ''} /> Refresh History
+              </button>
+            </div>
+            <div className="result-panel-body" style={{ padding: 'var(--space-6)' }}>
+              <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-5)', lineHeight: '1.6' }}>
+                Every time you make a real-time edit using the assistant co-pilot or the STAR Workbench, ParserProof automatically saves a secure snapshot of your resume. You can preview, compare, and instantly roll back to any previous state below.
+              </p>
+              
+              {versionsLoading && versions.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-12)', gap: 'var(--space-3)', color: 'var(--color-text-tertiary)' }}>
+                  <Loader2 className="animate-spin" size={32} style={{ color: 'var(--color-accent)' }} />
+                  <span>Loading secure snapshots...</span>
+                </div>
+              ) : versions.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-12)', textAlign: 'center', background: 'var(--color-bg-secondary)', border: '1px dashed var(--color-border)', borderRadius: 'var(--radius-lg)' }}>
+                  <History size={40} style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-3)' }} />
+                  <h4 style={{ fontWeight: '700', color: 'var(--color-text-primary)', marginBottom: 'var(--space-1)', marginTop: 0 }}>No Saved Versions Yet</h4>
+                  <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', maxWidth: '320px', margin: 0, lineHeight: '1.5' }}>
+                    Start optimizing your experience bullets or chatting with the AI Co-Pilot to automatically generate version checkpoints!
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                  {versions.map((ver) => {
+                    const parsedKw = (() => {
+                      try {
+                        return typeof ver.keywordMatch === 'string' ? JSON.parse(ver.keywordMatch) : ver.keywordMatch;
+                      } catch { return { matched: [] }; }
+                    })();
+                    const matchedCount = parsedKw?.matched?.length || 0;
+                    
+                    return (
+                      <div 
+                        key={ver.id} 
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px',
+                          padding: 'var(--space-4)',
+                          background: 'var(--color-bg-secondary)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 'var(--radius-md)',
+                          transition: 'border-color 0.2s',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div 
+                              style={{ 
+                                width: '36px', 
+                                height: '36px', 
+                                borderRadius: '50%', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                background: ver.atsScore >= 70 ? 'var(--color-success-light)' : ver.atsScore >= 40 ? 'var(--color-warning-light)' : 'var(--color-danger-light)', 
+                                color: ver.atsScore >= 70 ? 'var(--color-success)' : ver.atsScore >= 40 ? 'var(--color-warning)' : 'var(--color-danger)', 
+                                fontWeight: '800', 
+                                fontSize: 'var(--font-size-sm)',
+                                flexShrink: 0
+                              }}
+                            >
+                              {ver.atsScore}%
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: '700', color: 'var(--color-text-primary)' }}>
+                                Snapshot Checkpoint
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+                                {new Date(ver.createdAt).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button 
+                              className="btn btn-secondary btn-sm"
+                              style={{ height: 'auto', padding: '6px 12px' }}
+                              onClick={() => {
+                                const previewWin = window.open('', '_blank');
+                                previewWin.document.write(`
+                                  <html>
+                                    <head>
+                                      <title>Resume Snapshot Preview - ${new Date(ver.createdAt).toLocaleString()}</title>
+                                      <style>
+                                        body { font-family: sans-serif; padding: 40px; background: #f8fafc; color: #0f172a; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+                                        .card { background: white; padding: 40px; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+                                        h1, h2, h3 { color: #1e1b4b; }
+                                        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+                                        ul { padding-left: 20px; }
+                                        li { margin-bottom: 6px; }
+                                      </style>
+                                    </head>
+                                    <body>
+                                      <div class="card">
+                                        <h2>ParserProof Secure Snapshot Preview</h2>
+                                        <p style="font-size: 12px; color: #64748b;">Saved at: ${new Date(ver.createdAt).toLocaleString()} | Score: ${ver.atsScore}%</p>
+                                        <hr/>
+                                        <div>${parseMarkdownToHtml(ver.improvedResume || ver.resumeText)}</div>
+                                      </div>
+                                    </body>
+                                  </html>
+                                `);
+                                previewWin.document.close();
+                              }}
+                            >
+                              Preview
+                            </button>
+                            <button 
+                              className="btn btn-primary btn-sm"
+                              style={{ height: 'auto', padding: '6px 12px' }}
+                              disabled={restoringVersionId !== null}
+                              onClick={() => handleRestoreVersion(ver.id)}
+                            >
+                              {restoringVersionId === ver.id ? 'Restoring...' : 'Restore'}
+                            </button>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '11px', color: 'var(--color-text-secondary)', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '8px' }}>
+                          <span>Matched Keywords: <strong>{matchedCount}</strong></span>
+                          <span>Format check: <strong style={{ color: 'var(--color-success)' }}>ATS-Safe</strong></span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

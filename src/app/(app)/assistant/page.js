@@ -73,7 +73,10 @@ export default function AssistantPage() {
     if (status === 'loading') return;
     setIsHistoryLoading(true);
     try {
-      const res = await fetch('/api/assistant');
+      const url = selectedProjectId 
+        ? `/api/assistant?projectId=${selectedProjectId}`
+        : '/api/assistant';
+      const res = await fetch(url);
       const data = await res.json();
       if (res.ok) {
         setMessages(data.messages || []);
@@ -91,7 +94,7 @@ export default function AssistantPage() {
     } finally {
       setIsHistoryLoading(false);
     }
-  }, [status]);
+  }, [status, selectedProjectId]);
 
   // Load user's projects for Resume-Aware Selector
   const fetchProjects = useCallback(async () => {
@@ -202,6 +205,11 @@ export default function AssistantPage() {
       }
     };
   }, [fetchChatHistory, fetchProjects]);
+
+  // Re-fetch chat history when selected project changes (forces isolation)
+  useEffect(() => {
+    fetchChatHistory();
+  }, [selectedProjectId, fetchChatHistory]);
 
   // React to voice mode toggles
   useEffect(() => {
@@ -476,7 +484,10 @@ export default function AssistantPage() {
     }
 
     try {
-      const res = await fetch('/api/assistant', { method: 'DELETE' });
+      const url = selectedProjectId 
+        ? `/api/assistant?projectId=${selectedProjectId}`
+        : '/api/assistant';
+      const res = await fetch(url, { method: 'DELETE' });
       if (res.ok) {
         setMessages([]);
         stopSpeaking();

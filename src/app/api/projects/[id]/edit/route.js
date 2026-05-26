@@ -4,6 +4,47 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { calculateProgrammaticAtsScore } from '@/lib/ai';
 
+function getProgrammaticAtsScore(resumeText, keywordMatch) {
+  // 1. Keyword Match Score (50% weight)
+  const matched = Array.isArray(keywordMatch?.matched) ? keywordMatch.matched : [];
+  const missing = Array.isArray(keywordMatch?.missing) ? keywordMatch.missing : [];
+  const totalKeywords = matched.length + missing.length;
+  const keywordScore = totalKeywords > 0 ? (matched.length / totalKeywords) * 100 : 70;
+
+  // 2. Structural Parser-Safe Verification (25% weight)
+  const text = typeof resumeText === 'string' ? resumeText : '';
+  const sections = [
+    /##\s*(Summary|Professional\s+Summary|Profile|Career\s+Objective)/i,
+    /##\s*(Experience|Professional\s+Experience|Work\s+Experience|Employment|History)/i,
+    /##\s*(Education|Academic\s+Background|Academic)/i,
+    /##\s*(Skills|Technical\s+Skills|Core\s+Competencies|Expertise)/i
+  ];
+  let sectionsFound = 0;
+  for (const rx of sections) {
+    if (rx.test(text)) {
+      sectionsFound++;
+    }
+  }
+  const structuralScore = (sectionsFound / sections.length) * 100;
+
+  // 3. Metric Quantification Density (25% weight)
+  const lines = text.split('\n');
+  const bulletLines = lines.filter(line => /^\s*-\s+/.test(line));
+  const totalBullets = bulletLines.length;
+
+  const metricRegex = /(\b\d+(?:[.,\d]*\d)?\s*%|\$\s*\d+|\b\d+\s*k\b|\b\d+\s*million\b|\b\d+\s*billion\b|₹\s*\d+|\b\d+\+\s*|\[quantify|\[add\s+metric)/i;
+
+  let quantifiedBullets = 0;
+  for (const bullet of bulletLines) {
+    if (metricRegex.test(bullet)) {
+      quantifiedBullets++;
+    }
+  }
+  const metricScore = totalBullets > 0 ? (quantifiedBullets / totalBullets) * 100 : 60;
+
+  return (keywordScore * 0.50) + (structuralScore * 0.25) + (metricScore * 0.25);
+}
+
 export async function POST(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -30,6 +71,17 @@ export async function POST(request, { params }) {
     if (!project) {
       return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
     }
+
+    // Save previous version in history before applying new edits
+    await prisma.resumeVersion.create({
+      data: {
+        projectId: project.id,
+        resumeText: project.resumeText,
+        improvedResume: project.improvedResume || '',
+        atsScore: project.atsScore || 0,
+        keywordMatch: project.keywordMatch || '{"matched":[],"missing":[]}',
+      },
+    });
 
     let updatedResumeText = project.resumeText;
     let updatedImprovedResume = project.improvedResume || '';
@@ -337,11 +389,45 @@ export async function POST(request, { params }) {
       }
     }
 
-    // 2. Recalculate programmatic ATS score (with a semantic baseline of 75)
+    // 2. Scan text to update keyword match list dynamically (move missing to matched if found)
+    const missingKeywords = keywordMatch.missing || [];
+    const matchedKeywords = keywordMatch.matched || [];
+    const stillMissingKeywords = [];
+    const fullText = ((updatedImprovedResume || '') + '\n' + (updatedResumeText || '')).toLowerCase();
+
+    for (const kw of missingKeywords) {
+      const cleanKw = kw.toLowerCase().trim();
+      if (cleanKw && fullText.includes(cleanKw)) {
+        if (!matchedKeywords.includes(kw)) {
+          matchedKeywords.push(kw);
+        }
+      } else {
+        stillMissingKeywords.push(kw);
+      }
+    }
+    keywordMatch.missing = stillMissingKeywords;
+    keywordMatch.matched = matchedKeywords;
+
+    // 3. Extract the original raw LLM semantic score before the edits to prevent decay feedback loop
+    let originalKeywordMatch = { matched: [], missing: [] };
+    try {
+      if (project.keywordMatch) {
+        originalKeywordMatch = JSON.parse(project.keywordMatch);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    const originalProgScore = getProgrammaticAtsScore(
+      project.improvedResume || project.resumeText,
+      originalKeywordMatch
+    );
+    const originalLlmScore = Math.min(100, Math.max(0, (2 * (project.atsScore || 75)) - originalProgScore));
+
+    // 4. Recalculate programmatic ATS score using the isolated original LLM score
     const freshAtsScore = calculateProgrammaticAtsScore(
       updatedImprovedResume || updatedResumeText,
       keywordMatch,
-      project.atsScore || 75
+      originalLlmScore
     );
 
     // 3. Save the updated project to the database
